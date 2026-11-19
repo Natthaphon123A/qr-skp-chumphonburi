@@ -235,7 +235,7 @@
           </div>
         </div>
         <div class="bg-white rounded-2xl border border-amber-100 p-4 shadow-sm hover:shadow-md transition-shadow">
-          <div class="text-xs font-semibold text-amber-700">เข้าสาย (&gt; 08:30)</div>
+          <div class="text-xs font-semibold text-amber-700">เข้าสาย (ตั้งแต่ 08:31)</div>
           <div class="mt-1.5 flex items-baseline gap-2">
             <span id="today-late" class="text-2xl sm:text-3xl font-extrabold text-amber-600 font-num">0</span>
             <span class="text-xs font-medium text-slate-400">คน</span>
@@ -269,17 +269,17 @@
             </div>
           </div>
 
-          <!-- Scan Mode Selector -->
+          <!-- Scan Mode Selector (Locked to Auto for Employees; Admin can override) -->
           <div class="flex flex-wrap items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200/80">
-            <span class="text-xs font-semibold text-slate-600 px-2">ประเภทลงเวลา:</span>
+            <span class="text-xs font-semibold text-slate-600 px-2">ระบบลงเวลา:</span>
             <button type="button" data-scan-mode="auto" class="scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-700 text-white shadow-sm">
-              อัตโนมัติ (เข้า → ออก)
+              อัตโนมัติ (เข้างาน → ออกงาน)
             </button>
-            <button type="button" data-scan-mode="in" class="scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200">
-              ลงเวลาเข้างาน
+            <button type="button" data-scan-mode="in" class="scan-mode-btn admin-only hidden px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200">
+              บังคับเข้างาน
             </button>
-            <button type="button" data-scan-mode="out" class="scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200">
-              ลงเวลาออกงาน
+            <button type="button" data-scan-mode="out" class="scan-mode-btn admin-only hidden px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200">
+              บังคับออกงาน
             </button>
             <label class="ml-auto flex items-center gap-1.5 text-xs text-slate-600 pr-2 cursor-pointer">
               <input type="checkbox" id="toggle-sound" checked class="rounded text-emerald-600 focus:ring-emerald-500" />
@@ -501,7 +501,7 @@
               <select id="log-status-filter" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 <option value="all">ทั้งหมด</option>
                 <option value="normal">ปกติ</option>
-                <option value="late">เข้าสาย (&gt; 08:30)</option>
+                <option value="late">เข้าสาย (ตั้งแต่ 08:31)</option>
                 <option value="early">ออกก่อนเวลา (&lt; 16:30)</option>
               </select>
             </div>
@@ -790,6 +790,8 @@
 
       const WORK_START_MIN = 8 * 60 + 30;  // 08:30
       const WORK_END_MIN = 16 * 60 + 30;   // 16:30
+      const MIN_CHECKOUT_GAP_MINS = 30;    // เว้นอย่างน้อย 30 นาทีหลังเข้างาน กันเผลอสแกนเบิ้ลตอนเช้า
+      const GPS_MAX_AGE_MS = 5 * 60 * 1000; // รีเฟรช GPS หากพิกัดเก่าเกิน 5 นาที
       const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCmZYUrdZ00cakhoo_uTEQ4OvpXM8D09pZ53Af21Mj6HQIOBUYNYYBXCFcvNtsKV6NFg/exec';
       // พิกัดสหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด (Plus Code: 7P758CX6+PV)
       const DEFAULT_COOP_LAT = 15.349312;
@@ -1082,6 +1084,9 @@
         if (!currentGps) {
           return { allowed: false, code: 'no_user_gps', reason: gpsErrorMsg || 'กรุณาอนุญาตการเข้าถึงตำแหน่ง GPS แล้วกด “อัปเดต GPS”', distanceMeters: null };
         }
+        if (Date.now() - (currentGps.updatedAt || 0) > GPS_MAX_AGE_MS) {
+          return { allowed: false, code: 'stale_gps', reason: 'พิกัด GPS เก่าเกิน 5 นาที กรุณากดปุ่ม “อัปเดต GPS” เพื่อยืนยันตำแหน่งปัจจุบันก่อนสแกน', distanceMeters };
+        }
         if (distanceMeters > gpsConfig.radiusMeters) {
           return { allowed: false, code: 'out_of_range', reason: `อยู่นอกรัศมีสหกรณ์ (ห่าง ${distanceMeters.toLocaleString()} ม. / อนุญาตไม่เกิน ${gpsConfig.radiusMeters} ม.)`, distanceMeters };
         }
@@ -1269,9 +1274,46 @@
 
         const todayStr = getLocalDateStr();
         const existing = logs.find((l) => l.empId === emp.id && l.date === todayStr);
-        let actionType = forcedType;
+        const nowMins = timeToMinutes(getLocalTimeStr());
+
+        // Enforce strict Auto mode for non-admins
+        let actionType = isAdminUnlocked ? forcedType : 'auto';
         if (!actionType || actionType === 'auto') {
-          actionType = existing && existing.checkIn ? 'out' : 'in';
+          if (existing && existing.checkIn && existing.checkOut) {
+            playBeep(true);
+            showScanFeedback({
+              title: emp.name,
+              meta: `ลงเวลาครบแล้ววันนี้ (เข้า ${existing.checkIn} น. • ออก ${existing.checkOut} น.)`,
+              time: `${getLocalTimeStr()} น.`,
+              typeLabel: 'บันทึกครบแล้ว',
+              badge: 'ลงเวลาวันนี้ครบแล้ว',
+              tone: 'info',
+              photo: ''
+            });
+            showToast(`${emp.name} ลงเวลาเข้า–ออกงานวันนี้ครบเรียบร้อยแล้ว`, 'info');
+            return;
+          }
+          if (existing && existing.checkIn) {
+            const inMins = timeToMinutes(existing.checkIn);
+            if (inMins !== null && nowMins !== null && (nowMins - inMins) < MIN_CHECKOUT_GAP_MINS) {
+              const remain = MIN_CHECKOUT_GAP_MINS - (nowMins - inMins);
+              playBeep(true);
+              showScanFeedback({
+                title: emp.name,
+                meta: `ลงเวลาเข้างานแล้วเมื่อ ${existing.checkIn} น. (กันสแกนเบิ้ล: ลงออกงานได้อีกใน ${remain} นาที)`,
+                time: `${getLocalTimeStr()} น.`,
+                typeLabel: 'ป้องกันการสแกนซ้ำ',
+                badge: 'ลงเข้างานไปแล้ว',
+                tone: 'warning',
+                photo: ''
+              });
+              showToast(`ลงเวลาเข้างานแล้วเมื่อ ${existing.checkIn} น. (ป้องกันการสแกนเบิ้ล)`, 'warning');
+              return;
+            }
+            actionType = 'out';
+          } else {
+            actionType = 'in';
+          }
         }
 
         if (gpsConfig.selfieEnforced) {
@@ -1396,14 +1438,16 @@
         const timeStr = getLocalTimeStr();
         const gpsMetaSuffix = gpsCheck.distanceMeters !== null ? ` • ห่างจุดสหกรณ์ ${gpsCheck.distanceMeters} ม.` : '';
 
-        // Bind device locally on first successful check-in/out when Device Lock is enabled
-        if (gpsConfig.deviceLockEnforced && !deviceProfile.boundEmpId) {
+        const wasUnbound = !deviceProfile.boundEmpId;
+        // Bind device locally on first check-in/out when Device Lock is enabled
+        if (gpsConfig.deviceLockEnforced && wasUnbound) {
           deviceProfile.boundEmpId = emp.id;
           deviceProfile.boundEmpName = emp.name;
           emp.deviceId = deviceProfile.deviceId;
         }
 
         let existing = logs.find((l) => l.empId === emp.id && l.date === todayStr);
+        const prevSnapshot = existing ? { ...existing } : null;
 
         if (actionType === 'in') {
           const checkInEval = evaluateCheckIn(timeStr);
@@ -1464,7 +1508,7 @@
         saveState();
         renderAll();
 
-        // Sync to Google Sheets & Google Drive via Apps Script
+        // Sync to Google Sheets & Google Drive via Apps Script (with rollback if server rejects)
         syncToGoogleSheet({
           empId: emp.id,
           mode: actionType,
@@ -1472,7 +1516,7 @@
           distanceMeters: gpsCheck.distanceMeters !== null ? gpsCheck.distanceMeters : '-',
           coords: currentGps ? `${currentGps.lat.toFixed(6)}, ${currentGps.lng.toFixed(6)}` : '-',
           photoBase64: photoDataUrl || ''
-        }, emp, todayStr);
+        }, emp, todayStr, prevSnapshot, wasUnbound);
       }
 
       function showScanFeedback(info) {
@@ -1515,7 +1559,7 @@
       }
 
       // ==================== GOOGLE SHEETS TWO-WAY SYNC ====================
-      async function syncToGoogleSheet(payload, emp, todayStr) {
+      async function syncToGoogleSheet(payload, emp, todayStr, prevSnapshot, wasUnbound) {
         const url = (gpsConfig.appsScriptUrl || '').trim();
         const badge = document.getElementById('sheet-sync-badge');
         if (!url) return;
@@ -1551,7 +1595,30 @@
             }
             showToast(`บันทึกข้อมูลและเวลาจริง (${serverTime} น.) เรียบร้อยแล้ว`, 'success');
           } else if (result && result.ok === false) {
-            // If server rejected due to device lock mismatch, surface clear warning
+            // Roll back unconfirmed local change when Google Sheets server rejects the scan
+            if (prevSnapshot) {
+              const idx = logs.findIndex((l) => l.empId === emp.id && l.date === todayStr);
+              if (idx !== -1) logs[idx] = prevSnapshot;
+            } else {
+              logs = logs.filter((l) => !(l.empId === emp.id && l.date === todayStr));
+            }
+            if (wasUnbound) {
+              deviceProfile.boundEmpId = '';
+              deviceProfile.boundEmpName = '';
+              emp.deviceId = '';
+            }
+            saveState();
+            renderAll();
+            playBeep(true);
+            showScanFeedback({
+              title: 'ระบบกลางไม่อนุญาตให้บันทึก',
+              meta: result.message || 'เงื่อนไขไม่ผ่านการตรวจสอบจากเซิร์ฟเวอร์',
+              time: `${getLocalTimeStr()} น.`,
+              typeLabel: 'ถูกปฏิเสธโดยระบบกลาง',
+              badge: 'ไม่บันทึกข้อมูล',
+              tone: 'error',
+              photo: ''
+            });
             if (badge) {
               badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800';
               badge.textContent = 'ระบบกลางปฏิเสธรายการ';
@@ -1905,7 +1972,7 @@
             labels,
             datasets: [
               { label: 'มาตรงเวลา (≤ 08:30)', data: filtered.map((s) => s.onTimeCount), backgroundColor: '#10b981', borderRadius: 4 },
-              { label: 'เข้าสาย (> 08:30)', data: filtered.map((s) => s.lateCount), backgroundColor: '#f59e0b', borderRadius: 4 },
+              { label: 'เข้าสาย (ตั้งแต่ 08:31)', data: filtered.map((s) => s.lateCount), backgroundColor: '#f59e0b', borderRadius: 4 },
               { label: 'ออกก่อนเวลา (< 16:30)', data: filtered.map((s) => s.earlyCount), backgroundColor: '#f43f5e', borderRadius: 4 }
             ]
           },
@@ -2148,9 +2215,10 @@
             scanMode = btn.dataset.scanMode;
             document.querySelectorAll('.scan-mode-btn').forEach((b) => {
               const active = b.dataset.scanMode === scanMode;
-              b.className = active
+              const adminCls = b.dataset.scanMode !== 'auto' ? (isAdminUnlocked ? ' admin-only' : ' admin-only hidden') : '';
+              b.className = (active
                 ? 'scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-700 text-white shadow-sm'
-                : 'scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200';
+                : 'scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200') + adminCls;
             });
           });
         });
@@ -2298,6 +2366,14 @@
         document.getElementById('btn-admin-toggle').addEventListener('click', () => {
           if (isAdminUnlocked) {
             isAdminUnlocked = false;
+            scanMode = 'auto';
+            document.querySelectorAll('.scan-mode-btn').forEach((b) => {
+              const active = b.dataset.scanMode === 'auto';
+              const adminCls = b.dataset.scanMode !== 'auto' ? ' admin-only hidden' : '';
+              b.className = (active
+                ? 'scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-700 text-white shadow-sm'
+                : 'scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200') + adminCls;
+            });
             switchTab('scanner');
             updateAdminUi();
             showToast('ออกจากโหมดผู้ดูแลแล้ว', 'info');
