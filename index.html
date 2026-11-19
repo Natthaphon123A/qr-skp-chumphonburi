@@ -3,30 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบสแกน QR Code ลงเวลาทำงาน — สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด</title>
+  <title>ระบบลงเวลาทำงานอัจฉริยะ — สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Prompt:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <style>
     body {
       font-family: 'Sarabun', 'Inter', sans-serif;
-      background-color: #f8fafc;
+      background: linear-gradient(180deg, #f0fdf4 0%, #f8fafc 28%, #f8fafc 100%);
       color: #0f172a;
+    }
+    h1, h2, h3, .font-heading {
+      font-family: 'Prompt', 'Sarabun', sans-serif;
     }
     .font-num {
       font-family: 'Inter', 'Sarabun', sans-serif;
       font-variant-numeric: tabular-nums;
     }
+    .hero-gradient {
+      background: linear-gradient(135deg, #022c22 0%, #064e3b 48%, #0f766e 100%);
+    }
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    @keyframes scanLaser {
+      0%, 100% { top: 14%; opacity: 0.35; }
+      50% { top: 82%; opacity: 1; }
+    }
+    .scan-laser {
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #34d399, #a7f3d0, #34d399, transparent);
+      box-shadow: 0 0 12px #34d399;
+      animation: scanLaser 2.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.6; }
+    }
+    .live-dot {
+      animation: pulseDot 1.8s ease-in-out infinite;
+    }
     #qr-reader video {
-      border-radius: 0.75rem;
+      border-radius: 0.875rem;
       object-fit: cover;
     }
-    #qr-reader__dashboard_section_csr button {
-      border-radius: 0.5rem;
+    #selfie-video {
+      transform: scaleX(-1);
+      object-fit: cover;
     }
     @media print {
       body * {
@@ -58,48 +91,68 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- Top Header -->
-  <header class="bg-emerald-900 text-white shadow-md no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-xl bg-amber-400/20 border border-amber-300/40 flex items-center justify-center shrink-0">
-            <svg class="w-6 h-6 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+  <!-- Modern Gradient Header -->
+  <header class="hero-gradient text-white shadow-lg no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl glass-pill flex items-center justify-center shrink-0 shadow-inner">
+            <svg class="w-7 h-7 text-amber-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 0 1 2-2h2m10 0h2a2 2 0 0 1 2 2v2m0 10v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 7h3v3H7V7zm7 0h3v3h-3V7zm-7 7h3v3H7v-3zm7 3h.01M17 14h.01M14 14h3v3" />
             </svg>
           </div>
           <div>
-            <h1 class="text-lg sm:text-xl font-bold leading-tight tracking-tight">สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด</h1>
-            <p class="text-xs sm:text-sm text-emerald-100/90">ระบบสแกน QR Code ลงเวลาทำงาน &amp; ประเมิน KPI รายบุคคล</p>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+                Smart Attendance System
+              </span>
+            </div>
+            <h1 class="text-lg sm:text-xl font-bold leading-snug tracking-tight text-white">สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด</h1>
+            <p class="text-xs sm:text-sm text-emerald-100/85">ระบบลงเวลาทำงานอัจฉริยะ (QR Code • GPS • ถ่ายภาพยืนยันตัวตน)</p>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-          <div class="bg-emerald-950/60 border border-emerald-700/60 rounded-xl px-3.5 py-2 text-right">
-            <div id="live-date" class="text-xs text-emerald-200">--</div>
-            <div id="live-clock" class="text-xl font-bold font-num tracking-wider text-amber-300 leading-tight">--:--:--</div>
+          <div class="glass-pill rounded-2xl px-4 py-2.5 text-right">
+            <div id="live-date" class="text-[11px] text-emerald-100/90">--</div>
+            <div id="live-clock" class="text-xl sm:text-2xl font-extrabold font-num tracking-wider text-amber-300 leading-tight">--:--:--</div>
           </div>
-          <div class="bg-emerald-800/70 border border-emerald-700 rounded-xl px-3 py-2 text-xs leading-relaxed">
-            <div>เข้างานมาตรฐาน: <span class="font-semibold text-amber-300 font-num">≤ 08:30 น.</span></div>
-            <div>เลิกงานมาตรฐาน: <span class="font-semibold text-amber-300 font-num">≥ 16:30 น.</span></div>
+          <div class="glass-pill rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-emerald-100/80">เวลาเข้างาน</span>
+              <span class="font-bold text-amber-300 font-num">≤ 08:30 น.</span>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-emerald-100/80">เวลาเลิกงาน</span>
+              <span class="font-bold text-amber-300 font-num">≥ 16:30 น.</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="mt-4 flex flex-wrap gap-1.5 border-t border-emerald-800 pt-3" aria-label="เมนูหลัก">
-        <button type="button" data-tab="scanner" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-white text-emerald-900 shadow-sm">
-          1. สแกนลงเวลา
+      <!-- Navigation Bar -->
+      <nav class="mt-4 flex flex-wrap items-center gap-1.5 border-t border-white/15 pt-3.5" aria-label="เมนูหลัก">
+        <button type="button" data-tab="scanner" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-white text-emerald-950 shadow-sm">
+          สแกนลงเวลา
         </button>
-        <button type="button" data-tab="kpi" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-emerald-100 hover:bg-emerald-800">
-          2. KPI &amp; กราฟโบนัส
+        <button type="button" data-tab="kpi" class="tab-btn admin-only hidden px-4 py-2 rounded-xl text-sm font-semibold transition-all text-emerald-100 hover:bg-white/10">
+          KPI &amp; กราฟโบนัส
         </button>
-        <button type="button" data-tab="logs" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-emerald-100 hover:bg-emerald-800">
-          3. ประวัติลงเวลา
+        <button type="button" data-tab="logs" class="tab-btn admin-only hidden px-4 py-2 rounded-xl text-sm font-semibold transition-all text-emerald-100 hover:bg-white/10">
+          ประวัติลงเวลา
         </button>
-        <button type="button" data-tab="employees" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-emerald-100 hover:bg-emerald-800">
-          4. พนักงาน &amp; บัตร QR
+        <button type="button" data-tab="employees" class="tab-btn admin-only hidden px-4 py-2 rounded-xl text-sm font-semibold transition-all text-emerald-100 hover:bg-white/10">
+          พนักงาน &amp; บัตร QR
         </button>
+        <div class="ml-auto flex flex-wrap items-center gap-2">
+          <button type="button" id="btn-sync-sheets" class="admin-only hidden px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 text-white border border-white/20 transition-all">
+            ซิงก์ข้อมูลจาก Sheets
+          </button>
+          <button type="button" id="btn-admin-toggle" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-emerald-950 transition-all shadow-sm">
+            เข้าสู่ระบบผู้ดูแล
+          </button>
+        </div>
       </nav>
     </div>
   </header>
@@ -110,107 +163,122 @@
   <!-- Main Content -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-    <!-- Sample Data Notice Banner -->
-    <div id="demo-banner" class="mb-5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-amber-900 no-print">
-      <div class="flex items-start gap-2.5">
-        <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-xs font-bold bg-amber-200 text-amber-900 shrink-0 mt-0.5">โหมดทดสอบ</span>
-        <p>ระบบมีรหัสพนักงานและประวัติลงเวลาตัวอย่างเพื่อทดสอบกราฟ KPI ก่อน — เมื่อซื้อเครื่องสแกนนิ้วแล้ว สามารถแก้รหัสพนักงานในแท็บ <strong>พนักงาน &amp; บัตร QR</strong> ให้ตรงกันได้ทันที</p>
-      </div>
-      <button type="button" id="btn-clear-demo-top" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-amber-900 hover:bg-amber-100 transition-colors">
-        ล้างข้อมูลทดสอบ
-      </button>
-    </div>
-
     <!-- ==================== TAB 1: SCANNER ==================== -->
-    <section id="tab-scanner" class="tab-panel space-y-6">
-      <!-- Today Quick KPI Strip -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-          <div class="text-xs font-medium text-slate-500">ลงเวลาเข้างานวันนี้</div>
-          <div class="mt-1 flex items-baseline gap-2">
-            <span id="today-checked-in" class="text-2xl font-bold text-slate-900 font-num">0</span>
-            <span id="today-total-emp" class="text-xs text-slate-500 font-num">/ 0 คน</span>
-          </div>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-          <div class="text-xs font-medium text-slate-500">มาตรงเวลา (≤ 08:30)</div>
-          <div class="mt-1 flex items-baseline gap-2">
-            <span id="today-ontime" class="text-2xl font-bold text-emerald-600 font-num">0</span>
-            <span class="text-xs text-slate-500">คน</span>
-          </div>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-          <div class="text-xs font-medium text-slate-500">เข้าสาย (&gt; 08:30)</div>
-          <div class="mt-1 flex items-baseline gap-2">
-            <span id="today-late" class="text-2xl font-bold text-amber-600 font-num">0</span>
-            <span class="text-xs text-slate-500">คน</span>
-          </div>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-          <div class="text-xs font-medium text-slate-500">ออกก่อนเวลา (&lt; 16:30)</div>
-          <div class="mt-1 flex items-baseline gap-2">
-            <span id="today-early" class="text-2xl font-bold text-rose-600 font-num">0</span>
-            <span class="text-xs text-slate-500">คน</span>
-          </div>
-        </div>
-      </div>
+    <section id="tab-scanner" class="tab-panel space-y-5">
 
-      <!-- GPS Geofence Status Bar -->
-      <div id="gps-status-card" class="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div class="flex items-start gap-3">
-          <div id="gps-status-icon" class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-            </svg>
-          </div>
-          <div>
-            <div class="flex flex-wrap items-center gap-2">
-              <h2 class="text-sm font-bold text-slate-900">ระบบตรวจจับพิกัด GPS พื้นที่สหกรณ์</h2>
-              <span id="gps-status-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">กำลังตรวจสอบพิกัด...</span>
-              <span id="sheet-sync-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">เชื่อมต่อ Google Sheets แล้ว</span>
+      <!-- Security Status Strip: GPS + Device Lock + Sync -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- GPS Status Card -->
+        <div id="gps-status-card" class="lg:col-span-8 rounded-2xl border border-slate-200 bg-white shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
+          <div class="flex items-start gap-3">
+            <div id="gps-status-icon" class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+              </svg>
             </div>
-            <p id="gps-status-detail" class="text-xs text-slate-600 mt-0.5">ระบบจะอนุญาตให้สแกนลงเวลาได้เฉพาะเมื่ออยู่ในรัศมีที่กำหนดของสหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด เท่านั้น</p>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="text-sm font-bold text-slate-900">ตรวจสอบพิกัดพื้นที่สหกรณ์</h2>
+                <span id="gps-status-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">กำลังตรวจสอบพิกัด...</span>
+                <span id="sheet-sync-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">เชื่อมต่อระบบกลางแล้ว</span>
+              </div>
+              <p id="gps-status-detail" class="text-xs text-slate-600 mt-1">ระบบอนุญาตให้ลงเวลาเฉพาะภายในรัศมีสำนักงานสหกรณ์เท่านั้น</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <button type="button" id="btn-refresh-gps" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors">
+              อัปเดต GPS
+            </button>
+            <button type="button" id="btn-open-gps-settings" class="admin-only hidden px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors">
+              ตั้งค่าระบบ (ผู้ดูแล)
+            </button>
           </div>
         </div>
-        <div class="flex flex-wrap items-center gap-2 shrink-0">
-          <button type="button" id="btn-refresh-gps" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors">
-            ตรวจสอบพิกัด GPS ใหม่
-          </button>
-          <button type="button" id="btn-open-gps-settings" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors">
-            ตั้งค่าพิกัดสหกรณ์ (ผู้ดูแล)
+
+        <!-- Device Lock Status Card -->
+        <div class="lg:col-span-4 rounded-2xl border border-slate-200 bg-white shadow-sm p-4 flex items-center justify-between gap-3">
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="w-11 h-11 rounded-2xl bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                <span>สิทธิ์อุปกรณ์ (1 เครื่อง / 1 คน)</span>
+              </div>
+              <div id="device-bind-status" class="text-xs text-slate-600 mt-0.5 truncate">อุปกรณ์นี้ยังไม่ผูกสิทธิ์พนักงาน</div>
+              <div id="device-id-display" class="text-[11px] text-slate-400 font-num mt-0.5">ID: --</div>
+            </div>
+          </div>
+          <button type="button" id="btn-unbind-device" class="admin-only hidden shrink-0 px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-semibold">
+            ปลดล็อกเครื่อง
           </button>
         </div>
       </div>
 
+      <!-- Today Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div class="text-xs font-semibold text-slate-500">ลงเวลาเข้างานวันนี้</div>
+          <div class="mt-1.5 flex items-baseline gap-2">
+            <span id="today-checked-in" class="text-2xl sm:text-3xl font-extrabold text-slate-900 font-num">0</span>
+            <span id="today-total-emp" class="text-xs font-medium text-slate-400 font-num">/ 0 คน</span>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-emerald-100 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div class="text-xs font-semibold text-emerald-700">เข้างานตรงเวลา (≤ 08:30)</div>
+          <div class="mt-1.5 flex items-baseline gap-2">
+            <span id="today-ontime" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 font-num">0</span>
+            <span class="text-xs font-medium text-slate-400">คน</span>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-amber-100 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div class="text-xs font-semibold text-amber-700">เข้าสาย (&gt; 08:30)</div>
+          <div class="mt-1.5 flex items-baseline gap-2">
+            <span id="today-late" class="text-2xl sm:text-3xl font-extrabold text-amber-600 font-num">0</span>
+            <span class="text-xs font-medium text-slate-400">คน</span>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-rose-100 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div class="text-xs font-semibold text-rose-700">ออกก่อนเวลา (&lt; 16:30)</div>
+          <div class="mt-1.5 flex items-baseline gap-2">
+            <span id="today-early" class="text-2xl sm:text-3xl font-extrabold text-rose-600 font-num">0</span>
+            <span class="text-xs font-medium text-slate-400">คน</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Scanner Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- Left: Camera Scanner Card -->
-        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <!-- Left: Camera QR Scanner -->
+        <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200 shadow-sm p-5 sm:p-6 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 class="text-base font-bold text-slate-900">กล้องสแกนบัตร QR Code พนักงาน</h2>
-              <p class="text-xs text-slate-500">นำบัตร QR Code ประจำตัวมาส่องหน้ากล้อง ระบบจะบันทึกเวลาและตรวจสถานะอัตโนมัติ</p>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">สแกนบัตร QR Code ประจำตัว</h2>
+              <p class="text-xs text-slate-500">ส่องบัตร QR Code จากนั้นถ่ายภาพยืนยันตัวตนเพื่อบันทึกเวลาเข้า–ออกงาน</p>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" id="btn-start-camera" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold transition-colors shadow-sm">
-                เปิดกล้องสแกน
+              <button type="button" id="btn-start-camera" class="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold transition-all shadow-md shadow-emerald-700/20">
+                เปิดกล้องสแกน QR
               </button>
-              <button type="button" id="btn-stop-camera" class="hidden px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold transition-colors">
+              <button type="button" id="btn-stop-camera" class="hidden px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold transition-all">
                 ปิดกล้อง
               </button>
             </div>
           </div>
 
           <!-- Scan Mode Selector -->
-          <div class="flex flex-wrap items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
-            <span class="text-xs font-semibold text-slate-600 px-2">โหมดบันทึก:</span>
-            <button type="button" data-scan-mode="auto" class="scan-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-700 text-white shadow-sm">
+          <div class="flex flex-wrap items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200/80">
+            <span class="text-xs font-semibold text-slate-600 px-2">ประเภทลงเวลา:</span>
+            <button type="button" data-scan-mode="auto" class="scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-700 text-white shadow-sm">
               อัตโนมัติ (เข้า → ออก)
             </button>
-            <button type="button" data-scan-mode="in" class="scan-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-200">
+            <button type="button" data-scan-mode="in" class="scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200">
               ลงเวลาเข้างาน
             </button>
-            <button type="button" data-scan-mode="out" class="scan-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-200">
+            <button type="button" data-scan-mode="out" class="scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200">
               ลงเวลาออกงาน
             </button>
             <label class="ml-auto flex items-center gap-1.5 text-xs text-slate-600 pr-2 cursor-pointer">
@@ -220,73 +288,79 @@
           </div>
 
           <!-- Camera Viewport -->
-          <div class="relative bg-slate-900 rounded-2xl overflow-hidden min-h-[280px] flex flex-col items-center justify-center border border-slate-800">
+          <div class="relative bg-slate-950 rounded-2xl overflow-hidden min-h-[290px] flex flex-col items-center justify-center border border-slate-800 shadow-inner">
             <div id="qr-reader" class="w-full"></div>
-            <div id="camera-placeholder" class="text-center p-6 text-slate-300 space-y-2">
-              <svg class="w-12 h-12 mx-auto text-emerald-400/80" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
-              </svg>
-              <p class="text-sm font-medium text-white">กดปุ่ม “เปิดกล้องสแกน” เพื่อเริ่มใช้งานกล้อง</p>
-              <p class="text-xs text-slate-400 max-w-sm mx-auto">รองรับทั้งกล้องเว็บแคมคอมพิวเตอร์และกล้องมือถือ โดยระบบจะตรวจสอบพิกัด GPS และบันทึกเวลาจริงอัตโนมัติ</p>
+            <div id="scanner-laser-line" class="scan-laser hidden"></div>
+            <div id="camera-placeholder" class="text-center p-6 text-slate-300 space-y-3">
+              <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center">
+                <svg class="w-9 h-9 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
+                </svg>
+              </div>
+              <p class="text-sm font-semibold text-white">แตะปุ่ม “เปิดกล้องสแกน QR” เพื่อเริ่มลงเวลา</p>
+              <p class="text-xs text-slate-400 max-w-sm mx-auto">ระบบจะตรวจสอบพิกัด GPS ผูกสิทธิ์ 1 เครื่องต่อ 1 คน และขอถ่ายภาพยืนยันตัวตนก่อนบันทึกเวลาจริง</p>
             </div>
           </div>
 
           <!-- Scan Result Feedback Banner -->
           <div id="scan-result-box" class="hidden rounded-2xl p-4 border transition-all">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <div id="scan-result-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold mb-1.5">--</div>
-                <h3 id="scan-result-name" class="text-lg font-bold text-slate-900">--</h3>
-                <p id="scan-result-meta" class="text-xs text-slate-600 mt-0.5">--</p>
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <img id="scan-result-photo" src="" alt="ภาพยืนยันตัวตน" class="hidden w-14 h-14 rounded-xl object-cover border-2 border-white shadow-sm shrink-0" />
+                <div class="min-w-0">
+                  <div id="scan-result-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold mb-1">--</div>
+                  <h3 id="scan-result-name" class="text-base sm:text-lg font-bold text-slate-900 truncate">--</h3>
+                  <p id="scan-result-meta" class="text-xs text-slate-600 mt-0.5">--</p>
+                </div>
               </div>
               <div class="text-right shrink-0">
-                <div id="scan-result-time" class="text-2xl font-bold font-num text-slate-900">--:--</div>
+                <div id="scan-result-time" class="text-xl sm:text-2xl font-extrabold font-num text-slate-900">--:--</div>
                 <div id="scan-result-type" class="text-xs font-semibold text-slate-500">--</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Right: Manual / Simulation Panel + Today's Feed -->
+        <!-- Right: Backup ID Entry + Today's Feed -->
         <div class="lg:col-span-5 space-y-5">
-          <!-- Manual Backup Scan Card (Strict Real-Time + GPS Locked) -->
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+          <!-- Manual Backup Card (Admin Only) -->
+          <div id="manual-entry-card" class="admin-only hidden bg-white rounded-3xl border border-slate-200 shadow-sm p-5 space-y-4">
             <div class="flex items-start justify-between gap-2">
               <div>
-                <h2 class="text-base font-bold text-slate-900">ลงเวลาด้วยรหัสพนักงาน (กรณีบัตรชำรุด)</h2>
-                <p class="text-xs text-slate-500">ใช้เวลาจริงจากระบบและตรวจสอบพิกัด GPS เท่านั้น ไม่สามารถแก้ไขเวลาเองได้</p>
+                <h2 class="text-base font-bold text-slate-900">กรอกรหัสพนักงาน (กรณีบัตร QR ชำรุด)</h2>
+                <p class="text-xs text-slate-500">ยังคงต้องผ่านการตรวจ GPS ล็อกเครื่อง และถ่ายภาพยืนยันตัวตนตามปกติ</p>
               </div>
-              <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800">ล็อกเวลาจริง</span>
+              <span class="shrink-0 inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">เวลาจริง</span>
             </div>
 
             <div class="space-y-3">
-              <div>
-                <label for="sim-emp-select" class="block text-xs font-semibold text-slate-700 mb-1">เลือกพนักงาน</label>
+              <div class="admin-only hidden">
+                <label for="sim-emp-select" class="block text-xs font-semibold text-slate-700 mb-1">เลือกพนักงาน (เฉพาะผู้ดูแล)</label>
                 <select id="sim-emp-select" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
               </div>
 
               <div>
-                <label for="manual-code-input" class="block text-xs font-semibold text-slate-700 mb-1">หรือกรอกรหัสพนักงาน</label>
-                <input type="text" id="manual-code-input" placeholder="เช่น EMP-001" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                <label for="manual-code-input" class="block text-xs font-semibold text-slate-700 mb-1">รหัสพนักงานของท่าน</label>
+                <input type="text" id="manual-code-input" placeholder="กรอกรหัส เช่น EMP-001" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
 
-              <div class="grid grid-cols-2 gap-2 pt-1">
-                <button type="button" id="btn-manual-in" class="py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold transition-colors shadow-sm">
-                  บันทึกเข้างาน
+              <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <button type="button" id="btn-manual-in" class="py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold transition-all shadow-sm">
+                  ลงเวลาเข้างาน
                 </button>
-                <button type="button" id="btn-manual-out" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold transition-colors shadow-sm">
-                  บันทึกออกงาน
+                <button type="button" id="btn-manual-out" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold transition-all shadow-sm">
+                  ลงเวลาออกงาน
                 </button>
               </div>
             </div>
           </div>
 
           <!-- Today's Live Activity Feed -->
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
             <div class="flex items-center justify-between mb-3">
-              <h3 class="text-sm font-bold text-slate-900">รายการลงเวลาล่าสุดวันนี้</h3>
-              <span id="today-date-label" class="text-xs text-slate-500 font-num">--</span>
+              <h3 class="text-sm font-bold text-slate-900">รายการลงเวลาวันนี้</h3>
+              <span id="today-date-label" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full font-num">--</span>
             </div>
             <div id="today-feed-list" class="space-y-2.5 max-h-64 overflow-y-auto pr-1"></div>
           </div>
@@ -294,10 +368,9 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 2: KPI & BONUS ==================== -->
+    <!-- ==================== TAB 2: KPI & BONUS (ADMIN ONLY) ==================== -->
     <section id="tab-kpi" class="tab-panel hidden space-y-6">
-      <!-- KPI Filter & Scoring Rules Bar -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1">
             <div>
@@ -325,44 +398,44 @@
             </div>
           </div>
 
-          <button type="button" id="btn-export-kpi-csv" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold transition-colors shadow-sm shrink-0">
+          <button type="button" id="btn-export-kpi-csv" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold transition-colors shadow-sm shrink-0">
             ส่งออกรายงาน KPI (CSV)
           </button>
         </div>
       </div>
 
-      <!-- Individual Spotlight Card (shown when 1 employee selected, or summary when all) -->
+      <!-- KPI Spotlight Cards -->
       <div id="kpi-spotlight" class="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div class="text-xs text-slate-500 font-medium">คะแนน KPI เฉลี่ย</div>
-          <div id="kpi-card-score" class="mt-1 text-2xl font-bold text-emerald-700 font-num">0.0</div>
+          <div id="kpi-card-score" class="mt-1 text-2xl font-extrabold text-emerald-700 font-num">0.0</div>
           <div id="kpi-card-grade" class="mt-1 text-xs font-semibold text-slate-500">--</div>
         </div>
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div class="text-xs text-slate-500 font-medium">อัตราตรงเวลา</div>
-          <div id="kpi-card-ontime-pct" class="mt-1 text-2xl font-bold text-slate-900 font-num">0%</div>
+          <div id="kpi-card-ontime-pct" class="mt-1 text-2xl font-extrabold text-slate-900 font-num">0%</div>
           <div class="mt-1 text-xs text-slate-500">เข้างาน ≤ 08:30 น.</div>
         </div>
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div class="text-xs text-slate-500 font-medium">จำนวนครั้งเข้าสาย</div>
-          <div id="kpi-card-late-count" class="mt-1 text-2xl font-bold text-amber-600 font-num">0</div>
+          <div id="kpi-card-late-count" class="mt-1 text-2xl font-extrabold text-amber-600 font-num">0</div>
           <div id="kpi-card-late-mins" class="mt-1 text-xs text-slate-500 font-num">รวม 0 นาที</div>
         </div>
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div class="text-xs text-slate-500 font-medium">ออกก่อนเวลากำหนด</div>
-          <div id="kpi-card-early-count" class="mt-1 text-2xl font-bold text-rose-600 font-num">0</div>
+          <div id="kpi-card-early-count" class="mt-1 text-2xl font-extrabold text-rose-600 font-num">0</div>
           <div class="mt-1 text-xs text-slate-500">ออกก่อน 16:30 น.</div>
         </div>
         <div class="col-span-2 lg:col-span-1 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div class="text-xs text-slate-500 font-medium">วันทำงานที่บันทึก</div>
-          <div id="kpi-card-days" class="mt-1 text-2xl font-bold text-slate-900 font-num">0</div>
+          <div id="kpi-card-days" class="mt-1 text-2xl font-extrabold text-slate-900 font-num">0</div>
           <div class="mt-1 text-xs text-slate-500">รายการลงเวลา</div>
         </div>
       </div>
 
-      <!-- Charts Row -->
+      <!-- Charts -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
           <div class="mb-3">
             <h3 class="text-sm font-bold text-slate-900">กราฟคะแนน KPI วินัยการทำงานรายบุคคล (ประกอบโบนัส)</h3>
             <p class="text-xs text-slate-500">เกรด A: 95–100 | เกรด B: 85–94 | เกรด C: 70–84 | เกรด D: ต่ำกว่า 70</p>
@@ -372,7 +445,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
           <div class="mb-3">
             <h3 class="text-sm font-bold text-slate-900">สถิติการมาตรงเวลา / เข้าสาย / ออกก่อนเวลา รายบุคคล</h3>
             <p class="text-xs text-slate-500">เปรียบเทียบจำนวนครั้งในแต่ละสถานะของเจ้าหน้าที่แต่ละคน</p>
@@ -384,12 +457,10 @@
       </div>
 
       <!-- Individual KPI Table -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-          <div>
-            <h3 class="text-sm font-bold text-slate-900">ตารางสรุป KPI รายบุคคลและเกณฑ์พิจารณาโบนัส</h3>
-            <p class="text-xs text-slate-500">คลิกที่ชื่อเจ้าหน้าที่เพื่อเจาะจงดูข้อมูลรายคน</p>
-          </div>
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200">
+          <h3 class="text-sm font-bold text-slate-900">ตารางสรุป KPI รายบุคคลและเกณฑ์พิจารณาโบนัส</h3>
+          <p class="text-xs text-slate-500">คลิกที่ชื่อเจ้าหน้าที่เพื่อเจาะจงดูข้อมูลรายคน</p>
         </div>
         <div class="overflow-x-auto">
           <table class="min-w-full text-sm text-left">
@@ -412,9 +483,9 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 3: ATTENDANCE LOGS ==================== -->
+    <!-- ==================== TAB 3: ATTENDANCE LOGS (ADMIN ONLY) ==================== -->
     <section id="tab-logs" class="tab-panel hidden space-y-5">
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 flex-1">
             <div>
@@ -444,14 +515,17 @@
             <button type="button" id="btn-reset-log-filters" class="px-3.5 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-sm font-semibold transition-colors">
               ล้างตัวกรอง
             </button>
-            <button type="button" id="btn-export-logs-csv" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold transition-colors shadow-sm">
+            <button type="button" id="btn-clear-local-logs" class="px-3.5 py-2 rounded-xl border border-rose-200 text-rose-700 hover:bg-rose-50 text-sm font-semibold transition-colors">
+              ล้างประวัติในเครื่อง
+            </button>
+            <button type="button" id="btn-export-logs-csv" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold transition-colors shadow-sm">
               ส่งออก Excel/CSV
             </button>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
           <h3 class="text-sm font-bold text-slate-900">ประวัติการลงเวลาทำงานทั้งหมด (<span id="log-count" class="font-num">0</span> รายการ)</h3>
         </div>
@@ -460,13 +534,14 @@
             <thead class="bg-slate-50 text-slate-600 text-xs uppercase border-b border-slate-200">
               <tr>
                 <th class="px-4 py-3 font-semibold">วันที่</th>
-                <th class="px-4 py-3 font-semibold">รหัสพนักงาน</th>
+                <th class="px-4 py-3 font-semibold">รหัส</th>
                 <th class="px-4 py-3 font-semibold">ชื่อ–สกุล</th>
                 <th class="px-4 py-3 font-semibold">แผนก</th>
-                <th class="px-4 py-3 font-semibold text-center">เวลาเข้า</th>
+                <th class="px-4 py-3 font-semibold text-center">เข้างาน</th>
                 <th class="px-4 py-3 font-semibold text-center">สถานะเข้า</th>
-                <th class="px-4 py-3 font-semibold text-center">เวลาออก</th>
+                <th class="px-4 py-3 font-semibold text-center">ออกงาน</th>
                 <th class="px-4 py-3 font-semibold text-center">สถานะออก</th>
+                <th class="px-4 py-3 font-semibold text-center">รูปยืนยัน</th>
                 <th class="px-4 py-3 font-semibold text-center">จัดการ</th>
               </tr>
             </thead>
@@ -476,18 +551,18 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 4: EMPLOYEES & QR BADGES ==================== -->
+    <!-- ==================== TAB 4: EMPLOYEES & QR BADGES (ADMIN ONLY) ==================== -->
     <section id="tab-employees" class="tab-panel hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Add / Edit Employee Form -->
-        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 h-fit no-print">
+        <div class="lg:col-span-4 bg-white rounded-3xl border border-slate-200 shadow-sm p-5 h-fit no-print">
           <h2 id="emp-form-title" class="text-base font-bold text-slate-900 mb-1">เพิ่มพนักงานใหม่</h2>
-          <p class="text-xs text-slate-500 mb-4">สามารถกำหนดรหัสพนักงานให้ตรงกับเครื่องสแกนลายนิ้วมือได้ทันที</p>
+          <p class="text-xs text-slate-500 mb-4">รองรับการกำหนดรหัสพนักงานให้ตรงกับเครื่องสแกนลายนิ้วมือ</p>
 
           <form id="emp-form" class="space-y-3.5">
             <input type="hidden" id="emp-edit-original-id" value="" />
             <div>
-              <label for="emp-id-input" class="block text-xs font-semibold text-slate-700 mb-1">รหัสพนักงาน (รองรับรหัสเครื่องสแกนนิ้ว)</label>
+              <label for="emp-id-input" class="block text-xs font-semibold text-slate-700 mb-1">รหัสพนักงาน</label>
               <input type="text" id="emp-id-input" required placeholder="เช่น EMP-007 หรือ 1007" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </div>
             <div>
@@ -498,17 +573,19 @@
               <label for="emp-dept-input" class="block text-xs font-semibold text-slate-700 mb-1">แผนก / ฝ่าย</label>
               <input type="text" id="emp-dept-input" required list="dept-suggestions" placeholder="เช่น ฝ่ายบัญชีและการเงิน" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               <datalist id="dept-suggestions">
-                <option value="ฝ่ายบัญชีและการเงิน"></option>
-                <option value="ฝ่ายสินเชื่อและสมาชิก"></option>
-                <option value="ฝ่ายธุรกิจและการตลาด"></option>
-                <option value="ฝ่ายส่งเสริมการเกษตรและเมล็ดพันธุ์"></option>
-                <option value="ฝ่ายอำนวยการและธุรการ"></option>
-                <option value="ฝ่ายคลังสินค้าและแปรรูป"></option>
+                <option value="ฝ่ายสินเชื่อ"></option>
+                <option value="ฝ่ายการตลาด"></option>
+                <option value="ฝ่ายการเงิน"></option>
+                <option value="ฝ่ายบัญชี"></option>
+                <option value="ฝ่ายธุรการ"></option>
+                <option value="ฝ่ายคอมพิวเตอร์"></option>
+                <option value="ภารโรง"></option>
+                <option value="เเม่บ้าน"></option>
               </datalist>
             </div>
 
             <div class="flex gap-2 pt-2">
-              <button type="submit" id="btn-save-emp" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold transition-colors shadow-sm">
+              <button type="submit" id="btn-save-emp" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold transition-colors shadow-sm">
                 บันทึกพนักงาน
               </button>
               <button type="button" id="btn-cancel-emp-edit" class="hidden py-2.5 px-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-sm font-semibold">
@@ -518,11 +595,8 @@
           </form>
 
           <div class="mt-5 pt-4 border-t border-slate-200 space-y-2">
-            <button type="button" id="btn-print-badges" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-colors">
+            <button type="button" id="btn-print-badges" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold transition-colors">
               พิมพ์บัตร QR Code ทั้งหมด
-            </button>
-            <button type="button" id="btn-restore-demo" class="w-full py-2 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors">
-              โหลดข้อมูลทดสอบกลับมาใหม่
             </button>
           </div>
         </div>
@@ -532,7 +606,7 @@
           <div class="flex items-center justify-between no-print">
             <div>
               <h2 class="text-base font-bold text-slate-900">รายชื่อพนักงานและบัตร QR Code (<span id="emp-count" class="font-num">0</span> คน)</h2>
-              <p class="text-xs text-slate-500">นำ QR Code บนบัตรเหล่านี้ไปพิมพ์ หรือเปิดบนหน้าจอมือถืออีกเครื่องเพื่อลองสแกนหน้ากล้องได้ทันที</p>
+              <p class="text-xs text-slate-500">สั่งพิมพ์เป็นบัตรประจำตัวพนักงาน หรือดาวน์โหลด QR Code รายบุคคลได้ทันที</p>
             </div>
           </div>
 
@@ -542,47 +616,112 @@
     </section>
   </main>
 
-  <!-- Confirmation Modal (Replaces window.confirm) -->
-  <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 no-print">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
-      <h3 id="confirm-modal-title" class="text-base font-bold text-slate-900">ยืนยันการดำเนินการ</h3>
-      <p id="confirm-modal-message" class="text-sm text-slate-600">--</p>
-      <div class="flex justify-end gap-2 pt-2">
-        <button type="button" id="confirm-modal-cancel" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-100">ยกเลิก</button>
-        <button type="button" id="confirm-modal-ok" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-sm font-semibold text-white">ยืนยัน</button>
+  <!-- Photo Verification Modal (Front / Back Camera Switchable & Strictly Required) -->
+  <div id="selfie-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <h3 class="text-base font-bold text-slate-900">ถ่ายภาพยืนยันตัวตน</h3>
+          <p id="selfie-emp-label" class="text-xs text-emerald-700 font-semibold mt-0.5 truncate">--</p>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button type="button" id="btn-switch-selfie-cam" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors">
+            สลับกล้องหน้า/หลัง
+          </button>
+          <button type="button" id="selfie-cancel-x" class="text-slate-400 hover:text-slate-700 text-sm font-bold px-2 py-1">✕</button>
+        </div>
+      </div>
+
+      <div class="relative bg-slate-900 rounded-2xl overflow-hidden aspect-[4/3] flex items-center justify-center border border-slate-800">
+        <video id="selfie-video" autoplay playsinline muted class="w-full h-full"></video>
+        <canvas id="selfie-canvas" class="hidden"></canvas>
+        <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div class="w-40 h-48 rounded-full border-2 border-dashed border-emerald-400/80 shadow-[0_0_0_9999px_rgba(2,6,23,0.38)]"></div>
+        </div>
+        <div id="selfie-loading" class="absolute inset-0 bg-slate-900/90 flex items-center justify-center text-xs text-slate-300 px-4 text-center">
+          กำลังเปิดกล้องสำหรับถ่ายภาพยืนยันตัวตน...
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-500 text-center">รองรับทั้งกล้องหน้าและกล้องหลัง กรุณาถ่ายภาพยืนยันตัวตนจึงจะบันทึกเวลาได้</p>
+
+      <div class="flex gap-2.5">
+        <button type="button" id="selfie-cancel-btn" class="px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+          ยกเลิก
+        </button>
+        <button type="button" id="selfie-capture-btn" disabled class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-sm font-bold shadow-md shadow-emerald-700/20 transition-all">
+          ถ่ายภาพและยืนยันลงเวลา
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Admin GPS Geofence Settings Modal -->
-  <div id="gps-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 no-print">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
+  <!-- Photo Preview Modal -->
+  <div id="photo-preview-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-slate-900">ตั้งค่าพิกัด GPS สหกรณ์ (สำหรับผู้ดูแล)</h3>
+        <h3 id="photo-preview-title" class="text-sm font-bold text-slate-900">ภาพยืนยันตัวตน</h3>
+        <button type="button" id="photo-preview-close" class="text-slate-400 hover:text-slate-700 text-sm font-bold px-2 py-1">✕</button>
+      </div>
+      <img id="photo-preview-img" src="" alt="ภาพยืนยันตัวตน" class="w-full rounded-2xl border border-slate-200 max-h-96 object-contain bg-slate-50" />
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-900/55 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
+      <h3 id="confirm-modal-title" class="text-base font-bold text-slate-900">ยืนยันการดำเนินการ</h3>
+      <p id="confirm-modal-message" class="text-sm text-slate-600">--</p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" id="confirm-modal-cancel" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-100">ยกเลิก</button>
+        <button type="button" id="confirm-modal-ok" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-sm font-bold text-white">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin System & GPS Settings Modal -->
+  <div id="gps-modal" class="hidden fixed inset-0 z-50 bg-slate-900/55 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900">ตั้งค่าระบบและความปลอดภัย (ผู้ดูแล)</h3>
         <button type="button" id="gps-modal-close" class="text-slate-400 hover:text-slate-700 text-sm font-bold px-2 py-1">✕</button>
       </div>
 
-      <!-- Step 1: PIN Gate -->
       <div id="gps-pin-gate" class="space-y-3">
-        <p class="text-xs text-slate-600">กรุณากรอกรหัส PIN ผู้ดูแลเพื่อป้องกันไม่ให้เจ้าหน้าที่แก้ไขพิกัด GPS เอง (ค่าเริ่มต้น: <span class="font-bold font-num text-slate-900">1234</span>)</p>
+        <p class="text-xs text-slate-600">กรุณากรอกรหัส PIN ผู้ดูแลเพื่อปลดล็อกการตั้งค่าระบบ (ค่าเริ่มต้น: <span class="font-bold font-num text-slate-900">1234</span>)</p>
         <div>
           <label for="gps-pin-input" class="block text-xs font-semibold text-slate-700 mb-1">รหัส PIN ผู้ดูแล</label>
           <input type="password" id="gps-pin-input" inputmode="numeric" placeholder="กรอกรหัส PIN" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
         </div>
         <div class="flex justify-end gap-2 pt-1">
           <button type="button" id="gps-pin-cancel" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-100">ยกเลิก</button>
-          <button type="button" id="gps-pin-unlock" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-sm font-semibold text-white">ปลดล็อก</button>
+          <button type="button" id="gps-pin-unlock" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-sm font-bold text-white">ปลดล็อก</button>
         </div>
       </div>
 
-      <!-- Step 2: GPS Form -->
       <div id="gps-settings-form" class="hidden space-y-3.5">
         <label class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
           <div>
-            <div class="text-xs font-bold text-slate-900">บังคับตรวจสอบ GPS ก่อนสแกน</div>
-            <div class="text-[11px] text-slate-500">สแกนได้เฉพาะเมื่ออยู่ในรัศมีสหกรณ์</div>
+            <div class="text-xs font-bold text-slate-900">บังคับตรวจสอบพิกัด GPS</div>
+            <div class="text-[11px] text-slate-500">สแกนได้เฉพาะภายในรัศมีสหกรณ์</div>
           </div>
           <input type="checkbox" id="gps-enforce-toggle" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500" />
+        </label>
+
+        <label class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+          <div>
+            <div class="text-xs font-bold text-slate-900">บังคับผูก 1 มือถือต่อ 1 พนักงาน</div>
+            <div class="text-[11px] text-slate-500">ป้องกันการสแกนแทนกันจากเครื่องเดียวกัน</div>
+          </div>
+          <input type="checkbox" id="device-lock-toggle" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500" />
+        </label>
+
+        <label class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+          <div>
+            <div class="text-xs font-bold text-slate-900">บังคับถ่ายภาพยืนยันตัวตน (Selfie)</div>
+            <div class="text-[11px] text-slate-500">บันทึกภาพผู้สแกนส่งเก็บใน Google Drive</div>
+          </div>
+          <input type="checkbox" id="selfie-enforce-toggle" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500" />
         </label>
 
         <div class="space-y-2">
@@ -591,10 +730,9 @@
             <button type="button" id="btn-use-current-gps" class="text-xs font-semibold text-emerald-700 hover:underline">ดึงพิกัดปัจจุบัน</button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="number" step="any" id="gps-coop-lat" placeholder="ละติจูด เช่น 15.351200" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-            <input type="number" step="any" id="gps-coop-lng" placeholder="ลองจิจูด เช่น 103.389500" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <input type="number" step="any" id="gps-coop-lat" placeholder="ละติจูด" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <input type="number" step="any" id="gps-coop-lng" placeholder="ลองจิจูด" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
           </div>
-          <p class="text-[11px] text-slate-500">เคล็ดลับ: ยืนที่สำนักงานสหกรณ์แล้วกด “ดึงพิกัดปัจจุบัน” หรือคลิกขวาบน Google Maps แล้วนำตัวเลขพิกัดมาวาง</p>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -603,7 +741,7 @@
             <input type="number" id="gps-radius-m" min="20" max="2000" step="10" value="100" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
           </div>
           <div>
-            <label for="gps-new-pin" class="block text-xs font-semibold text-slate-700 mb-1">เปลี่ยน PIN ใหม่ (ถ้าต้องการ)</label>
+            <label for="gps-new-pin" class="block text-xs font-semibold text-slate-700 mb-1">เปลี่ยน PIN ใหม่</label>
             <input type="password" id="gps-new-pin" inputmode="numeric" placeholder="เว้นว่างถ้าไม่เปลี่ยน" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
           </div>
         </div>
@@ -615,8 +753,27 @@
 
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" id="gps-settings-cancel" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-100">ปิด</button>
-          <button type="button" id="btn-save-gps-settings" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-sm font-semibold text-white">บันทึกพิกัด GPS</button>
+          <button type="button" id="btn-save-gps-settings" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-sm font-bold text-white">บันทึกการตั้งค่า</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Mode Login Modal -->
+  <div id="admin-login-modal" class="hidden fixed inset-0 z-50 bg-slate-900/55 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900">เข้าสู่ระบบผู้ดูแล (หลังบ้าน)</h3>
+        <button type="button" id="admin-login-close" class="text-slate-400 hover:text-slate-700 text-sm font-bold px-2 py-1">✕</button>
+      </div>
+      <p class="text-xs text-slate-600">กรอกรหัส PIN ผู้ดูแลเพื่อเข้าดูกราฟ KPI โบนัส ประวัติลงเวลา จัดการพนักงาน และตั้งค่าระบบ</p>
+      <div>
+        <label for="admin-login-pin" class="block text-xs font-semibold text-slate-700 mb-1">รหัส PIN ผู้ดูแล</label>
+        <input type="password" id="admin-login-pin" inputmode="numeric" placeholder="กรอกรหัส PIN" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+      <div class="flex justify-end gap-2 pt-1">
+        <button type="button" id="admin-login-cancel" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-100">ยกเลิก</button>
+        <button type="button" id="admin-login-submit" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-sm font-bold text-white">เข้าสู่ระบบ</button>
       </div>
     </div>
   </div>
@@ -626,30 +783,44 @@
       'use strict';
 
       // ==================== CONSTANTS & RULES ====================
-      const STORAGE_KEY_EMP = 'skp_chumphonburi_employees_v1';
-      const STORAGE_KEY_LOGS = 'skp_chumphonburi_logs_v1';
-      const STORAGE_KEY_META = 'skp_chumphonburi_meta_v1';
-      const STORAGE_KEY_GPS = 'skp_chumphonburi_gps_v1';
+      const STORAGE_KEY_EMP = 'skp_chumphonburi_employees_v3';
+      const STORAGE_KEY_LOGS = 'skp_chumphonburi_logs_v3';
+      const STORAGE_KEY_GPS = 'skp_chumphonburi_gps_v2';
+      const STORAGE_KEY_DEVICE = 'skp_chumphonburi_device_v2';
 
-      const WORK_START_MIN = 8 * 60 + 30;  // 08:30 (510 mins)
-      const WORK_END_MIN = 16 * 60 + 30;   // 16:30 (990 mins)
+      const WORK_START_MIN = 8 * 60 + 30;  // 08:30
+      const WORK_END_MIN = 16 * 60 + 30;   // 16:30
       const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCmZYUrdZ00cakhoo_uTEQ4OvpXM8D09pZ53Af21Mj6HQIOBUYNYYBXCFcvNtsKV6NFg/exec';
+      // พิกัดสหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด (Plus Code: 7P758CX6+PV)
+      const DEFAULT_COOP_LAT = 15.349312;
+      const DEFAULT_COOP_LNG = 103.412188;
+      const DEFAULT_COOP_RADIUS_M = 120;
 
       const DEFAULT_EMPLOYEES = [
-        { id: 'EMP-001', name: 'นางสาวสมหญิง ใจดี', dept: 'ฝ่ายบัญชีและการเงิน' },
-        { id: 'EMP-002', name: 'นายสมชาย รักงาน', dept: 'ฝ่ายสินเชื่อและสมาชิก' },
-        { id: 'EMP-003', name: 'นางสาววิภา สุขสันต์', dept: 'ฝ่ายธุรกิจและการตลาด' },
-        { id: 'EMP-004', name: 'นายประเสริฐ มั่นคง', dept: 'ฝ่ายส่งเสริมการเกษตรและเมล็ดพันธุ์' },
-        { id: 'EMP-005', name: 'นางสาวกัญญา พากเพียร', dept: 'ฝ่ายอำนวยการและธุรการ' },
-        { id: 'EMP-006', name: 'นายธนพล ก้าวหน้า', dept: 'ฝ่ายคลังสินค้าและแปรรูป' }
+        { id: 'EMP-001', name: 'นายจิรพันธ์ โสมสุข', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'EMP-002', name: 'นางสาวปวีณา ศาลางาม', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'EMP-003', name: 'นายรัฐธรรมนูญ อภัยรุณ', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'EMP-004', name: 'นายสุเมธ จันทร์เหลือง', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'EMP-005', name: 'นายสุทธญาณ์ ละดาดาษ', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'EMP-006', name: 'นายจักรพันธุ์ พรหมบุตร', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'EMP-007', name: 'นายจักรกฤษ พรหมบุตร', dept: 'ฝ่ายการตลาด', deviceId: '' },
+        { id: 'EMP-008', name: 'นางสาวระเบียบ จันทร์หอม', dept: 'ฝ่ายการตลาด', deviceId: '' },
+        { id: 'EMP-009', name: 'นางสาวสุนิสา พลแสน', dept: 'ฝ่ายการตลาด', deviceId: '' },
+        { id: 'EMP-010', name: 'นางสาวสุมิตรา เเพงศรี', dept: 'ฝ่ายการเงิน', deviceId: '' },
+        { id: 'EMP-011', name: 'นางสาวกาญจนา คันโทเงิน', dept: 'ฝ่ายการเงิน', deviceId: '' },
+        { id: 'EMP-012', name: 'นางสาวอัมพร อินทร์สำราญ', dept: 'ฝ่ายบัญชี', deviceId: '' },
+        { id: 'EMP-013', name: 'นางสาวกิ่งกาญจน์ จันทร์เหลือง', dept: 'ฝ่ายธุรการ', deviceId: '' },
+        { id: 'EMP-014', name: 'จารุกิต น้อยยะ', dept: 'ฝ่ายธุรการ', deviceId: '' },
+        { id: 'EMP-015', name: 'นายณัฐพนธ์ โพธิ์ทอง', dept: 'ฝ่ายคอมพิวเตอร์', deviceId: '' },
+        { id: 'EMP-016', name: 'นายบุญรอด บุญคุ้ม', dept: 'ภารโรง', deviceId: '' },
+        { id: 'EMP-017', name: 'นางสาวสุภาพร วงพุธทะ', dept: 'เเม่บ้าน', deviceId: '' }
       ];
 
       // ==================== STATE ====================
       let employees = [];
       let logs = [];
-      let isDemoMode = true;
       let activeTab = 'scanner';
-      let scanMode = 'auto'; // 'auto' | 'in' | 'out'
+      let scanMode = 'auto';
       let html5QrCode = null;
       let cameraRunning = false;
       let lastScannedCode = '';
@@ -657,17 +828,35 @@
       let kpiScoreChart = null;
       let kpiBreakdownChart = null;
       let pendingConfirmAction = null;
+      let isAdminUnlocked = false;
+
       let gpsConfig = {
         enforced: true,
-        coopLat: null,
-        coopLng: null,
-        radiusMeters: 100,
+        deviceLockEnforced: true,
+        selfieEnforced: true,
+        coopLat: DEFAULT_COOP_LAT,
+        coopLng: DEFAULT_COOP_LNG,
+        radiusMeters: DEFAULT_COOP_RADIUS_M,
         adminPin: '1234',
         appsScriptUrl: DEFAULT_APPS_SCRIPT_URL
       };
-      let currentGps = null; // { lat, lng, accuracy, updatedAt }
-      let gpsStatusState = 'checking'; // 'checking' | 'ready' | 'error'
+
+      let deviceProfile = {
+        deviceId: '',
+        boundEmpId: '',
+        boundEmpName: ''
+      };
+
+      let currentGps = null;
+      let gpsStatusState = 'checking';
       let gpsErrorMsg = '';
+
+      // Photo verification state (supports both front & back cameras)
+      let selfieStream = null;
+      let selfieFacingMode = 'user'; // 'user' | 'environment'
+      let selfieCameraReady = false;
+      let pendingScanContext = null; // { emp, actionType, gpsCheck }
+      let isSubmittingAttendance = false;
 
       // ==================== HELPERS ====================
       function pad2(n) {
@@ -733,6 +922,16 @@
           .replace(/'/g, '&#39;');
       }
 
+      function generateDeviceId() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let out = 'DEV-';
+        for (let i = 0; i < 8; i++) {
+          if (i === 4) out += '-';
+          out += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return out;
+      }
+
       function playBeep(isWarning) {
         const soundEl = document.getElementById('toggle-sound');
         if (!soundEl || !soundEl.checked) return;
@@ -743,7 +942,7 @@
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = isWarning ? 'triangle' : 'sine';
-          osc.frequency.setValueAtTime(isWarning ? 520 : 880, ctx.currentTime);
+          osc.frequency.setValueAtTime(isWarning ? 480 : 920, ctx.currentTime);
           gain.gain.setValueAtTime(0.14, ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
           osc.connect(gain);
@@ -751,7 +950,7 @@
           osc.start();
           osc.stop(ctx.currentTime + 0.22);
         } catch (e) {
-          // Ignore audio block errors
+          // Ignore audio errors
         }
       }
 
@@ -765,13 +964,13 @@
           info: 'bg-slate-800 text-white border-slate-700'
         };
         const toast = document.createElement('div');
-        toast.className = `pointer-events-auto rounded-xl border px-4 py-3 text-sm font-medium shadow-lg transition-opacity duration-300 ${colors[type] || colors.info}`;
+        toast.className = `pointer-events-auto rounded-2xl border px-4 py-3 text-sm font-medium shadow-xl transition-opacity duration-300 ${colors[type] || colors.info}`;
         toast.textContent = message;
         container.appendChild(toast);
         setTimeout(() => {
           toast.style.opacity = '0';
           setTimeout(() => toast.remove(), 300);
-        }, 3200);
+        }, 3500);
       }
 
       function openConfirmModal(title, message, onConfirm) {
@@ -786,105 +985,56 @@
         document.getElementById('confirm-modal').classList.add('hidden');
       }
 
-      // ==================== SAMPLE DATA GENERATOR ====================
-      function generateDemoLogs() {
-        const generated = [];
-        const today = new Date();
-        // Patterns per employee for realistic KPI differentiation (past 10 weekdays)
-        const patterns = {
-          'EMP-001': [
-            ['08:12', '16:35'], ['08:18', '16:40'], ['08:25', '16:32'], ['08:10', '16:45'], ['08:20', '16:33'],
-            ['08:15', '16:38'], ['08:22', '16:35'], ['08:09', '16:42'], ['08:19', '16:31'], ['08:14', '16:36']
-          ],
-          'EMP-002': [
-            ['08:28', '16:32'], ['08:42', '16:35'], ['08:25', '16:31'], ['08:38', '16:34'], ['08:20', '16:30'],
-            ['08:47', '16:33'], ['08:22', '16:15'], ['08:29', '16:36'], ['08:35', '16:32'], ['08:24', '16:31']
-          ],
-          'EMP-003': [
-            ['08:20', '16:35'], ['08:27', '16:32'], ['08:34', '16:33'], ['08:18', '16:38'], ['08:24', '16:31'],
-            ['08:22', '16:34'], ['08:29', '16:30'], ['08:15', '16:40'], ['08:26', '16:35'], ['08:21', '16:33']
-          ],
-          'EMP-004': [
-            ['08:05', '16:45'], ['08:10', '16:40'], ['08:08', '16:50'], ['08:14', '16:38'], ['08:12', '16:42'],
-            ['08:07', '16:35'], ['08:16', '16:44'], ['08:11', '16:39'], ['08:09', '16:41'], ['08:13', '16:37']
-          ],
-          'EMP-005': [
-            ['08:36', '16:10'], ['08:50', '16:32'], ['08:44', '16:20'], ['08:29', '16:35'], ['08:55', '16:05'],
-            ['08:32', '16:30'], ['08:41', '15:55'], ['08:28', '16:33'], ['08:48', '16:15'], ['08:39', '16:31']
-          ],
-          'EMP-006': [
-            ['08:26', '16:30'], ['08:33', '16:32'], ['08:21', '16:22'], ['08:28', '16:35'], ['08:19', '16:31'],
-            ['08:35', '16:34'], ['08:24', '16:33'], ['08:27', '16:18'], ['08:22', '16:36'], ['08:25', '16:32']
-          ]
-        };
-
-        const workDays = [];
-        const cursor = new Date(today);
-        cursor.setDate(cursor.getDate() - 1);
-        while (workDays.length < 10) {
-          const day = cursor.getDay();
-          if (day !== 0 && day !== 6) {
-            workDays.push(getLocalDateStr(cursor));
-          }
-          cursor.setDate(cursor.getDate() - 1);
-        }
-        workDays.reverse();
-
-        let seq = 1;
-        workDays.forEach((dateStr, idx) => {
-          DEFAULT_EMPLOYEES.forEach((emp) => {
-            const pair = patterns[emp.id][idx];
-            if (!pair) return;
-            generated.push({
-              logId: `DEMO-${seq++}`,
-              empId: emp.id,
-              date: dateStr,
-              checkIn: pair[0],
-              checkOut: pair[1]
-            });
-          });
-        });
-
-        return generated;
-      }
-
       // ==================== STORAGE ====================
       function saveState() {
         try {
           localStorage.setItem(STORAGE_KEY_EMP, JSON.stringify(employees));
-          localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(logs));
-          localStorage.setItem(STORAGE_KEY_META, JSON.stringify({ isDemoMode }));
+          const compactLogs = logs.map((l) => ({
+            logId: l.logId,
+            empId: l.empId,
+            date: l.date,
+            checkIn: l.checkIn,
+            checkOut: l.checkOut,
+            photoUrl: l.photoUrl || ''
+          }));
+          localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(compactLogs));
           localStorage.setItem(STORAGE_KEY_GPS, JSON.stringify(gpsConfig));
+          localStorage.setItem(STORAGE_KEY_DEVICE, JSON.stringify(deviceProfile));
         } catch (e) {
-          // Safe fallback in sandboxed environments
+          // Ignore sandbox storage errors
         }
       }
 
       function loadState() {
         try {
-          const rawEmp = localStorage.getItem(STORAGE_KEY_EMP);
-          const rawLogs = localStorage.getItem(STORAGE_KEY_LOGS);
-          const rawMeta = localStorage.getItem(STORAGE_KEY_META);
           const rawGps = localStorage.getItem(STORAGE_KEY_GPS);
           if (rawGps) {
-            const parsedGps = JSON.parse(rawGps);
-            gpsConfig = { ...gpsConfig, ...parsedGps };
-            if (!gpsConfig.appsScriptUrl) {
-              gpsConfig.appsScriptUrl = DEFAULT_APPS_SCRIPT_URL;
-            }
+            gpsConfig = { ...gpsConfig, ...JSON.parse(rawGps) };
+            if (!gpsConfig.appsScriptUrl) gpsConfig.appsScriptUrl = DEFAULT_APPS_SCRIPT_URL;
+            if (typeof gpsConfig.coopLat !== 'number' || Number.isNaN(gpsConfig.coopLat)) gpsConfig.coopLat = DEFAULT_COOP_LAT;
+            if (typeof gpsConfig.coopLng !== 'number' || Number.isNaN(gpsConfig.coopLng)) gpsConfig.coopLng = DEFAULT_COOP_LNG;
           }
-          if (rawEmp && rawLogs) {
-            employees = JSON.parse(rawEmp);
-            logs = JSON.parse(rawLogs);
-            isDemoMode = rawMeta ? Boolean(JSON.parse(rawMeta).isDemoMode) : false;
-            return;
+          const rawDev = localStorage.getItem(STORAGE_KEY_DEVICE);
+          if (rawDev) {
+            deviceProfile = { ...deviceProfile, ...JSON.parse(rawDev) };
           }
+          const rawEmp = localStorage.getItem(STORAGE_KEY_EMP);
+          const rawLogs = localStorage.getItem(STORAGE_KEY_LOGS);
+          if (rawEmp) employees = JSON.parse(rawEmp);
+          if (rawLogs) logs = JSON.parse(rawLogs);
         } catch (e) {
           // Ignore storage read errors
         }
-        employees = DEFAULT_EMPLOYEES.map((e) => ({ ...e }));
-        logs = generateDemoLogs();
-        isDemoMode = true;
+
+        if (!deviceProfile.deviceId) {
+          deviceProfile.deviceId = generateDeviceId();
+        }
+        if (!Array.isArray(employees) || employees.length === 0) {
+          employees = DEFAULT_EMPLOYEES.map((e) => ({ ...e }));
+        }
+        if (!Array.isArray(logs)) {
+          logs = [];
+        }
         saveState();
       }
 
@@ -924,16 +1074,16 @@
         }
 
         if (!gpsConfig.enforced) {
-          return { allowed: true, code: 'disabled', reason: 'ปิดการบังคับ GPS ชั่วคราว', distanceMeters };
+          return { allowed: true, code: 'disabled', reason: 'เปิดให้ลงเวลาได้ (ปิดการล็อกระยะ GPS ชั่วคราว)', distanceMeters };
         }
         if (!hasCoopPin) {
-          return { allowed: false, code: 'no_coop_pin', reason: 'ยังไม่ได้ตั้งค่าพิกัดสหกรณ์ กรุณาให้ผู้ดูแลกดปุ่ม “ตั้งค่าพิกัดสหกรณ์” ก่อนเริ่มสแกน', distanceMeters: null };
+          return { allowed: false, code: 'no_coop_pin', reason: 'ยังไม่ได้กำหนดพิกัดสำนักงานสหกรณ์ กรุณาแจ้งผู้ดูแลระบบตั้งค่าพิกัดก่อนใช้งาน', distanceMeters: null };
         }
         if (!currentGps) {
-          return { allowed: false, code: 'no_user_gps', reason: gpsErrorMsg || 'ยังไม่ได้รับพิกัด GPS ของเครื่อง กรุณาอนุญาตตำแหน่งแล้วกด “ตรวจสอบพิกัด GPS ใหม่”', distanceMeters: null };
+          return { allowed: false, code: 'no_user_gps', reason: gpsErrorMsg || 'กรุณาอนุญาตการเข้าถึงตำแหน่ง GPS แล้วกด “อัปเดต GPS”', distanceMeters: null };
         }
         if (distanceMeters > gpsConfig.radiusMeters) {
-          return { allowed: false, code: 'out_of_range', reason: `อยู่นอกระยะสหกรณ์ (ห่าง ${distanceMeters.toLocaleString()} ม. / อนุญาตไม่เกิน ${gpsConfig.radiusMeters} ม.)`, distanceMeters };
+          return { allowed: false, code: 'out_of_range', reason: `อยู่นอกรัศมีสหกรณ์ (ห่าง ${distanceMeters.toLocaleString()} ม. / อนุญาตไม่เกิน ${gpsConfig.radiusMeters} ม.)`, distanceMeters };
         }
         return { allowed: true, code: 'in_range', reason: `อยู่ในพื้นที่สหกรณ์ (ห่าง ${distanceMeters} ม. / รัศมี ${gpsConfig.radiusMeters} ม.)`, distanceMeters };
       }
@@ -950,42 +1100,60 @@
         const accText = currentGps ? ` • ความแม่นยำ ±${Math.round(currentGps.accuracy || 0)} ม.` : '';
 
         if (!gpsConfig.enforced) {
-          card.className = 'rounded-2xl border border-slate-200 bg-slate-50 shadow-sm p-4 flex flex-col md:flex-row md:items-center justify-between gap-3';
-          icon.className = 'w-10 h-10 rounded-xl bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 mt-0.5';
+          card.className = 'lg:col-span-8 rounded-2xl border border-slate-200 bg-slate-50 shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+          icon.className = 'w-11 h-11 rounded-2xl bg-slate-200 text-slate-600 flex items-center justify-center shrink-0';
           badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-700';
-          badge.textContent = 'ปิดการบังคับ GPS';
-          detail.textContent = 'ผู้ดูแลปิดการล็อกระยะ GPS ชั่วคราว (สามารถเปิดบังคับใหม่ได้ในเมนูตั้งค่าพิกัดสหกรณ์)';
+          badge.textContent = 'ไม่จำกัดระยะ GPS';
+          detail.textContent = check.reason;
         } else if (gpsStatusState === 'checking' && hasCoopPin) {
-          card.className = 'rounded-2xl border border-amber-200 bg-amber-50/70 shadow-sm p-4 flex flex-col md:flex-row md:items-center justify-between gap-3';
-          icon.className = 'w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5';
+          card.className = 'lg:col-span-8 rounded-2xl border border-amber-200 bg-amber-50/70 shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+          icon.className = 'w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0';
           badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-200 text-amber-900';
           badge.textContent = 'กำลังดึงสัญญาณ GPS...';
-          detail.textContent = 'กรุณารอสักครู่หรือกดอนุญาตการเข้าถึงตำแหน่งบนเบราว์เซอร์';
+          detail.textContent = 'กรุณารอสักครู่หรือกดอนุญาตการเข้าถึงตำแหน่งบนอุปกรณ์';
         } else if (check.allowed) {
-          card.className = 'rounded-2xl border border-emerald-300 bg-emerald-50/80 shadow-sm p-4 flex flex-col md:flex-row md:items-center justify-between gap-3';
-          icon.className = 'w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5';
+          card.className = 'lg:col-span-8 rounded-2xl border border-emerald-300 bg-emerald-50/80 shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+          icon.className = 'w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0';
           badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600 text-white';
-          badge.textContent = 'อยู่ในพื้นที่สหกรณ์ — พร้อมสแกน';
+          badge.textContent = 'อยู่ในพื้นที่สหกรณ์ — พร้อมลงเวลา';
           detail.textContent = `${check.reason}${accText}`;
         } else if (check.code === 'out_of_range') {
-          card.className = 'rounded-2xl border border-rose-300 bg-rose-50/90 shadow-sm p-4 flex flex-col md:flex-row md:items-center justify-between gap-3';
-          icon.className = 'w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 mt-0.5';
+          card.className = 'lg:col-span-8 rounded-2xl border border-rose-300 bg-rose-50/90 shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+          icon.className = 'w-11 h-11 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0';
           badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-600 text-white';
           badge.textContent = 'อยู่นอกพื้นที่ — ล็อกการสแกน';
           detail.textContent = `${check.reason}${accText}`;
         } else {
-          card.className = 'rounded-2xl border border-amber-300 bg-amber-50/80 shadow-sm p-4 flex flex-col md:flex-row md:items-center justify-between gap-3';
-          icon.className = 'w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5';
+          card.className = 'lg:col-span-8 rounded-2xl border border-amber-300 bg-amber-50/80 shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+          icon.className = 'w-11 h-11 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0';
           badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white';
-          badge.textContent = check.code === 'no_coop_pin' ? 'รอตั้งค่าพิกัดสหกรณ์' : 'รอสัญญาณ GPS';
+          badge.textContent = check.code === 'no_coop_pin' ? 'รอตั้งค่าพิกัดสำนักงาน' : 'รอสัญญาณ GPS';
           detail.textContent = check.reason;
+        }
+      }
+
+      function renderDeviceStatus() {
+        const statusEl = document.getElementById('device-bind-status');
+        const idEl = document.getElementById('device-id-display');
+        if (idEl) idEl.textContent = `รหัสอุปกรณ์: ${deviceProfile.deviceId}`;
+        if (!statusEl) return;
+
+        if (!gpsConfig.deviceLockEnforced) {
+          statusEl.textContent = 'โหมดเครื่องกลาง (ไม่ผูกเฉพาะบุคคล)';
+          statusEl.className = 'text-xs text-slate-600 mt-0.5 truncate';
+        } else if (deviceProfile.boundEmpId) {
+          statusEl.textContent = `ผูกสิทธิ์แล้ว: ${deviceProfile.boundEmpId} (${deviceProfile.boundEmpName || 'พนักงาน'})`;
+          statusEl.className = 'text-xs font-semibold text-emerald-700 mt-0.5 truncate';
+        } else {
+          statusEl.textContent = 'พร้อมผูกสิทธิ์อัตโนมัติเมื่อสแกนครั้งแรก';
+          statusEl.className = 'text-xs text-amber-700 font-medium mt-0.5 truncate';
         }
       }
 
       function refreshGps(silent, onSuccess) {
         if (!('geolocation' in navigator)) {
           gpsStatusState = 'error';
-          gpsErrorMsg = 'เบราว์เซอร์นี้ไม่รองรับการดึงพิกัด GPS';
+          gpsErrorMsg = 'อุปกรณ์นี้ไม่รองรับการดึงพิกัด GPS';
           renderGpsStatus();
           if (!silent) showToast(gpsErrorMsg, 'error');
           return;
@@ -1006,17 +1174,15 @@
             renderGpsStatus();
             if (!silent) {
               const check = checkGpsEligibility();
-              showToast(check.allowed ? `อัปเดตพิกัดแล้ว: ${check.reason}` : check.reason, check.allowed ? 'success' : 'warning');
+              showToast(check.allowed ? `ตรวจสอบพิกัดแล้ว: ${check.reason}` : check.reason, check.allowed ? 'success' : 'warning');
             }
             if (typeof onSuccess === 'function') onSuccess(currentGps);
           },
           (err) => {
             gpsStatusState = 'error';
-            if (err && err.code === 1) {
-              gpsErrorMsg = 'ไม่ได้รับอนุญาตเข้าถึงตำแหน่ง GPS กรุณากดอนุญาตตำแหน่งในเบราว์เซอร์';
-            } else {
-              gpsErrorMsg = 'ไม่สามารถดึงพิกัด GPS ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง';
-            }
+            gpsErrorMsg = err && err.code === 1
+              ? 'ไม่ได้รับอนุญาตตำแหน่ง GPS กรุณากดอนุญาตตำแหน่งบนเบราว์เซอร์'
+              : 'ไม่สามารถดึงสัญญาณ GPS ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง';
             renderGpsStatus();
             if (!silent) showToast(gpsErrorMsg, 'warning');
           },
@@ -1024,19 +1190,40 @@
         );
       }
 
-      // ==================== CORE ATTENDANCE LOGIC ====================
-      function recordAttendance(rawCode, forcedType) {
+      // ==================== DEVICE LOCK & SELFIE FLOW ====================
+      function validateDeviceBinding(emp) {
+        if (!gpsConfig.deviceLockEnforced) {
+          return { ok: true };
+        }
+        // Check local phone binding
+        if (deviceProfile.boundEmpId && deviceProfile.boundEmpId.toUpperCase() !== emp.id.toUpperCase()) {
+          return {
+            ok: false,
+            reason: `ไม่อนุญาตให้สแกนแทนกัน: มือถือเครื่องนี้ผูกสิทธิ์ไว้กับ ${deviceProfile.boundEmpId} (${deviceProfile.boundEmpName}) แล้ว`
+          };
+        }
+        // Check employee's registered deviceId from Google Sheets (if synced)
+        if (emp.deviceId && emp.deviceId !== deviceProfile.deviceId) {
+          return {
+            ok: false,
+            reason: `รหัส ${emp.id} ผูกสิทธิ์ไว้กับมือถือเครื่องอื่นแล้ว (${emp.deviceId}) หากเปลี่ยนเครื่องกรุณาแจ้งผู้ดูแล`
+          };
+        }
+        return { ok: true };
+      }
+
+      function initiateAttendance(rawCode, forcedType) {
         const gpsCheck = checkGpsEligibility();
         if (!gpsCheck.allowed) {
           playBeep(true);
           showScanFeedback({
-            ok: false,
-            title: 'ไม่อนุญาตให้ลงเวลานอกพื้นที่สหกรณ์',
+            title: 'ไม่สามารถลงเวลานอกพื้นที่สหกรณ์ได้',
             meta: gpsCheck.reason,
             time: `${getLocalTimeStr()} น.`,
-            typeLabel: 'ตรวจจับ GPS ไม่ผ่าน',
+            typeLabel: 'ตรวจสอบ GPS ไม่ผ่าน',
             badge: 'ล็อกการสแกน (GPS)',
-            tone: 'error'
+            tone: 'error',
+            photo: ''
           });
           showToast(gpsCheck.reason, 'error');
           return;
@@ -1044,7 +1231,7 @@
 
         const cleanCode = String(rawCode || '').trim().toUpperCase();
         if (!cleanCode) {
-          showToast('กรุณาระบุหรือสแกนรหัสพนักงาน', 'warning');
+          showToast('กรุณาสแกนบัตร QR Code หรือกรอกรหัสพนักงาน', 'warning');
           return;
         }
 
@@ -1052,76 +1239,224 @@
         if (!emp) {
           playBeep(true);
           showScanFeedback({
-            ok: false,
             title: `ไม่พบรหัสพนักงาน: ${cleanCode}`,
-            meta: 'กรุณาตรวจสอบหรือเพิ่มรหัสพนักงานในแท็บ “พนักงาน & บัตร QR”',
+            meta: 'กรุณาตรวจสอบรหัสพนักงานให้ถูกต้อง หรือติดต่อผู้ดูแลระบบ',
             time: `${getLocalTimeStr()} น.`,
             typeLabel: 'ไม่พบข้อมูล',
             badge: 'ไม่พบรหัสในระบบ',
-            tone: 'error'
+            tone: 'error',
+            photo: ''
           });
           showToast(`ไม่พบรหัสพนักงาน ${cleanCode} ในระบบ`, 'error');
           return;
         }
 
-        const todayStr = getLocalDateStr();
-        const timeStr = getLocalTimeStr();
-        const gpsMetaSuffix = gpsCheck.distanceMeters !== null ? ` • ห่างจุดสหกรณ์ ${gpsCheck.distanceMeters} ม.` : '';
-        let existing = logs.find((l) => l.empId === emp.id && l.date === todayStr);
+        const devCheck = validateDeviceBinding(emp);
+        if (!devCheck.ok) {
+          playBeep(true);
+          showScanFeedback({
+            title: 'ระบบป้องกันการสแกนแทนกัน',
+            meta: devCheck.reason,
+            time: `${getLocalTimeStr()} น.`,
+            typeLabel: 'สิทธิ์อุปกรณ์ไม่ตรงกัน',
+            badge: 'ล็อก 1 เครื่อง / 1 คน',
+            tone: 'error',
+            photo: ''
+          });
+          showToast(devCheck.reason, 'error');
+          return;
+        }
 
+        const todayStr = getLocalDateStr();
+        const existing = logs.find((l) => l.empId === emp.id && l.date === todayStr);
         let actionType = forcedType;
         if (!actionType || actionType === 'auto') {
           actionType = existing && existing.checkIn ? 'out' : 'in';
         }
 
+        if (gpsConfig.selfieEnforced) {
+          openSelfieModal({ emp, actionType, gpsCheck });
+        } else {
+          finalizeAttendance({ emp, actionType, gpsCheck }, '');
+        }
+      }
+
+      function stopSelfieStreamOnly() {
+        selfieCameraReady = false;
+        const captureBtn = document.getElementById('selfie-capture-btn');
+        if (captureBtn) captureBtn.disabled = true;
+        if (selfieStream) {
+          selfieStream.getTracks().forEach((t) => t.stop());
+          selfieStream = null;
+        }
+        const video = document.getElementById('selfie-video');
+        if (video) video.srcObject = null;
+      }
+
+      function startSelfieCameraStream(facingMode) {
+        stopSelfieStreamOnly();
+        const loading = document.getElementById('selfie-loading');
+        const video = document.getElementById('selfie-video');
+        const captureBtn = document.getElementById('selfie-capture-btn');
+
+        loading.textContent = facingMode === 'user' ? 'กำลังเปิดกล้องหน้า...' : 'กำลังเปิดกล้องหลัง...';
+        loading.classList.remove('hidden');
+        video.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none';
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          loading.textContent = 'ไม่พบกล้องบนอุปกรณ์นี้ — ระบบบังคับต้องถ่ายภาพยืนยันตัวตนจึงจะลงเวลาได้';
+          return;
+        }
+
+        const tryStart = (constraints, allowFallback) => {
+          navigator.mediaDevices.getUserMedia(constraints)
+            .then((stream) => {
+              if (!pendingScanContext) {
+                stream.getTracks().forEach((t) => t.stop());
+                return;
+              }
+              selfieStream = stream;
+              video.srcObject = stream;
+              video.onloadedmetadata = () => {
+                video.play().catch(() => {});
+                selfieCameraReady = true;
+                loading.classList.add('hidden');
+                if (captureBtn) captureBtn.disabled = false;
+              };
+            })
+            .catch(() => {
+              if (allowFallback) {
+                // Fallback to any available camera (front or back)
+                tryStart({ video: { width: { ideal: 640 }, height: { ideal: 480 } }, audio: false }, false);
+              } else {
+                loading.textContent = 'ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตสิทธิ์กล้องในเบราว์เซอร์ (ต้องมีภาพถ่ายจึงจะลงเวลาได้)';
+              }
+            });
+        };
+
+        tryStart({ video: { facingMode: { ideal: facingMode }, width: { ideal: 640 }, height: { ideal: 480 } }, audio: false }, true);
+      }
+
+      function openSelfieModal(ctx) {
+        pendingScanContext = ctx;
+        const modal = document.getElementById('selfie-modal');
+        const label = document.getElementById('selfie-emp-label');
+        const actionLabel = ctx.actionType === 'in' ? 'ลงเวลาเข้างาน' : 'ลงเวลาออกงาน';
+        label.textContent = `${ctx.emp.id} • ${ctx.emp.name} (${actionLabel})`;
+        modal.classList.remove('hidden');
+
+        // Release QR camera cleanly before opening photo camera (prevents mobile hardware lock)
+        if (cameraRunning && html5QrCode) {
+          stopCamera().then(() => {
+            setTimeout(() => startSelfieCameraStream(selfieFacingMode), 350);
+          });
+        } else {
+          startSelfieCameraStream(selfieFacingMode);
+        }
+      }
+
+      function closeSelfieModal() {
+        stopSelfieStreamOnly();
+        document.getElementById('selfie-modal').classList.add('hidden');
+        pendingScanContext = null;
+        isSubmittingAttendance = false;
+      }
+
+      function captureSelfieAndConfirm() {
+        if (!pendingScanContext || isSubmittingAttendance) return;
+        const video = document.getElementById('selfie-video');
+        const canvas = document.getElementById('selfie-canvas');
+
+        if (!selfieCameraReady || !selfieStream || !video || video.videoWidth === 0 || video.videoHeight === 0) {
+          showToast('กรุณารอให้กล้องเปิดพร้อมถ่ายภาพก่อนกดยืนยัน', 'warning');
+          return;
+        }
+
+        isSubmittingAttendance = true;
+        const ctx = pendingScanContext;
+        const targetW = 480;
+        const targetH = Math.round((video.videoHeight / video.videoWidth) * targetW);
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const c2d = canvas.getContext('2d');
+        if (selfieFacingMode === 'user') {
+          c2d.translate(targetW, 0);
+          c2d.scale(-1, 1);
+        }
+        c2d.drawImage(video, 0, 0, targetW, targetH);
+        const photoDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+
+        closeSelfieModal();
+        finalizeAttendance(ctx, photoDataUrl);
+      }
+
+      function finalizeAttendance(ctx, photoDataUrl) {
+        const { emp, actionType, gpsCheck } = ctx;
+        const todayStr = getLocalDateStr();
+        const timeStr = getLocalTimeStr();
+        const gpsMetaSuffix = gpsCheck.distanceMeters !== null ? ` • ห่างจุดสหกรณ์ ${gpsCheck.distanceMeters} ม.` : '';
+
+        // Bind device locally on first successful check-in/out when Device Lock is enabled
+        if (gpsConfig.deviceLockEnforced && !deviceProfile.boundEmpId) {
+          deviceProfile.boundEmpId = emp.id;
+          deviceProfile.boundEmpName = emp.name;
+          emp.deviceId = deviceProfile.deviceId;
+        }
+
+        let existing = logs.find((l) => l.empId === emp.id && l.date === todayStr);
+
         if (actionType === 'in') {
           const checkInEval = evaluateCheckIn(timeStr);
           if (existing) {
             existing.checkIn = timeStr;
+            if (photoDataUrl) existing.photo = photoDataUrl;
           } else {
             logs.push({
               logId: `LOG-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
               empId: emp.id,
               date: todayStr,
               checkIn: timeStr,
-              checkOut: ''
+              checkOut: '',
+              photo: photoDataUrl || ''
             });
           }
           const isLate = checkInEval.status === 'late';
           playBeep(isLate);
           showScanFeedback({
-            ok: true,
             title: emp.name,
             meta: `รหัส ${emp.id} • ${emp.dept}${gpsMetaSuffix}`,
             time: `${timeStr} น.`,
             typeLabel: 'ลงเวลาเข้างาน',
             badge: isLate ? checkInEval.label : 'เข้างานตรงเวลา',
-            tone: isLate ? 'warning' : 'success'
+            tone: isLate ? 'warning' : 'success',
+            photo: photoDataUrl
           });
           showToast(`${emp.name} ลงเวลาเข้างาน ${timeStr} น. (${checkInEval.label})`, isLate ? 'warning' : 'success');
         } else {
           const checkOutEval = evaluateCheckOut(timeStr);
           if (existing) {
             existing.checkOut = timeStr;
+            if (photoDataUrl) existing.photo = photoDataUrl;
           } else {
             logs.push({
               logId: `LOG-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
               empId: emp.id,
               date: todayStr,
               checkIn: '',
-              checkOut: timeStr
+              checkOut: timeStr,
+              photo: photoDataUrl || ''
             });
           }
           const isEarly = checkOutEval.status === 'early';
           playBeep(isEarly);
           showScanFeedback({
-            ok: true,
             title: emp.name,
             meta: `รหัส ${emp.id} • ${emp.dept}${gpsMetaSuffix}`,
             time: `${timeStr} น.`,
             typeLabel: 'ลงเวลาออกงาน',
             badge: isEarly ? checkOutEval.label : 'ออกงานปกติ',
-            tone: isEarly ? 'error' : 'info'
+            tone: isEarly ? 'error' : 'info',
+            photo: photoDataUrl
           });
           showToast(`${emp.name} ลงเวลาออกงาน ${timeStr} น. (${checkOutEval.label})`, isEarly ? 'warning' : 'success');
         }
@@ -1129,79 +1464,15 @@
         saveState();
         renderAll();
 
-        // Sync real-time attendance to Google Sheets via Google Apps Script
+        // Sync to Google Sheets & Google Drive via Apps Script
         syncToGoogleSheet({
           empId: emp.id,
           mode: actionType,
+          deviceId: gpsConfig.deviceLockEnforced ? deviceProfile.deviceId : '',
           distanceMeters: gpsCheck.distanceMeters !== null ? gpsCheck.distanceMeters : '-',
-          coords: currentGps ? `${currentGps.lat.toFixed(6)}, ${currentGps.lng.toFixed(6)}` : '-'
+          coords: currentGps ? `${currentGps.lat.toFixed(6)}, ${currentGps.lng.toFixed(6)}` : '-',
+          photoBase64: photoDataUrl || ''
         }, emp, todayStr);
-      }
-
-      async function syncToGoogleSheet(payload, emp, todayStr) {
-        const url = (gpsConfig.appsScriptUrl || '').trim();
-        const badge = document.getElementById('sheet-sync-badge');
-        if (!url) {
-          if (badge) {
-            badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-700';
-            badge.textContent = 'โหมดออฟไลน์ (ยังไม่ใส่ลิงก์ Sheets)';
-          }
-          return;
-        }
-        if (badge) {
-          badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800';
-          badge.textContent = 'กำลังส่งเข้า Google Sheets...';
-        }
-        try {
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload),
-            redirect: 'follow'
-          });
-          const text = await res.text();
-          let result = null;
-          try {
-            result = JSON.parse(text);
-          } catch (parseErr) {
-            result = null;
-          }
-
-          if (result && result.ok) {
-            // Update local record with authoritative Google Server time
-            const serverTime = result.time || getLocalTimeStr();
-            const targetLog = logs.find((l) => l.empId === emp.id && l.date === todayStr);
-            if (targetLog) {
-              if (result.action === 'in') targetLog.checkIn = serverTime;
-              else targetLog.checkOut = serverTime;
-              saveState();
-              renderAll();
-            }
-            if (badge) {
-              badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800';
-              badge.textContent = `ซิงก์ Google Sheets แล้ว (${serverTime} น.)`;
-            }
-            showToast(`บันทึกลง Google Sheets สำเร็จ (เวลาเซิร์ฟเวอร์ ${serverTime} น. • ${result.status})`, 'success');
-          } else if (result && result.ok === false) {
-            if (badge) {
-              badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800';
-              badge.textContent = 'Sheets แจ้งเตือน';
-            }
-            showToast(`Google Sheets: ${result.message || 'ไม่สามารถบันทึกได้'}`, 'warning');
-          } else {
-            if (badge) {
-              badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800';
-              badge.textContent = 'ส่งข้อมูลเข้า Google Sheets แล้ว';
-            }
-            showToast('ส่งข้อมูลไปยัง Google Sheets เรียบร้อยแล้ว', 'success');
-          }
-        } catch (err) {
-          if (badge) {
-            badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800';
-            badge.textContent = 'ส่งเข้า Sheets ไม่สำเร็จ (เก็บสำรองในเครื่อง)';
-          }
-          showToast('เชื่อมต่อ Google Sheets ไม่สำเร็จ ระบบเก็บข้อมูลสำรองในเครื่องไว้แล้ว', 'warning');
-        }
       }
 
       function showScanFeedback(info) {
@@ -1211,6 +1482,7 @@
         const metaEl = document.getElementById('scan-result-meta');
         const timeEl = document.getElementById('scan-result-time');
         const typeEl = document.getElementById('scan-result-type');
+        const photoEl = document.getElementById('scan-result-photo');
 
         const boxStyles = {
           success: 'bg-emerald-50 border-emerald-300',
@@ -1226,13 +1498,108 @@
         };
 
         box.className = `rounded-2xl p-4 border transition-all ${boxStyles[info.tone] || boxStyles.info}`;
-        badge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold mb-1.5 ${badgeStyles[info.tone] || badgeStyles.info}`;
+        badge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold mb-1 ${badgeStyles[info.tone] || badgeStyles.info}`;
         badge.textContent = info.badge;
         nameEl.textContent = info.title;
         metaEl.textContent = info.meta;
         timeEl.textContent = info.time;
         typeEl.textContent = info.typeLabel;
+
+        if (info.photo) {
+          photoEl.src = info.photo;
+          photoEl.classList.remove('hidden');
+        } else {
+          photoEl.classList.add('hidden');
+        }
         box.classList.remove('hidden');
+      }
+
+      // ==================== GOOGLE SHEETS TWO-WAY SYNC ====================
+      async function syncToGoogleSheet(payload, emp, todayStr) {
+        const url = (gpsConfig.appsScriptUrl || '').trim();
+        const badge = document.getElementById('sheet-sync-badge');
+        if (!url) return;
+
+        if (badge) {
+          badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800';
+          badge.textContent = 'กำลังบันทึกเข้าฐานข้อมูลกลาง...';
+        }
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload),
+            redirect: 'follow'
+          });
+          const text = await res.text();
+          let result = null;
+          try { result = JSON.parse(text); } catch (e) { result = null; }
+
+          if (result && result.ok) {
+            const serverTime = result.time || getLocalTimeStr();
+            const targetLog = logs.find((l) => l.empId === emp.id && l.date === todayStr);
+            if (targetLog) {
+              if (result.action === 'in') targetLog.checkIn = serverTime;
+              else targetLog.checkOut = serverTime;
+              if (result.photoUrl) targetLog.photoUrl = result.photoUrl;
+              saveState();
+              renderAll();
+            }
+            if (badge) {
+              badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800';
+              badge.textContent = `บันทึกสำเร็จ (${serverTime} น.)`;
+            }
+            showToast(`บันทึกข้อมูลและเวลาจริง (${serverTime} น.) เรียบร้อยแล้ว`, 'success');
+          } else if (result && result.ok === false) {
+            // If server rejected due to device lock mismatch, surface clear warning
+            if (badge) {
+              badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800';
+              badge.textContent = 'ระบบกลางปฏิเสธรายการ';
+            }
+            showToast(result.message || 'ไม่สามารถบันทึกข้อมูลเข้าฐานข้อมูลกลางได้', 'error');
+          }
+        } catch (err) {
+          if (badge) {
+            badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800';
+            badge.textContent = 'บันทึกสำรองในเครื่องแล้ว';
+          }
+          showToast('สัญญาณอินเทอร์เน็ตขัดข้อง ระบบบันทึกสำรองไว้ในเครื่องชั่วคราว', 'warning');
+        }
+      }
+
+      async function fetchFromGoogleSheet(silent) {
+        const url = (gpsConfig.appsScriptUrl || '').trim();
+        const badge = document.getElementById('sheet-sync-badge');
+        if (!url) return;
+
+        try {
+          const res = await fetch(url, { method: 'GET', redirect: 'follow' });
+          const text = await res.text();
+          let data = null;
+          try { data = JSON.parse(text); } catch (e) { data = null; }
+
+          if (data && data.ok) {
+            if (Array.isArray(data.employees) && data.employees.length > 0) {
+              employees = data.employees;
+            }
+            if (Array.isArray(data.logs) && data.logs.length > 0) {
+              logs = data.logs;
+            }
+            saveState();
+            renderAll();
+            if (badge) {
+              badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800';
+              badge.textContent = `ซิงก์ระบบกลางแล้ว (${employees.length} คน)`;
+            }
+            if (!silent) {
+              showToast(`ซิงก์ข้อมูลจาก Google Sheets สำเร็จ (พนักงาน ${employees.length} คน)`, 'success');
+            }
+          } else if (!silent) {
+            showToast('กรุณาอัปเดตโค้ด Apps Script และ Deploy เวอร์ชันใหม่เพื่อเปิดซิงก์สองทาง', 'warning');
+          }
+        } catch (err) {
+          if (!silent) showToast('ไม่สามารถเชื่อมต่อฐานข้อมูลกลางได้ในขณะนี้', 'warning');
+        }
       }
 
       // ==================== CAMERA QR SCANNER ====================
@@ -1244,68 +1611,55 @@
           return;
         }
         if (typeof Html5Qrcode === 'undefined') {
-          showToast('ไม่สามารถโหลดโมดูลกล้องได้ กรุณาลองใหม่อีกครั้ง', 'error');
+          showToast('ไม่สามารถเปิดโมดูลกล้องได้ในขณะนี้', 'error');
           return;
         }
         const placeholder = document.getElementById('camera-placeholder');
+        const laser = document.getElementById('scanner-laser-line');
         const btnStart = document.getElementById('btn-start-camera');
         const btnStop = document.getElementById('btn-stop-camera');
 
         html5QrCode = new Html5Qrcode('qr-reader');
         const config = { fps: 10, qrbox: { width: 220, height: 220 } };
 
-        html5QrCode.start(
-          { facingMode: 'environment' },
-          config,
-          (decodedText) => {
-            const now = Date.now();
-            if (decodedText === lastScannedCode && now - lastScannedAt < 3500) {
-              return; // Debounce duplicate consecutive scans
-            }
-            lastScannedCode = decodedText;
-            lastScannedAt = now;
-            recordAttendance(decodedText, scanMode);
-          },
-          () => {
-            // Frame decode miss; keep scanning silently
-          }
-        ).then(() => {
-          cameraRunning = true;
-          placeholder.classList.add('hidden');
-          btnStart.classList.add('hidden');
-          btnStop.classList.remove('hidden');
-          showToast('เปิดกล้องสแกน QR Code เรียบร้อยแล้ว', 'success');
-        }).catch(() => {
-          // Fallback try front camera if environment camera unavailable
-          html5QrCode.start(
-            { facingMode: 'user' },
-            config,
-            (decodedText) => {
-              const now = Date.now();
-              if (decodedText === lastScannedCode && now - lastScannedAt < 3500) return;
-              lastScannedCode = decodedText;
-              lastScannedAt = now;
-              recordAttendance(decodedText, scanMode);
-            },
-            () => {}
-          ).then(() => {
+        const onScanSuccess = (decodedText) => {
+          const now = Date.now();
+          if (decodedText === lastScannedCode && now - lastScannedAt < 3500) return;
+          lastScannedCode = decodedText;
+          lastScannedAt = now;
+          initiateAttendance(decodedText, scanMode);
+        };
+
+        html5QrCode.start({ facingMode: 'environment' }, config, onScanSuccess, () => {})
+          .then(() => {
             cameraRunning = true;
             placeholder.classList.add('hidden');
+            laser.classList.remove('hidden');
             btnStart.classList.add('hidden');
             btnStop.classList.remove('hidden');
-            showToast('เปิดกล้องหน้าสแกน QR Code เรียบร้อยแล้ว', 'success');
-          }).catch(() => {
-            showToast('ไม่สามารถเข้าถึงกล้องได้ (กรุณาอนุญาตสิทธิ์กล้อง หรือใช้ช่องทดสอบด้านขวา)', 'warning');
+          })
+          .catch(() => {
+            html5QrCode.start({ facingMode: 'user' }, config, onScanSuccess, () => {})
+              .then(() => {
+                cameraRunning = true;
+                placeholder.classList.add('hidden');
+                laser.classList.remove('hidden');
+                btnStart.classList.add('hidden');
+                btnStop.classList.remove('hidden');
+              })
+              .catch(() => {
+                showToast('ไม่สามารถเข้าถึงกล้องได้ กรุณากดอนุญาตสิทธิ์กล้องบนเบราว์เซอร์', 'warning');
+              });
           });
-        });
       }
 
       function stopCamera() {
-        if (!cameraRunning || !html5QrCode) return;
-        html5QrCode.stop().then(() => {
+        if (!cameraRunning || !html5QrCode) return Promise.resolve();
+        return html5QrCode.stop().then(() => {
           html5QrCode.clear();
           cameraRunning = false;
           document.getElementById('camera-placeholder').classList.remove('hidden');
+          document.getElementById('scanner-laser-line').classList.add('hidden');
           document.getElementById('btn-start-camera').classList.remove('hidden');
           document.getElementById('btn-stop-camera').classList.add('hidden');
         }).catch(() => {
@@ -1317,9 +1671,10 @@
       function getPenaltyConfig() {
         const lateEl = document.getElementById('penalty-late');
         const earlyEl = document.getElementById('penalty-early');
-        const latePenalty = Math.max(0, Number(lateEl ? lateEl.value : 3) || 0);
-        const earlyPenalty = Math.max(0, Number(earlyEl ? earlyEl.value : 4) || 0);
-        return { latePenalty, earlyPenalty };
+        return {
+          latePenalty: Math.max(0, Number(lateEl ? lateEl.value : 3) || 0),
+          earlyPenalty: Math.max(0, Number(earlyEl ? earlyEl.value : 4) || 0)
+        };
       }
 
       function getBonusGrade(score) {
@@ -1333,12 +1688,10 @@
         const { latePenalty, earlyPenalty } = getPenaltyConfig();
         return employees.map((emp) => {
           const empLogs = logs.filter((l) => l.empId === emp.id);
-          let totalDays = empLogs.length;
           let onTimeCount = 0;
           let lateCount = 0;
           let totalLateMins = 0;
           let earlyCount = 0;
-          let normalOutCount = 0;
 
           empLogs.forEach((l) => {
             if (l.checkIn) {
@@ -1352,31 +1705,23 @@
             }
             if (l.checkOut) {
               const evOut = evaluateCheckOut(l.checkOut);
-              if (evOut.status === 'early') {
-                earlyCount++;
-              } else if (evOut.status === 'normal') {
-                normalOutCount++;
-              }
+              if (evOut.status === 'early') earlyCount++;
             }
           });
 
           const checkInTotal = onTimeCount + lateCount;
           const onTimePct = checkInTotal > 0 ? Math.round((onTimeCount / checkInTotal) * 100) : 100;
-          const rawScore = 100 - (lateCount * latePenalty) - (earlyCount * earlyPenalty);
-          const kpiScore = Math.max(0, Math.min(100, rawScore));
-          const gradeInfo = getBonusGrade(kpiScore);
-
+          const kpiScore = Math.max(0, Math.min(100, 100 - (lateCount * latePenalty) - (earlyCount * earlyPenalty)));
           return {
             ...emp,
-            totalDays,
+            totalDays: empLogs.length,
             onTimeCount,
             lateCount,
             totalLateMins,
             earlyCount,
-            normalOutCount,
             onTimePct,
             kpiScore,
-            gradeInfo
+            gradeInfo: getBonusGrade(kpiScore)
           };
         });
       }
@@ -1398,7 +1743,7 @@
         const prevLogDept = logDeptFilter.value;
 
         simSelect.innerHTML = employees.length
-          ? employees.map((e) => `<option value="${escapeHtml(e.id)}">${escapeHtml(e.id)} — ${escapeHtml(e.name)} (${escapeHtml(e.dept)})</option>`).join('')
+          ? employees.map((e) => `<option value="${escapeHtml(e.id)}">${escapeHtml(e.id)} — ${escapeHtml(e.name)}</option>`).join('')
           : '<option value="">ยังไม่มีรายชื่อพนักงาน</option>';
         if (employees.some((e) => e.id === prevSim)) simSelect.value = prevSim;
 
@@ -1410,11 +1755,11 @@
           getUniqueDepts().map((d) => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
 
         kpiDeptFilter.innerHTML = deptOptions;
-        if (prevKpiDept) kpiDeptFilter.value = prevKpiDept;
+        kpiDeptFilter.value = prevKpiDept || 'all';
         if (!kpiDeptFilter.value) kpiDeptFilter.value = 'all';
 
         logDeptFilter.innerHTML = deptOptions;
-        if (prevLogDept) logDeptFilter.value = prevLogDept;
+        logDeptFilter.value = prevLogDept || 'all';
         if (!logDeptFilter.value) logDeptFilter.value = 'all';
       }
 
@@ -1434,10 +1779,7 @@
             if (ev.status === 'late') late++;
             else if (ev.status === 'normal') onTime++;
           }
-          if (l.checkOut) {
-            const evOut = evaluateCheckOut(l.checkOut);
-            if (evOut.status === 'early') early++;
-          }
+          if (l.checkOut && evaluateCheckOut(l.checkOut).status === 'early') early++;
         });
 
         document.getElementById('today-checked-in').textContent = checkedIn;
@@ -1448,17 +1790,15 @@
 
         const feedEl = document.getElementById('today-feed-list');
         if (!todayLogs.length) {
-          feedEl.innerHTML = '<div class="text-center py-6 text-xs text-slate-400">ยังไม่มีรายการสแกนลงเวลาของวันนี้<br>ลองกดปุ่ม “บันทึกเข้างาน” ด้านบนเพื่อทดสอบ</div>';
+          feedEl.innerHTML = '<div class="text-center py-6 text-xs text-slate-400">ยังไม่มีรายการลงเวลาในวันนี้</div>';
           return;
         }
 
         const empMap = Object.fromEntries(employees.map((e) => [e.id, e]));
-        const sorted = [...todayLogs].reverse();
-        feedEl.innerHTML = sorted.map((l) => {
+        feedEl.innerHTML = [...todayLogs].reverse().map((l) => {
           const emp = empMap[l.empId] || { name: l.empId, dept: '-' };
           const evIn = evaluateCheckIn(l.checkIn);
           const evOut = evaluateCheckOut(l.checkOut);
-
           const inBadge = l.checkIn
             ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold font-num ${evIn.status === 'late' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">เข้า ${escapeHtml(l.checkIn)}</span>`
             : '';
@@ -1487,14 +1827,9 @@
         const deptFilter = document.getElementById('kpi-dept-filter').value;
 
         let filtered = allStats;
-        if (deptFilter && deptFilter !== 'all') {
-          filtered = filtered.filter((s) => s.dept === deptFilter);
-        }
-        if (empFilter && empFilter !== 'all') {
-          filtered = filtered.filter((s) => s.id === empFilter);
-        }
+        if (deptFilter && deptFilter !== 'all') filtered = filtered.filter((s) => s.dept === deptFilter);
+        if (empFilter && empFilter !== 'all') filtered = filtered.filter((s) => s.id === empFilter);
 
-        // Update Spotlight Cards
         const count = filtered.length;
         const avgScore = count > 0 ? (filtered.reduce((acc, s) => acc + s.kpiScore, 0) / count) : 0;
         const totalOnTime = filtered.reduce((acc, s) => acc + s.onTimeCount, 0);
@@ -1503,7 +1838,7 @@
         const totalEarly = filtered.reduce((acc, s) => acc + s.earlyCount, 0);
         const totalDays = filtered.reduce((acc, s) => acc + s.totalDays, 0);
         const checkInTotal = totalOnTime + totalLate;
-        const onTimePct = checkInTotal > 0 ? Math.round((totalOnTime / checkInTotal) * 100) : 0;
+        const onTimePct = checkInTotal > 0 ? Math.round((totalOnTime / checkInTotal) * 100) : 100;
         const avgGrade = getBonusGrade(avgScore);
 
         document.getElementById('kpi-card-score').textContent = avgScore.toFixed(1);
@@ -1514,7 +1849,6 @@
         document.getElementById('kpi-card-early-count').textContent = totalEarly;
         document.getElementById('kpi-card-days').textContent = totalDays;
 
-        // Render Table
         const tbody = document.getElementById('kpi-table-body');
         if (!filtered.length) {
           tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-slate-400">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
@@ -1523,9 +1857,7 @@
             <tr class="hover:bg-slate-50 transition-colors">
               <td class="px-4 py-3 font-semibold font-num text-slate-700">${escapeHtml(s.id)}</td>
               <td class="px-4 py-3">
-                <button type="button" data-focus-emp="${escapeHtml(s.id)}" class="focus-emp-btn font-semibold text-emerald-800 hover:underline text-left">
-                  ${escapeHtml(s.name)}
-                </button>
+                <button type="button" data-focus-emp="${escapeHtml(s.id)}" class="focus-emp-btn font-semibold text-emerald-800 hover:underline text-left">${escapeHtml(s.name)}</button>
               </td>
               <td class="px-4 py-3 text-slate-600 text-xs">${escapeHtml(s.dept)}</td>
               <td class="px-4 py-3 text-center font-num">${s.totalDays}</td>
@@ -1534,15 +1866,12 @@
               <td class="px-4 py-3 text-center font-num ${s.earlyCount > 0 ? 'text-rose-600 font-semibold' : 'text-slate-400'}">${s.earlyCount} ครั้ง</td>
               <td class="px-4 py-3 text-center font-num font-bold text-slate-900">${s.kpiScore}</td>
               <td class="px-4 py-3 text-center">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${s.gradeInfo.badgeClass}">
-                  เกรด ${s.gradeInfo.grade}
-                </span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${s.gradeInfo.badgeClass}">เกรด ${s.gradeInfo.grade}</span>
               </td>
             </tr>
           `).join('');
         }
 
-        // Render Charts
         if (typeof Chart === 'undefined') return;
         const labels = filtered.map((s) => s.name.replace(/^(นางสาว|นาย|นาง)/, '').split(' ')[0] + ` (${s.id})`);
 
@@ -1563,16 +1892,8 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
-                max: 100,
-                ticks: { stepSize: 20 }
-              }
-            },
-            plugins: {
-              legend: { display: false }
-            }
+            scales: { y: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } },
+            plugins: { legend: { display: false } }
           }
         });
 
@@ -1583,36 +1904,16 @@
           data: {
             labels,
             datasets: [
-              {
-                label: 'มาตรงเวลา (≤ 08:30)',
-                data: filtered.map((s) => s.onTimeCount),
-                backgroundColor: '#10b981',
-                borderRadius: 4
-              },
-              {
-                label: 'เข้าสาย (> 08:30)',
-                data: filtered.map((s) => s.lateCount),
-                backgroundColor: '#f59e0b',
-                borderRadius: 4
-              },
-              {
-                label: 'ออกก่อนเวลา (< 16:30)',
-                data: filtered.map((s) => s.earlyCount),
-                backgroundColor: '#f43f5e',
-                borderRadius: 4
-              }
+              { label: 'มาตรงเวลา (≤ 08:30)', data: filtered.map((s) => s.onTimeCount), backgroundColor: '#10b981', borderRadius: 4 },
+              { label: 'เข้าสาย (> 08:30)', data: filtered.map((s) => s.lateCount), backgroundColor: '#f59e0b', borderRadius: 4 },
+              { label: 'ออกก่อนเวลา (< 16:30)', data: filtered.map((s) => s.earlyCount), backgroundColor: '#f43f5e', borderRadius: 4 }
             ]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-              x: { stacked: false },
-              y: { beginAtZero: true, ticks: { stepSize: 1 } }
-            },
-            plugins: {
-              legend: { position: 'bottom' }
-            }
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+            plugins: { legend: { position: 'bottom' } }
           }
         });
       }
@@ -1622,15 +1923,11 @@
         const deptVal = document.getElementById('log-dept-filter').value;
         const statusVal = document.getElementById('log-status-filter').value;
         const dateVal = document.getElementById('log-date-filter').value;
-
         const empMap = Object.fromEntries(employees.map((e) => [e.id, e]));
 
         const filtered = logs.filter((l) => {
           const emp = empMap[l.empId] || { name: l.empId, dept: '-' };
-          if (searchVal) {
-            const hay = `${l.empId} ${emp.name} ${emp.dept}`.toLowerCase();
-            if (!hay.includes(searchVal)) return false;
-          }
+          if (searchVal && !`${l.empId} ${emp.name} ${emp.dept}`.toLowerCase().includes(searchVal)) return false;
           if (deptVal && deptVal !== 'all' && emp.dept !== deptVal) return false;
           if (dateVal && l.date !== dateVal) return false;
 
@@ -1646,26 +1943,29 @@
         const tbody = document.getElementById('logs-table-body');
 
         if (!filtered.length) {
-          tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-8 text-center text-slate-400">ไม่พบประวัติการลงเวลา</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="10" class="px-4 py-8 text-center text-slate-400">ยังไม่มีประวัติการลงเวลา</td></tr>';
           return;
         }
 
         tbody.innerHTML = filtered.map((l) => {
-          const emp = empMap[l.empId] || { name: 'ไม่พบข้อมูลพนักงาน', dept: '-' };
+          const emp = empMap[l.empId] || { name: l.empId, dept: '-' };
           const evIn = evaluateCheckIn(l.checkIn);
           const evOut = evaluateCheckOut(l.checkOut);
 
           const inStatusHtml = evIn.status === 'late'
             ? `<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">${escapeHtml(evIn.label)}</span>`
-            : (evIn.status === 'normal'
-              ? '<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">ตรงเวลา</span>'
-              : '<span class="text-slate-400 text-xs">-</span>');
+            : (evIn.status === 'normal' ? '<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">ตรงเวลา</span>' : '<span class="text-slate-400 text-xs">-</span>');
 
           const outStatusHtml = evOut.status === 'early'
             ? `<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">${escapeHtml(evOut.label)}</span>`
-            : (evOut.status === 'normal'
-              ? '<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-100 text-sky-800">ปกติ</span>'
-              : '<span class="text-slate-400 text-xs">ยังไม่ออกงาน</span>');
+            : (evOut.status === 'normal' ? '<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-100 text-sky-800">ปกติ</span>' : '<span class="text-slate-400 text-xs">ยังไม่ออก</span>');
+
+          let photoCell = '<span class="text-xs text-slate-400">-</span>';
+          if (l.photoUrl) {
+            photoCell = `<a href="${escapeHtml(l.photoUrl)}" target="_blank" rel="noopener" class="text-xs font-semibold text-emerald-700 hover:underline">เปิดรูป Drive</a>`;
+          } else if (l.photo) {
+            photoCell = `<button type="button" data-view-photo="${escapeHtml(l.logId)}" class="view-photo-btn text-xs font-semibold text-emerald-700 hover:underline">ดูภาพ</button>`;
+          }
 
           return `
             <tr class="hover:bg-slate-50">
@@ -1677,6 +1977,7 @@
               <td class="px-4 py-3 text-center">${inStatusHtml}</td>
               <td class="px-4 py-3 text-center font-num font-semibold">${escapeHtml(l.checkOut || '-')}</td>
               <td class="px-4 py-3 text-center">${outStatusHtml}</td>
+              <td class="px-4 py-3 text-center">${photoCell}</td>
               <td class="px-4 py-3 text-center">
                 <button type="button" data-delete-log="${escapeHtml(l.logId)}" class="delete-log-btn text-xs text-rose-600 hover:text-rose-800 font-semibold">ลบ</button>
               </td>
@@ -1698,17 +1999,20 @@
         const container = document.getElementById('print-badges-area');
 
         if (!employees.length) {
-          container.innerHTML = '<div class="col-span-2 bg-white rounded-2xl border border-slate-200 p-8 text-center text-sm text-slate-400">ยังไม่มีรายชื่อพนักงาน เพิ่มพนักงานได้ที่แบบฟอร์มด้านซ้าย</div>';
+          container.innerHTML = '<div class="col-span-2 bg-white rounded-3xl border border-slate-200 p-8 text-center text-sm text-slate-400">ยังไม่มีรายชื่อพนักงาน เพิ่มพนักงานได้ที่แบบฟอร์มด้านซ้าย</div>';
           return;
         }
 
         container.innerHTML = employees.map((emp) => {
           const qrUrl = createQrDataUrl(emp.id);
+          const devBadge = emp.deviceId
+            ? `<div class="text-[10px] text-teal-700 font-num mt-1">ผูกเครื่อง: ${escapeHtml(emp.deviceId)}</div>`
+            : '<div class="text-[10px] text-slate-400 mt-1">ยังไม่ผูกเครื่องมือถือ</div>';
           return `
             <div class="badge-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-              <div class="bg-emerald-900 text-white px-4 py-2.5">
+              <div class="hero-gradient text-white px-4 py-2.5">
                 <div class="text-[11px] text-amber-300 font-semibold tracking-wide">สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด</div>
-                <div class="text-xs text-emerald-100">บัตรประจำตัวพนักงานสำหรับสแกนลงเวลา</div>
+                <div class="text-xs text-emerald-100">บัตรประจำตัวพนักงานสำหรับลงเวลาทำงาน</div>
               </div>
               <div class="p-4 flex items-center gap-4 flex-1">
                 <div class="shrink-0 bg-white p-1.5 rounded-xl border border-slate-200">
@@ -1718,6 +2022,7 @@
                   <div class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold font-num">${escapeHtml(emp.id)}</div>
                   <div class="text-base font-bold text-slate-900 truncate">${escapeHtml(emp.name)}</div>
                   <div class="text-xs text-slate-600 truncate">${escapeHtml(emp.dept)}</div>
+                  <div class="no-print">${devBadge}</div>
                 </div>
               </div>
               <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2 no-print">
@@ -1734,17 +2039,34 @@
         }).join('');
       }
 
-      function renderAll() {
-        const banner = document.getElementById('demo-banner');
-        if (banner) {
-          banner.classList.toggle('hidden', !isDemoMode);
+      function updateAdminUi() {
+        document.querySelectorAll('.admin-only').forEach((el) => {
+          el.classList.toggle('hidden', !isAdminUnlocked);
+        });
+        const toggleBtn = document.getElementById('btn-admin-toggle');
+        if (toggleBtn) {
+          if (isAdminUnlocked) {
+            toggleBtn.textContent = 'ออกจากโหมดผู้ดูแล';
+            toggleBtn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-sm';
+          } else {
+            toggleBtn.textContent = 'เข้าสู่ระบบผู้ดูแล';
+            toggleBtn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-emerald-950 transition-all shadow-sm';
+          }
         }
+        if (!isAdminUnlocked && activeTab !== 'scanner') {
+          switchTab('scanner');
+        }
+      }
+
+      function renderAll() {
+        updateAdminUi();
         populateDropdowns();
         renderTodaySection();
         renderKpiSection();
         renderLogsSection();
         renderEmployeesSection();
         renderGpsStatus();
+        renderDeviceStatus();
       }
 
       // ==================== CSV EXPORTS ====================
@@ -1765,18 +2087,14 @@
 
       function exportLogsCsv() {
         const empMap = Object.fromEntries(employees.map((e) => [e.id, e]));
-        const header = ['วันที่', 'รหัสพนักงาน', 'ชื่อ-สกุล', 'แผนก', 'เวลาเข้างาน', 'สถานะเข้างาน', 'เวลาออกงาน', 'สถานะออกงาน'];
+        const header = ['วันที่', 'รหัสพนักงาน', 'ชื่อ-สกุล', 'แผนก', 'เวลาเข้างาน', 'สถานะเข้างาน', 'เวลาออกงาน', 'สถานะออกงาน', 'ลิงก์ภาพยืนยัน'];
         const rows = logs.map((l) => {
           const emp = empMap[l.empId] || { name: l.empId, dept: '-' };
           return [
-            l.date,
-            l.empId,
-            emp.name,
-            emp.dept,
-            l.checkIn || '-',
-            evaluateCheckIn(l.checkIn).label,
-            l.checkOut || '-',
-            evaluateCheckOut(l.checkOut).label
+            l.date, l.empId, emp.name, emp.dept,
+            l.checkIn || '-', evaluateCheckIn(l.checkIn).label,
+            l.checkOut || '-', evaluateCheckOut(l.checkOut).label,
+            l.photoUrl || '-'
           ];
         });
         downloadCsv(`รายงานลงเวลา_สกป_ชุมพลบุรี_${getLocalDateStr()}.csv`, [header, ...rows]);
@@ -1787,16 +2105,8 @@
         const stats = computeKpiSummary();
         const header = ['รหัสพนักงาน', 'ชื่อ-สกุล', 'แผนก', 'วันทำงานที่บันทึก', 'ตรงเวลา (ครั้ง)', 'อัตราตรงเวลา (%)', 'เข้าสาย (ครั้ง)', 'รวมนาทีสาย', 'ออกก่อนเวลา (ครั้ง)', 'คะแนน KPI', 'เกรดโบนัส'];
         const rows = stats.map((s) => [
-          s.id,
-          s.name,
-          s.dept,
-          s.totalDays,
-          s.onTimeCount,
-          s.onTimePct,
-          s.lateCount,
-          s.totalLateMins,
-          s.earlyCount,
-          s.kpiScore,
+          s.id, s.name, s.dept, s.totalDays, s.onTimeCount, s.onTimePct,
+          s.lateCount, s.totalLateMins, s.earlyCount, s.kpiScore,
           `${s.gradeInfo.grade} (${s.gradeInfo.label})`
         ]);
         downloadCsv(`รายงานKPIโบนัส_สกป_ชุมพลบุรี_${getLocalDateStr()}.csv`, [header, ...rows]);
@@ -1805,70 +2115,109 @@
 
       // ==================== TAB SWITCHING ====================
       function switchTab(tabName) {
+        if (tabName !== 'scanner' && !isAdminUnlocked) {
+          showToast('กรุณาเข้าสู่ระบบผู้ดูแลก่อนเปิดดูส่วนหลังบ้าน', 'warning');
+          return;
+        }
         activeTab = tabName;
         document.querySelectorAll('.tab-panel').forEach((panel) => {
           panel.classList.toggle('hidden', panel.id !== `tab-${tabName}`);
         });
         document.querySelectorAll('.tab-btn').forEach((btn) => {
           const isActive = btn.dataset.tab === tabName;
-          btn.className = isActive
-            ? 'tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-white text-emerald-900 shadow-sm'
-            : 'tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-emerald-100 hover:bg-emerald-800';
+          const adminCls = btn.dataset.tab !== 'scanner' ? (isAdminUnlocked ? ' admin-only' : ' admin-only hidden') : '';
+          btn.className = (isActive
+            ? 'tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-white text-emerald-950 shadow-sm'
+            : 'tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all text-emerald-100 hover:bg-white/10') + adminCls;
         });
-        if (tabName !== 'scanner' && cameraRunning) {
-          stopCamera();
-        }
-        if (tabName === 'kpi') {
-          renderKpiSection();
-        }
+        if (tabName !== 'scanner' && cameraRunning) stopCamera();
+        if (tabName === 'kpi') renderKpiSection();
       }
 
       // ==================== EVENT LISTENERS ====================
       function bindEvents() {
-        // Tabs
         document.querySelectorAll('.tab-btn').forEach((btn) => {
           btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
 
-        // Camera controls
         document.getElementById('btn-start-camera').addEventListener('click', startCamera);
         document.getElementById('btn-stop-camera').addEventListener('click', stopCamera);
 
-        // Scan mode toggle
         document.querySelectorAll('.scan-mode-btn').forEach((btn) => {
           btn.addEventListener('click', () => {
             scanMode = btn.dataset.scanMode;
             document.querySelectorAll('.scan-mode-btn').forEach((b) => {
               const active = b.dataset.scanMode === scanMode;
               b.className = active
-                ? 'scan-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-700 text-white shadow-sm'
-                : 'scan-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-200';
+                ? 'scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-700 text-white shadow-sm'
+                : 'scan-mode-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200';
             });
           });
         });
 
-        // Manual / simulation scan
         document.getElementById('sim-emp-select').addEventListener('change', (e) => {
           document.getElementById('manual-code-input').value = e.target.value;
         });
 
         document.getElementById('btn-manual-in').addEventListener('click', () => {
-          const code = document.getElementById('manual-code-input').value.trim() || document.getElementById('sim-emp-select').value;
-          recordAttendance(code, 'in');
+          const code = document.getElementById('manual-code-input').value.trim();
+          initiateAttendance(code, 'in');
         });
 
         document.getElementById('btn-manual-out').addEventListener('click', () => {
-          const code = document.getElementById('manual-code-input').value.trim() || document.getElementById('sim-emp-select').value;
-          recordAttendance(code, 'out');
+          const code = document.getElementById('manual-code-input').value.trim();
+          initiateAttendance(code, 'out');
         });
 
-        // GPS Refresh & Admin Settings Modal
+        // Photo Verification Modal controls (including front/back camera switch)
+        document.getElementById('btn-switch-selfie-cam').addEventListener('click', () => {
+          selfieFacingMode = selfieFacingMode === 'user' ? 'environment' : 'user';
+          startSelfieCameraStream(selfieFacingMode);
+        });
+        document.getElementById('selfie-cancel-x').addEventListener('click', closeSelfieModal);
+        document.getElementById('selfie-cancel-btn').addEventListener('click', closeSelfieModal);
+        document.getElementById('selfie-capture-btn').addEventListener('click', captureSelfieAndConfirm);
+
+        // Photo preview modal
+        document.getElementById('photo-preview-close').addEventListener('click', () => {
+          document.getElementById('photo-preview-modal').classList.add('hidden');
+        });
+
+        // GPS & Device Unbind
         document.getElementById('btn-refresh-gps').addEventListener('click', () => refreshGps(false));
 
+        document.getElementById('btn-unbind-device').addEventListener('click', () => {
+          openConfirmModal(
+            'ปลดล็อกสิทธิ์เครื่องมือถือนี้',
+            'ต้องการล้างการผูกสิทธิ์พนักงานบนเครื่องนี้ใช่หรือไม่? (หากผูกไว้ใน Google Sheets ด้วย ให้ลบค่าในคอลัมน์รหัสเครื่องที่ผูกในชีตด้วย)',
+            () => {
+              deviceProfile.boundEmpId = '';
+              deviceProfile.boundEmpName = '';
+              saveState();
+              renderDeviceStatus();
+              showToast('ปลดล็อกสิทธิ์เครื่องเรียบร้อยแล้ว', 'success');
+            }
+          );
+        });
+
+        // Admin Settings Modal
         const gpsModal = document.getElementById('gps-modal');
         const gpsPinGate = document.getElementById('gps-pin-gate');
         const gpsFormBox = document.getElementById('gps-settings-form');
         const gpsPinInput = document.getElementById('gps-pin-input');
+
+        function openGpsFormFields() {
+          document.getElementById('gps-enforce-toggle').checked = Boolean(gpsConfig.enforced);
+          document.getElementById('device-lock-toggle').checked = Boolean(gpsConfig.deviceLockEnforced);
+          document.getElementById('selfie-enforce-toggle').checked = Boolean(gpsConfig.selfieEnforced);
+          document.getElementById('gps-coop-lat').value = gpsConfig.coopLat !== null ? gpsConfig.coopLat : '';
+          document.getElementById('gps-coop-lng').value = gpsConfig.coopLng !== null ? gpsConfig.coopLng : '';
+          document.getElementById('gps-radius-m').value = gpsConfig.radiusMeters || 100;
+          document.getElementById('gps-new-pin').value = '';
+          document.getElementById('apps-script-url-input').value = gpsConfig.appsScriptUrl || '';
+          gpsPinGate.classList.add('hidden');
+          gpsFormBox.classList.remove('hidden');
+        }
 
         function closeGpsModal() {
           gpsModal.classList.add('hidden');
@@ -1878,11 +2227,14 @@
         }
 
         document.getElementById('btn-open-gps-settings').addEventListener('click', () => {
-          gpsPinInput.value = '';
-          gpsPinGate.classList.remove('hidden');
-          gpsFormBox.classList.add('hidden');
           gpsModal.classList.remove('hidden');
-          gpsPinInput.focus();
+          if (isAdminUnlocked) openGpsFormFields();
+          else {
+            gpsPinInput.value = '';
+            gpsPinGate.classList.remove('hidden');
+            gpsFormBox.classList.add('hidden');
+            gpsPinInput.focus();
+          }
         });
 
         document.getElementById('gps-modal-close').addEventListener('click', closeGpsModal);
@@ -1894,26 +2246,18 @@
             showToast('รหัส PIN ผู้ดูแลไม่ถูกต้อง', 'error');
             return;
           }
-          document.getElementById('gps-enforce-toggle').checked = Boolean(gpsConfig.enforced);
-          document.getElementById('gps-coop-lat').value = gpsConfig.coopLat !== null ? gpsConfig.coopLat : '';
-          document.getElementById('gps-coop-lng').value = gpsConfig.coopLng !== null ? gpsConfig.coopLng : '';
-          document.getElementById('gps-radius-m').value = gpsConfig.radiusMeters || 100;
-          document.getElementById('gps-new-pin').value = '';
-          document.getElementById('apps-script-url-input').value = gpsConfig.appsScriptUrl || '';
-          gpsPinGate.classList.add('hidden');
-          gpsFormBox.classList.remove('hidden');
+          openGpsFormFields();
         });
 
         document.getElementById('btn-use-current-gps').addEventListener('click', () => {
           refreshGps(true, (pos) => {
             document.getElementById('gps-coop-lat').value = pos.lat.toFixed(6);
             document.getElementById('gps-coop-lng').value = pos.lng.toFixed(6);
-            showToast('ดึงพิกัดปัจจุบันใส่ในช่องเรียบร้อย กด “บันทึกพิกัด GPS” เพื่อยืนยัน', 'success');
+            showToast('ดึงพิกัดปัจจุบันเรียบร้อย กด “บันทึกการตั้งค่า” เพื่อยืนยัน', 'success');
           });
         });
 
         document.getElementById('btn-save-gps-settings').addEventListener('click', () => {
-          const enforced = document.getElementById('gps-enforce-toggle').checked;
           const latRaw = document.getElementById('gps-coop-lat').value.trim();
           const lngRaw = document.getElementById('gps-coop-lng').value.trim();
           const radiusRaw = parseInt(document.getElementById('gps-radius-m').value, 10);
@@ -1926,22 +2270,63 @@
             return;
           }
 
-          gpsConfig.enforced = enforced;
+          gpsConfig.enforced = document.getElementById('gps-enforce-toggle').checked;
+          gpsConfig.deviceLockEnforced = document.getElementById('device-lock-toggle').checked;
+          gpsConfig.selfieEnforced = document.getElementById('selfie-enforce-toggle').checked;
           gpsConfig.coopLat = latNum;
           gpsConfig.coopLng = lngNum;
           gpsConfig.radiusMeters = Math.max(20, Number.isNaN(radiusRaw) ? 100 : radiusRaw);
           gpsConfig.appsScriptUrl = document.getElementById('apps-script-url-input').value.trim();
-          if (newPin) {
-            gpsConfig.adminPin = newPin;
-          }
+          if (newPin) gpsConfig.adminPin = newPin;
 
           saveState();
           renderGpsStatus();
+          renderDeviceStatus();
           closeGpsModal();
-          showToast('บันทึกการตั้งค่าพิกัด GPS สหกรณ์เรียบร้อยแล้ว', 'success');
+          showToast('บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success');
         });
 
-        // KPI Filters & Penalty inputs
+        // Admin Login Modal
+        const adminModal = document.getElementById('admin-login-modal');
+        const adminPinInput = document.getElementById('admin-login-pin');
+
+        function closeAdminModal() {
+          adminModal.classList.add('hidden');
+          adminPinInput.value = '';
+        }
+
+        document.getElementById('btn-admin-toggle').addEventListener('click', () => {
+          if (isAdminUnlocked) {
+            isAdminUnlocked = false;
+            switchTab('scanner');
+            updateAdminUi();
+            showToast('ออกจากโหมดผู้ดูแลแล้ว', 'info');
+          } else {
+            adminPinInput.value = '';
+            adminModal.classList.remove('hidden');
+            adminPinInput.focus();
+          }
+        });
+
+        document.getElementById('admin-login-close').addEventListener('click', closeAdminModal);
+        document.getElementById('admin-login-cancel').addEventListener('click', closeAdminModal);
+        document.getElementById('admin-login-submit').addEventListener('click', () => {
+          if (adminPinInput.value.trim() !== gpsConfig.adminPin) {
+            showToast('รหัส PIN ผู้ดูแลไม่ถูกต้อง', 'error');
+            return;
+          }
+          isAdminUnlocked = true;
+          closeAdminModal();
+          updateAdminUi();
+          showToast('เข้าสู่ระบบผู้ดูแลเรียบร้อยแล้ว', 'success');
+        });
+        adminPinInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') document.getElementById('admin-login-submit').click();
+        });
+
+        document.getElementById('btn-sync-sheets').addEventListener('click', () => fetchFromGoogleSheet(false));
+
+        // KPI Filters
         document.getElementById('kpi-emp-filter').addEventListener('change', renderKpiSection);
         document.getElementById('kpi-dept-filter').addEventListener('change', renderKpiSection);
         document.getElementById('penalty-late').addEventListener('input', renderKpiSection);
@@ -1951,13 +2336,12 @@
         document.getElementById('kpi-table-body').addEventListener('click', (e) => {
           const btn = e.target.closest('.focus-emp-btn');
           if (!btn) return;
-          const targetId = btn.dataset.focusEmp;
           const filter = document.getElementById('kpi-emp-filter');
-          filter.value = filter.value === targetId ? 'all' : targetId;
+          filter.value = filter.value === btn.dataset.focusEmp ? 'all' : btn.dataset.focusEmp;
           renderKpiSection();
         });
 
-        // Log Filters & Delete
+        // Logs Filters & Actions
         ['log-search', 'log-dept-filter', 'log-status-filter', 'log-date-filter'].forEach((id) => {
           document.getElementById(id).addEventListener('input', renderLogsSection);
           document.getElementById(id).addEventListener('change', renderLogsSection);
@@ -1971,12 +2355,31 @@
           renderLogsSection();
         });
 
+        document.getElementById('btn-clear-local-logs').addEventListener('click', () => {
+          openConfirmModal('ล้างประวัติในเครื่องนี้', 'ต้องการล้างประวัติที่แคชไว้ในเครื่องนี้หรือไม่? (ข้อมูลใน Google Sheets จะไม่ถูกลบ)', () => {
+            logs = [];
+            saveState();
+            renderAll();
+            showToast('ล้างประวัติในเครื่องเรียบร้อยแล้ว', 'info');
+          });
+        });
+
         document.getElementById('btn-export-logs-csv').addEventListener('click', exportLogsCsv);
 
         document.getElementById('logs-table-body').addEventListener('click', (e) => {
-          const btn = e.target.closest('.delete-log-btn');
-          if (!btn) return;
-          const logId = btn.dataset.deleteLog;
+          const viewBtn = e.target.closest('.view-photo-btn');
+          if (viewBtn) {
+            const log = logs.find((item) => item.logId === viewBtn.dataset.viewPhoto);
+            if (log && log.photo) {
+              document.getElementById('photo-preview-title').textContent = `ภาพยืนยันตัวตน — ${log.empId} (${formatThaiDate(log.date)})`;
+              document.getElementById('photo-preview-img').src = log.photo;
+              document.getElementById('photo-preview-modal').classList.remove('hidden');
+            }
+            return;
+          }
+          const delBtn = e.target.closest('.delete-log-btn');
+          if (!delBtn) return;
+          const logId = delBtn.dataset.deleteLog;
           openConfirmModal('ลบรายการลงเวลา', 'ต้องการลบรายการลงเวลานี้ใช่หรือไม่?', () => {
             logs = logs.filter((l) => l.logId !== logId);
             saveState();
@@ -1985,7 +2388,7 @@
           });
         });
 
-        // Employee Form (Add / Edit)
+        // Employee Form
         document.getElementById('emp-form').addEventListener('submit', (e) => {
           e.preventDefault();
           const origId = document.getElementById('emp-edit-original-id').value.trim();
@@ -2003,8 +2406,7 @@
               showToast(`รหัสพนักงาน ${newId} มีอยู่ในระบบแล้ว`, 'error');
               return;
             }
-            employees = employees.map((emp) => emp.id === origId ? { id: newId, name: newName, dept: newDept } : emp);
-            // Update existing logs if employee ID was updated to match fingerprint machine
+            employees = employees.map((emp) => emp.id === origId ? { ...emp, id: newId, name: newName, dept: newDept } : emp);
             if (newId !== origId) {
               logs = logs.map((l) => l.empId === origId ? { ...l, empId: newId } : l);
             }
@@ -2014,7 +2416,7 @@
               showToast(`รหัสพนักงาน ${newId} ซ้ำกับที่มีอยู่`, 'error');
               return;
             }
-            employees.push({ id: newId, name: newName, dept: newDept });
+            employees.push({ id: newId, name: newName, dept: newDept, deviceId: '' });
             showToast(`เพิ่มพนักงาน ${newName} (${newId}) เรียบร้อยแล้ว`, 'success');
           }
 
@@ -2059,41 +2461,8 @@
           }
         });
 
-        document.getElementById('btn-print-badges').addEventListener('click', () => {
-          window.print();
-        });
+        document.getElementById('btn-print-badges').addEventListener('click', () => window.print());
 
-        // Demo data controls
-        document.getElementById('btn-clear-demo-top').addEventListener('click', () => {
-          openConfirmModal(
-            'ล้างประวัติลงเวลาทดสอบ',
-            'ระบบจะล้างประวัติลงเวลาตัวอย่างทั้งหมดออก (แต่คงรายชื่อพนักงานไว้ให้แก้ไขต่อได้) ต้องการดำเนินการหรือไม่?',
-            () => {
-              logs = [];
-              isDemoMode = false;
-              saveState();
-              renderAll();
-              showToast('ล้างประวัติลงเวลาทดสอบเรียบร้อย พร้อมใช้งานจริง', 'success');
-            }
-          );
-        });
-
-        document.getElementById('btn-restore-demo').addEventListener('click', () => {
-          openConfirmModal(
-            'โหลดข้อมูลทดสอบใหม่',
-            'ต้องการรีเซ็ตเป็นรายชื่อพนักงานและประวัติลงเวลาตัวอย่าง 10 วันทำการเพื่อทดสอบกราฟ KPI หรือไม่?',
-            () => {
-              employees = DEFAULT_EMPLOYEES.map((e) => ({ ...e }));
-              logs = generateDemoLogs();
-              isDemoMode = true;
-              saveState();
-              renderAll();
-              showToast('โหลดข้อมูลทดสอบกลับมาเรียบร้อยแล้ว', 'success');
-            }
-          );
-        });
-
-        // Confirm Modal buttons
         document.getElementById('confirm-modal-cancel').addEventListener('click', closeConfirmModal);
         document.getElementById('confirm-modal-ok').addEventListener('click', () => {
           const fn = pendingConfirmAction;
@@ -2118,10 +2487,8 @@
       updateClock();
       setInterval(updateClock, 1000);
       renderAll();
-      if (employees.length) {
-        document.getElementById('manual-code-input').value = employees[0].id;
-      }
       refreshGps(true);
+      fetchFromGoogleSheet(true);
     })();
   </script>
 </body>
