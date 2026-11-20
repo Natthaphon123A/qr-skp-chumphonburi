@@ -688,7 +688,7 @@
       </div>
 
       <div id="gps-pin-gate" class="space-y-3">
-        <p class="text-xs text-slate-600">กรุณากรอกรหัส PIN ผู้ดูแลเพื่อปลดล็อกการตั้งค่าระบบ (ค่าเริ่มต้น: <span class="font-bold font-num text-slate-900">1234</span>)</p>
+        <p class="text-xs text-slate-600">กรุณากรอกรหัส PIN ผู้ดูแลเพื่อปลดล็อกการตั้งค่าระบบ (ตรวจสอบกับเซิร์ฟเวอร์กลาง)</p>
         <div>
           <label for="gps-pin-input" class="block text-xs font-semibold text-slate-700 mb-1">รหัส PIN ผู้ดูแล</label>
           <input type="password" id="gps-pin-input" inputmode="numeric" placeholder="กรอกรหัส PIN" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
@@ -831,6 +831,7 @@
       let kpiBreakdownChart = null;
       let pendingConfirmAction = null;
       let isAdminUnlocked = false;
+      let sessionAdminPin = ''; // เก็บเฉพาะในหน่วยความจำชั่วคราวระหว่างล็อกอิน
 
       let gpsConfig = {
         enforced: true,
@@ -839,7 +840,6 @@
         coopLat: DEFAULT_COOP_LAT,
         coopLng: DEFAULT_COOP_LNG,
         radiusMeters: DEFAULT_COOP_RADIUS_M,
-        adminPin: '1234',
         appsScriptUrl: DEFAULT_APPS_SCRIPT_URL
       };
 
@@ -1649,7 +1649,7 @@
             if (Array.isArray(data.employees) && data.employees.length > 0) {
               employees = data.employees;
             }
-            if (Array.isArray(data.logs) && data.logs.length > 0) {
+            if (Array.isArray(data.logs)) {
               logs = data.logs;
             }
             saveState();
@@ -1666,6 +1666,40 @@
           }
         } catch (err) {
           if (!silent) showToast('ไม่สามารถเชื่อมต่อฐานข้อมูลกลางได้ในขณะนี้', 'warning');
+        }
+      }
+
+      async function verifyAdminPinOnServer(pin) {
+        const url = (gpsConfig.appsScriptUrl || '').trim();
+        if (!url) return { ok: false, message: 'ไม่พบลิงก์เชื่อมต่อเซิร์ฟเวอร์' };
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ type: 'verify_pin', pin: String(pin || '').trim() }),
+            redirect: 'follow'
+          });
+          const data = JSON.parse(await res.text());
+          return data;
+        } catch (err) {
+          return { ok: false, message: 'ไม่สามารถตรวจสอบรหัส PIN กับเซิร์ฟเวอร์ได้ กรุณาตรวจอินเทอร์เน็ต' };
+        }
+      }
+
+      async function changeAdminPinOnServer(currentPin, newPin) {
+        const url = (gpsConfig.appsScriptUrl || '').trim();
+        if (!url) return { ok: false, message: 'ไม่พบลิงก์เชื่อมต่อเซิร์ฟเวอร์' };
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ type: 'change_pin', currentPin: String(currentPin || ''), newPin: String(newPin || '').trim() }),
+            redirect: 'follow'
+          });
+          const data = JSON.parse(await res.text());
+          return data;
+        } catch (err) {
+          return { ok: false, message: 'เปลี่ยนรหัส PIN บนเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองใหม่' };
         }
       }
 
@@ -2310,11 +2344,22 @@
         document.getElementById('gps-pin-cancel').addEventListener('click', closeGpsModal);
         document.getElementById('gps-settings-cancel').addEventListener('click', closeGpsModal);
 
-        document.getElementById('gps-pin-unlock').addEventListener('click', () => {
-          if (gpsPinInput.value.trim() !== gpsConfig.adminPin) {
-            showToast('รหัส PIN ผู้ดูแลไม่ถูกต้อง', 'error');
+        document.getElementById('gps-pin-unlock').addEventListener('click', async () => {
+          const pinVal = gpsPinInput.value.trim();
+          if (!pinVal) { showToast('กรุณากรอกรหัส PIN', 'warning'); return; }
+          const btn = document.getElementById('gps-pin-unlock');
+          btn.disabled = true;
+          btn.textContent = 'กำลังตรวจสอบ...';
+          const res = await verifyAdminPinOnServer(pinVal);
+          btn.disabled = false;
+          btn.textContent = 'ปลดล็อก';
+          if (!res || !res.ok) {
+            showToast((res && res.message) || 'รหัส PIN ผู้ดูแลไม่ถูกต้อง', 'error');
             return;
           }
+          sessionAdminPin = pinVal;
+          isAdminUnlocked = true;
+          updateAdminUi();
           openGpsFormFields();
         });
 
@@ -2326,7 +2371,7 @@
           });
         });
 
-        document.getElementById('btn-save-gps-settings').addEventListener('click', () => {
+        document.getElementById('btn-save-gps-settings').addEventListener('click', async () => {
           const latRaw = document.getElementById('gps-coop-lat').value.trim();
           const lngRaw = document.getElementById('gps-coop-lng').value.trim();
           const radiusRaw = parseInt(document.getElementById('gps-radius-m').value, 10);
@@ -2346,13 +2391,28 @@
           gpsConfig.coopLng = lngNum;
           gpsConfig.radiusMeters = Math.max(20, Number.isNaN(radiusRaw) ? 100 : radiusRaw);
           gpsConfig.appsScriptUrl = document.getElementById('apps-script-url-input').value.trim();
-          if (newPin) gpsConfig.adminPin = newPin;
+
+          if (newPin) {
+            const btn = document.getElementById('btn-save-gps-settings');
+            btn.disabled = true;
+            btn.textContent = 'กำลังอัปเดต PIN...';
+            const pinRes = await changeAdminPinOnServer(sessionAdminPin, newPin);
+            btn.disabled = false;
+            btn.textContent = 'บันทึกการตั้งค่า';
+            if (!pinRes || !pinRes.ok) {
+              showToast((pinRes && pinRes.message) || 'เปลี่ยนรหัส PIN ไม่สำเร็จ', 'error');
+              return;
+            }
+            sessionAdminPin = newPin;
+            showToast('เปลี่ยนรหัส PIN สำเร็จ (มีผลเหมือนกันทุกเครื่องทันที)', 'success');
+          } else {
+            showToast('บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success');
+          }
 
           saveState();
           renderGpsStatus();
           renderDeviceStatus();
           closeGpsModal();
-          showToast('บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success');
         });
 
         // Admin Login Modal
@@ -2367,6 +2427,7 @@
         document.getElementById('btn-admin-toggle').addEventListener('click', () => {
           if (isAdminUnlocked) {
             isAdminUnlocked = false;
+            sessionAdminPin = '';
             scanMode = 'auto';
             document.querySelectorAll('.scan-mode-btn').forEach((b) => {
               const active = b.dataset.scanMode === 'auto';
@@ -2387,11 +2448,20 @@
 
         document.getElementById('admin-login-close').addEventListener('click', closeAdminModal);
         document.getElementById('admin-login-cancel').addEventListener('click', closeAdminModal);
-        document.getElementById('admin-login-submit').addEventListener('click', () => {
-          if (adminPinInput.value.trim() !== gpsConfig.adminPin) {
-            showToast('รหัส PIN ผู้ดูแลไม่ถูกต้อง', 'error');
+        document.getElementById('admin-login-submit').addEventListener('click', async () => {
+          const pinVal = adminPinInput.value.trim();
+          if (!pinVal) { showToast('กรุณากรอกรหัส PIN ผู้ดูแล', 'warning'); return; }
+          const btn = document.getElementById('admin-login-submit');
+          btn.disabled = true;
+          btn.textContent = 'กำลังตรวจสอบ...';
+          const res = await verifyAdminPinOnServer(pinVal);
+          btn.disabled = false;
+          btn.textContent = 'เข้าสู่ระบบ';
+          if (!res || !res.ok) {
+            showToast((res && res.message) || 'รหัส PIN ผู้ดูแลไม่ถูกต้อง', 'error');
             return;
           }
+          sessionAdminPin = pinVal;
           isAdminUnlocked = true;
           closeAdminModal();
           updateAdminUi();
