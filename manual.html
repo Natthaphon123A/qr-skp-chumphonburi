@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คู่มือการใช้งานระบบลงเวลาทำงานอัจฉริยะ — สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Prompt:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Sarabun', 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, .font-heading {
+      font-family: 'Prompt', 'Sarabun', sans-serif;
+    }
+    .font-num {
+      font-family: 'Inter', 'Sarabun', sans-serif;
+      font-variant-numeric: tabular-nums;
+    }
+    .hero-bg {
+      background: linear-gradient(135deg, #022c22 0%, #064e3b 45%, #0f766e 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(18px, -14px) scale(1.08); }
+    }
+    .orb-1 {
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      border-radius: 9999px;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.22) 0%, transparent 70%);
+      top: -90px;
+      right: -60px;
+      animation: floatOrb 7s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .orb-2 {
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 9999px;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.16) 0%, transparent 70%);
+      bottom: -80px;
+      left: -40px;
+      animation: floatOrb 9s ease-in-out infinite reverse;
+      pointer-events: none;
+    }
+    @keyframes scanBeam {
+      0%, 100% { top: 16%; opacity: 0.4; }
+      50% { top: 80%; opacity: 1; }
+    }
+    .sim-laser {
+      position: absolute;
+      left: 14%;
+      right: 14%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #34d399, #ecfdf5, #34d399, transparent);
+      box-shadow: 0 0 14px #34d399;
+      animation: scanBeam 2s ease-in-out infinite;
+    }
+    @keyframes gpsPulse {
+      0% { transform: scale(0.9); opacity: 0.9; }
+      70% { transform: scale(1.9); opacity: 0; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+    .gps-ring {
+      animation: gpsPulse 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in {
+      animation: fadeSlideUp 0.45s ease-out both;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .step-card {
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+    .step-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px -8px rgba(6, 78, 59, 0.14);
+    }
+    .faq-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .faq-item.open .faq-content {
+      max-height: 320px;
+    }
+    .faq-item.open .faq-chevron {
+      transform: rotate(180deg);
+    }
+    @media print {
+      .no-print { display: none !important; }
+      .faq-content { max-height: none !important; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Toast -->
+  <div id="toast-box" class="fixed bottom-4 right-4 z-50 pointer-events-none no-print"></div>
+
+  <!-- Animated Hero Header -->
+  <header class="hero-bg text-white shadow-xl">
+    <div class="orb-1"></div>
+    <div class="orb-2"></div>
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-8 space-y-4 animate-in">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full glass-card text-xs font-semibold text-amber-300">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            คู่มือการใช้งานฉบับสมบูรณ์ • สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-bold leading-tight tracking-tight">
+            ระบบลงเวลาทำงานอัจฉริยะ<br />
+            <span class="text-emerald-300">QR Code • GPS • ถ่ายภาพยืนยันตัวตน</span>
+          </h1>
+          <p class="text-sm sm:text-base text-emerald-100/90 max-w-2xl leading-relaxed">
+            คู่มือแนะนำการใช้งานทีละขั้นตอนสำหรับทั้งเจ้าหน้าที่และผู้ดูแลระบบ เพื่อการบันทึกเวลาเข้า–ออกงานที่แม่นยำ โปร่งใส เชื่อมต่อฐานข้อมูลกลางและคำนวณ KPI โบนัสแบบเรียลไทม์
+          </p>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap items-center gap-2.5 pt-2 no-print">
+            <button type="button" id="btn-copy-link" class="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-emerald-950 text-sm font-bold shadow-md transition-all">
+              คัดลอกลิงก์เข้าเว็บแอป
+            </button>
+            <button type="button" id="btn-print-manual" class="px-4 py-2.5 rounded-xl glass-card hover:bg-white/20 text-white text-sm font-semibold transition-all">
+              พิมพ์คู่มือ / บันทึกเป็น PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Live App Entry QR Card -->
+        <div class="lg:col-span-4 flex justify-center lg:justify-end animate-in">
+          <div class="bg-white text-slate-900 rounded-3xl p-5 shadow-2xl border border-emerald-200/40 max-w-xs w-full text-center space-y-3">
+            <div class="text-xs font-bold text-emerald-800 uppercase tracking-wide">สแกนเพื่อเข้าสู่ระบบลงเวลา</div>
+            <div class="mx-auto w-40 h-40 p-2 rounded-2xl border-2 border-emerald-100 bg-white flex items-center justify-center">
+              <img id="app-entry-qr" src="" alt="QR Code ลิงก์เข้าเว็บแอป" class="w-full h-full block" />
+            </div>
+            <div class="text-[11px] font-num text-slate-500 break-all bg-slate-50 rounded-xl px-2.5 py-1.5 border border-slate-100">
+              https://natthaphon123a.github.io/qr-skp-chumphonburi/
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role Switcher Tabs -->
+      <div class="mt-8 flex flex-wrap items-center gap-2 border-t border-white/15 pt-5 no-print">
+        <button type="button" data-role="employee" class="role-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-emerald-950 shadow-md transition-all">
+          คู่มือสำหรับพนักงาน
+        </button>
+        <button type="button" data-role="admin" class="role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-100 hover:bg-white/10 transition-all">
+          คู่มือสำหรับผู้ดูแลระบบ (Admin)
+        </button>
+        <button type="button" data-role="faq" class="role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-100 hover:bg-white/10 transition-all">
+          คำถามที่พบบ่อย (FAQ)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+
+    <!-- ==================== PANEL 1: EMPLOYEE GUIDE ==================== -->
+    <section id="panel-employee" class="role-panel space-y-10 animate-in">
+
+      <!-- Interactive Animated Step-by-Step Simulator -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Interactive Walkthrough</span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">4 ขั้นตอนสแกนลงเวลา (กดคลิกดูภาพจำลองได้)</h2>
+          </div>
+          <button type="button" id="btn-auto-play" class="no-print self-start sm:self-auto px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors">
+            เล่นแอนิเมชันอัตโนมัติ
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <!-- Left: 4 Clickable Steps -->
+          <div class="lg:col-span-7 space-y-3">
+            <button type="button" data-sim-step="1" class="sim-step-btn step-card w-full text-left p-4 rounded-2xl border-2 border-emerald-600 bg-emerald-50/70 flex items-start gap-3.5">
+              <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white font-bold font-num flex items-center justify-center shrink-0">1</div>
+              <div>
+                <h3 class="text-sm sm:text-base font-bold text-slate-900">เปิดเว็บแอปและอนุญาตพิกัด GPS</h3>
+                <p class="text-xs sm:text-sm text-slate-600 mt-0.5">เข้าลิงก์สหกรณ์เมื่ออยู่ในรัศมี <strong>120 เมตร</strong> แถบด้านบนจะขึ้นสีเขียวว่า <em>“อยู่ในพื้นที่สหกรณ์ — พร้อมลงเวลา”</em></p>
+              </div>
+            </button>
+
+            <button type="button" data-sim-step="2" class="sim-step-btn step-card w-full text-left p-4 rounded-2xl border border-slate-200 bg-white hover:border-emerald-300 flex items-start gap-3.5">
+              <div class="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 font-bold font-num flex items-center justify-center shrink-0">2</div>
+              <div>
+                <h3 class="text-sm sm:text-base font-bold text-slate-900">กดปุ่ม “เปิดกล้องสแกน QR” ส่องบัตรประจำตัว</h3>
+                <p class="text-xs sm:text-sm text-slate-600 mt-0.5">ส่องกล้องไปที่บัตร QR Code ประจำตัวของท่าน (เช่น <span class="font-num font-semibold">EMP-001</span>) ระบบจะอ่านรหัสและตรวจสิทธิ์เครื่องอัตโนมัติ</p>
+              </div>
+            </button>
+
+            <button type="button" data-sim-step="3" class="sim-step-btn step-card w-full text-left p-4 rounded-2xl border border-slate-200 bg-white hover:border-emerald-300 flex items-start gap-3.5">
+              <div class="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 font-bold font-num flex items-center justify-center shrink-0">3</div>
+              <div>
+                <h3 class="text-sm sm:text-base font-bold text-slate-900">ถ่ายภาพยืนยันตัวตน (กล้องหน้าหรือกล้องหลัง)</h3>
+                <p class="text-xs sm:text-sm text-slate-600 mt-0.5">หน้าต่างถ่ายภาพจะเด้งขึ้นอัตโนมัติ สามารถกดปุ่ม <strong>สลับกล้องหน้า/หลัง</strong> ได้ จัดหน้าให้ชัดแล้วกดยืนยัน</p>
+              </div>
+            </button>
+
+            <button type="button" data-sim-step="4" class="sim-step-btn step-card w-full text-left p-4 rounded-2xl border border-slate-200 bg-white hover:border-emerald-300 flex items-start gap-3.5">
+              <div class="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 font-bold font-num flex items-center justify-center shrink-0">4</div>
+              <div>
+                <h3 class="text-sm sm:text-base font-bold text-slate-900">บันทึกเวลาจริงสำเร็จอัตโนมัติ (เข้า → ออก)</h3>
+                <p class="text-xs sm:text-sm text-slate-600 mt-0.5">เสียงแจ้งเตือนดังขึ้น พร้อมป้ายสีเขียว <strong>บันทึกสำเร็จ</strong> สแกนรอบเช้าจะเป็น <em>เข้างาน</em> รอบเย็นจะเป็น <em>ออกงาน</em> ให้อัตโนมัติ</p>
+              </div>
+            </button>
+          </div>
+
+          <!-- Right: Animated Phone Screen Preview -->
+          <div class="lg:col-span-5 flex justify-center">
+            <div class="w-full max-w-[290px] rounded-[2.2rem] bg-slate-900 p-3 shadow-2xl border-4 border-slate-800">
+              <div class="w-20 h-4 bg-slate-950 rounded-full mx-auto mb-2.5"></div>
+              <div id="phone-screen" class="bg-slate-50 rounded-[1.5rem] min-h-[370px] p-4 flex flex-col justify-between overflow-hidden relative">
+                <!-- Dynamic animated step content rendered by JS -->
+              </div>
+              <div class="w-24 h-1 bg-slate-700 rounded-full mx-auto mt-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Work Hours & Bonus KPI Rules -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <h2 class="text-lg font-bold text-slate-900">เกณฑ์เวลาทำงานและคะแนน KPI</h2>
+          <div class="space-y-2.5 text-sm">
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-emerald-50 border border-emerald-200">
+              <span class="font-semibold text-emerald-900">เข้างานตรงเวลา</span>
+              <span class="font-bold font-num text-emerald-700">≤ 08:30 น. (ไม่หัก)</span>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-amber-50 border border-amber-200">
+              <span class="font-semibold text-amber-900">เข้าสาย</span>
+              <span class="font-bold font-num text-amber-700">ตั้งแต่ 08:31 น. (-3 คะแนน)</span>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-rose-50 border border-rose-200">
+              <span class="font-semibold text-rose-900">ออกก่อนเวลากำหนด</span>
+              <span class="font-bold font-num text-rose-700">ก่อน 16:30 น. (-4 คะแนน)</span>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-sky-50 border border-sky-200">
+              <span class="font-semibold text-sky-900">มาทำงานวันเสาร์–อาทิตย์</span>
+              <span class="font-bold text-sky-700">วันหยุด / OT (ไม่หัก)</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500">พนักงานทุกคนสามารถกดดูคะแนน กราฟ และเกรดโบนัสของตนเองได้ตลอดเวลาในแท็บ <strong>KPI &amp; กราฟโบนัส</strong></p>
+        </div>
+
+        <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <h2 class="text-lg font-bold text-slate-900">ระดับเกรด KPI ประกอบการพิจารณาโบนัส (เต็ม 100 คะแนน)</h2>
+          <div class="space-y-3.5">
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-emerald-800">เกรด A • ดีเยี่ยม (โบนัสเต็มเกณฑ์)</span>
+                <span class="font-num text-emerald-700">95 – 100 คะแนน</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div class="bg-emerald-600 h-3 rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-sky-800">เกรด B • ดี (ผ่านเกณฑ์มาตรฐาน)</span>
+                <span class="font-num text-sky-700">85 – 94 คะแนน</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div class="bg-sky-600 h-3 rounded-full" style="width: 88%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-amber-800">เกรด C • ปานกลาง (ควรพัฒนา)</span>
+                <span class="font-num text-amber-700">70 – 84 คะแนน</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div class="bg-amber-500 h-3 rounded-full" style="width: 75%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-rose-800">เกรด D • ต้องปรับปรุงวินัยเวลา</span>
+                <span class="font-num text-rose-700">ต่ำกว่า 70 คะแนน</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                <div class="bg-rose-600 h-3 rounded-full" style="width: 55%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Home Screen Shortcut Tip -->
+          <div class="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <div class="font-bold text-slate-900 mb-1">ปักหมุดเป็นแอปบน Android (Chrome)</div>
+              <p class="text-slate-600">เปิดลิงก์ใน Chrome → แตะจุด 3 จุดมุมขวาบน → เลือก <strong>เพิ่มลงในหน้าจอหลัก</strong></p>
+            </div>
+            <div>
+              <div class="font-bold text-slate-900 mb-1">ปักหมุดเป็นแอปบน iPhone (Safari)</div>
+              <p class="text-slate-600">เปิดลิงก์ใน Safari → แตะปุ่ม <strong>แชร์ (สี่เหลี่ยมลูกศรขึ้น)</strong> → เลือก <strong>เพิ่มไปยังหน้าจอโฮม</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Important Security Rules for Employees -->
+      <div class="bg-emerald-950 text-white rounded-3xl p-6 sm:p-8 shadow-lg">
+        <h2 class="text-lg font-bold text-amber-300 mb-4">ข้อปฏิบัติสำคัญสำหรับพนักงานทุกคน</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm">
+          <div class="glass-card rounded-2xl p-4 space-y-1.5">
+            <div class="font-bold text-emerald-300">1. ใช้มือถือส่วนตัวและเบราว์เซอร์เดิม</div>
+            <p class="text-emerald-100/85">ระบบผูกสิทธิ์ 1 เครื่องต่อ 1 คน ห้ามใช้มือถือเครื่องเดียวกันสแกนแทนเพื่อน และควรเปิดผ่านแอปเบราว์เซอร์เดิมทุกวัน</p>
+          </div>
+          <div class="glass-card rounded-2xl p-4 space-y-1.5">
+            <div class="font-bold text-emerald-300">2. เวลาอ้างอิงจากเซิร์ฟเวอร์กลาง</div>
+            <p class="text-emerald-100/85">ระบบใช้เวลาประเทศไทยจากเซิร์ฟเวอร์ Google โดยตรง การปรับเวลามือถือไม่มีผลต่อเวลาที่บันทึก</p>
+          </div>
+          <div class="glass-card rounded-2xl p-4 space-y-1.5">
+            <div class="font-bold text-emerald-300">3. ป้องกันการสแกนเบิ้ล 30 นาที</div>
+            <p class="text-emerald-100/85">ลงเข้างานแล้ว 1 ครั้งจะลงออกงานได้หลังผ่านไปอย่างน้อย 30 นาที และเมื่อลงครบ 2 รอบแล้วระบบจะล็อกทันที</p>
+          </div>
+          <div class="glass-card rounded-2xl p-4 space-y-1.5">
+            <div class="font-bold text-emerald-300">4. พิกัด GPS อัปเดตทุก 5 นาที</div>
+            <p class="text-emerald-100/85">หากเปิดหน้าเว็บค้างไว้นานเกิน 5 นาที กรุณากดปุ่ม <strong>อัปเดต GPS</strong> 1 ครั้งก่อนกดเปิดกล้องสแกน</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PANEL 2: ADMIN GUIDE ==================== -->
+    <section id="panel-admin" class="role-panel hidden space-y-6 animate-in">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+        <div>
+          <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Administrator Handbook</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">คู่มือการจัดการระบบสำหรับผู้ดูแล (หลังบ้าน)</h2>
+          <p class="text-sm text-slate-600 mt-1">เข้าสู่โหมดผู้ดูแลโดยกดปุ่มสีเหลือง <strong>“เข้าสู่ระบบผู้ดูแล”</strong> มุมขวาบนของเว็บแอปแล้วกรอกรหัส PIN</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="step-card rounded-2xl border border-slate-200 p-5 space-y-2">
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold">1. ตั้งค่าระบบ &amp; พิกัด GPS</div>
+            <h3 class="text-base font-bold text-slate-900">เปลี่ยน PIN และปรับรัศมีสหกรณ์</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">กดปุ่ม <strong>ตั้งค่าระบบ (ผู้ดูแล)</strong> สามารถเปลี่ยนรหัส PIN ใหม่ ปรับรัศมี GPS (ค่าเริ่มต้น 120 เมตร) หรือเปิด/ปิดเงื่อนไข GPS, ล็อกเครื่อง และถ่ายภาพยืนยันได้</p>
+          </div>
+
+          <div class="step-card rounded-2xl border border-slate-200 p-5 space-y-2">
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-sky-100 text-sky-800 text-xs font-bold">2. จัดการรายชื่อ &amp; พิมพ์บัตร QR</div>
+            <h3 class="text-base font-bold text-slate-900">เพิ่ม/แก้รหัสให้ตรงเครื่องสแกนนิ้ว</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">เมื่อมีพนักงานใหม่หรือได้รหัสจากเครื่องสแกนลายนิ้วมือ ให้แก้ในแท็บ <strong>รายชื่อพนักงาน</strong> ของ Google Sheets แล้วกดปุ่ม <strong>ซิงก์ข้อมูลจาก Sheets</strong> จากนั้นสั่งพิมพ์บัตรใหม่ได้ในแท็บ <strong>พนักงาน &amp; บัตร QR</strong></p>
+          </div>
+
+          <div class="step-card rounded-2xl border border-slate-200 p-5 space-y-2">
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold">3. ปลดล็อกเครื่องมือถือ</div>
+            <h3 class="text-base font-bold text-slate-900">กรณีพนักงานเปลี่ยนมือถือหรือล้างแคช</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">เปิดไฟล์ Google Sheets แท็บ <strong>รายชื่อพนักงาน</strong> แล้วลบข้อความในคอลัมน์ <strong>E (รหัสเครื่องที่ผูก)</strong> ของพนักงานคนนั้นให้ว่างไว้ เครื่องใหม่จะผูกสิทธิ์ให้อัตโนมัติในการสแกนครั้งถัดไป</p>
+          </div>
+
+          <div class="step-card rounded-2xl border border-slate-200 p-5 space-y-2">
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold">4. ตรวจสอบรูป &amp; ลบรายการผิดพลาด</div>
+            <h3 class="text-base font-bold text-slate-900">จัดการฐานข้อมูลหลักใน Google Sheets</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">รูปถ่ายยืนยันตัวตนเก็บอัตโนมัติในโฟลเดอร์ Google Drive ชื่อ <strong>ภาพยืนยันลงเวลา_สกป_ชุมพลบุรี</strong> พร้อมลิงก์ในคอลัมน์ K หากต้องการลบแถวข้อมูล ให้คลิกขวาที่เลขแถวใน Sheets แล้วเลือก <strong>ลบแถว (Delete row)</strong></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PANEL 3: FAQ ==================== -->
+    <section id="panel-faq" class="role-panel hidden space-y-4 animate-in">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-4">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">คำถามที่พบบ่อย (FAQ)</h2>
+        <div id="faq-list" class="divide-y divide-slate-200">
+          <div class="faq-item open py-4">
+            <button type="button" class="faq-toggle w-full flex items-center justify-between text-left gap-3">
+              <span class="text-sm sm:text-base font-bold text-slate-900">สแกนไม่สำเร็จหรือเน็ตหลุด จะเสียสิทธิ์การสแกนเช้า–เย็นไหม?</span>
+              <svg class="faq-chevron w-5 h-5 text-slate-400 transition-transform shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+            </button>
+            <div class="faq-content">
+              <p class="text-sm text-slate-600 pt-2.5 leading-relaxed">ไม่เสียสิทธิ์ครับ ระบบจะนับว่าลงเวลาแล้วก็ต่อเมื่อบันทึกเข้า Google Sheets สำเร็จและขึ้นป้ายสีเขียวว่า <strong>บันทึกสำเร็จ</strong> เท่านั้น หากติดปัญหาสามารถลองสแกนใหม่ได้ทันที</p>
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button type="button" class="faq-toggle w-full flex items-center justify-between text-left gap-3">
+              <span class="text-sm sm:text-base font-bold text-slate-900">ฝ่ายสินเชื่อออกไปติดตามหนี้นอกพื้นที่ระหว่างวัน ระบบ GPS กระทบไหม?</span>
+              <svg class="faq-chevron w-5 h-5 text-slate-400 transition-transform shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+            </button>
+            <div class="faq-content">
+              <p class="text-sm text-slate-600 pt-2.5 leading-relaxed">ไม่กระทบเลยครับ ระบบเช็ก GPS เฉพาะตอนกดสแกนเข้างานตอนเช้าและเลิกงานตอนเย็นเท่านั้น ไม่ได้ติดตามตำแหน่งระหว่างวัน หากวันไหนออกพื้นที่ตั้งแต่เช้าให้แจ้งหัวหน้าเพื่อบันทึกหมายเหตุใน Google Sheets แทน</p>
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button type="button" class="faq-toggle w-full flex items-center justify-between text-left gap-3">
+              <span class="text-sm sm:text-base font-bold text-slate-900">เข้ามาทำงานวันเสาร์หรือวันอาทิตย์ จะโดนหักคะแนนสายหรือออกก่อนเวลาไหม?</span>
+              <svg class="faq-chevron w-5 h-5 text-slate-400 transition-transform shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+            </button>
+            <div class="faq-content">
+              <p class="text-sm text-slate-600 pt-2.5 leading-relaxed">ไม่โดนหักคะแนนครับ ระบบจะตรวจวันเสาร์–อาทิตย์อัตโนมัติและบันทึกสถานะเป็น <strong>วันหยุด / OT</strong> โดยไม่หักคะแนน KPI</p>
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button type="button" class="faq-toggle w-full flex items-center justify-between text-left gap-3">
+              <span class="text-sm sm:text-base font-bold text-slate-900">เปลี่ยนมือถือใหม่หรือล้างข้อมูลเบราว์เซอร์แล้วสแกนไม่ผ่าน ต้องทำอย่างไร?</span>
+              <svg class="faq-chevron w-5 h-5 text-slate-400 transition-transform shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+            </button>
+            <div class="faq-content">
+              <p class="text-sm text-slate-600 pt-2.5 leading-relaxed">ไม่ต้องพิมพ์บัตร QR ใหม่ครับ เพียงแจ้งผู้ดูแลให้ลบค่าในช่อง <strong>รหัสเครื่องที่ผูก</strong> (คอลัมน์ E ของแท็บรายชื่อพนักงานใน Google Sheets) จากนั้นใช้บัตร QR ใบเดิมสแกนอีกครั้ง มือถือใหม่จะผูกสิทธิ์ให้อัตโนมัติทันที</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-5 text-center text-xs text-slate-500">
+    สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด • คู่มือระบบลงเวลาทำงานอัจฉริยะ (Smart Attendance System)
+  </footer>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const APP_URL = 'https://natthaphon123a.github.io/qr-skp-chumphonburi/';
+      let currentSimStep = 1;
+      let autoPlayTimer = null;
+
+      // Generate live scannable QR Code for the web app link
+      function renderAppQr() {
+        const img = document.getElementById('app-entry-qr');
+        if (!img || typeof qrcode === 'undefined') return;
+        const qr = qrcode(0, 'M');
+        qr.addData(APP_URL);
+        qr.make();
+        img.src = qr.createDataURL(6, 4);
+      }
+
+      function showToast(msg) {
+        const box = document.getElementById('toast-box');
+        if (!box) return;
+        const el = document.createElement('div');
+        el.className = 'bg-emerald-900 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-2xl shadow-xl border border-emerald-700 animate-in';
+        el.textContent = msg;
+        box.innerHTML = '';
+        box.appendChild(el);
+        setTimeout(() => { el.remove(); }, 2800);
+      }
+
+      // Animated Phone Simulator Renderer
+      function renderPhoneSim(step) {
+        currentSimStep = step;
+        const screen = document.getElementById('phone-screen');
+        if (!screen) return;
+
+        document.querySelectorAll('.sim-step-btn').forEach((btn) => {
+          const isActive = Number(btn.dataset.simStep) === step;
+          btn.className = isActive
+            ? 'sim-step-btn step-card w-full text-left p-4 rounded-2xl border-2 border-emerald-600 bg-emerald-50/70 flex items-start gap-3.5'
+            : 'sim-step-btn step-card w-full text-left p-4 rounded-2xl border border-slate-200 bg-white hover:border-emerald-300 flex items-start gap-3.5';
+          const numEl = btn.querySelector('div');
+          if (numEl) {
+            numEl.className = isActive
+              ? 'w-9 h-9 rounded-xl bg-emerald-700 text-white font-bold font-num flex items-center justify-center shrink-0'
+              : 'w-9 h-9 rounded-xl bg-slate-200 text-slate-700 font-bold font-num flex items-center justify-center shrink-0';
+          }
+        });
+
+        const views = {
+          1: `
+            <div class="text-center space-y-2 animate-in">
+              <div class="text-[11px] font-bold text-emerald-800 bg-emerald-100 inline-block px-3 py-1 rounded-full">ขั้นตอนที่ 1 • ตรวจสอบ GPS</div>
+              <div class="relative w-28 h-28 mx-auto my-5 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full bg-emerald-400/35 gps-ring"></div>
+                <div class="relative w-16 h-16 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                </div>
+              </div>
+              <div class="bg-emerald-50 border border-emerald-300 rounded-2xl p-3 text-left">
+                <div class="text-xs font-bold text-emerald-800">อยู่ในพื้นที่สหกรณ์ — พร้อมลงเวลา</div>
+                <div class="text-[11px] text-emerald-700 mt-0.5 font-num">ห่างจุดสหกรณ์ 7 ม. (รัศมี 120 ม.)</div>
+              </div>
+            </div>
+            <div class="text-[11px] text-slate-400 text-center">กด “อนุญาตตำแหน่ง” เมื่อเปิดครั้งแรก</div>
+          `,
+          2: `
+            <div class="text-center space-y-2 animate-in">
+              <div class="text-[11px] font-bold text-emerald-800 bg-emerald-100 inline-block px-3 py-1 rounded-full">ขั้นตอนที่ 2 • สแกนบัตร QR</div>
+              <div class="relative bg-slate-900 rounded-2xl h-44 flex items-center justify-center overflow-hidden my-3 border border-slate-700">
+                <div class="w-24 h-24 rounded-xl bg-white p-2 flex items-center justify-center shadow">
+                  <div class="w-full h-full grid grid-cols-4 gap-1">
+                    <span class="bg-slate-900 rounded-xs col-span-2 row-span-2"></span>
+                    <span class="bg-slate-900 rounded-xs"></span>
+                    <span class="bg-slate-900 rounded-xs"></span>
+                    <span class="bg-slate-900 rounded-xs"></span>
+                    <span class="bg-slate-300 rounded-xs"></span>
+                    <span class="bg-slate-900 rounded-xs"></span>
+                    <span class="bg-slate-900 rounded-xs col-span-2"></span>
+                    <span class="bg-slate-900 rounded-xs"></span>
+                    <span class="bg-slate-900 rounded-xs col-span-2"></span>
+                    <span class="bg-slate-300 rounded-xs"></span>
+                    <span class="bg-slate-900 rounded-xs"></span>
+                  </div>
+                </div>
+                <div class="sim-laser"></div>
+              </div>
+              <div class="text-xs font-bold text-slate-800">อ่านรหัสสำเร็จ: <span class="text-emerald-700 font-num">EMP-001</span></div>
+            </div>
+            <div class="text-[11px] text-slate-400 text-center">ระบบตรวจสิทธิ์ 1 เครื่อง/1 คน อัตโนมัติ</div>
+          `,
+          3: `
+            <div class="text-center space-y-2 animate-in">
+              <div class="text-[11px] font-bold text-emerald-800 bg-emerald-100 inline-block px-3 py-1 rounded-full">ขั้นตอนที่ 3 • ถ่ายภาพยืนยัน</div>
+              <div class="relative bg-slate-800 rounded-2xl h-44 flex items-center justify-center overflow-hidden my-3">
+                <div class="w-24 h-32 rounded-full border-2 border-dashed border-emerald-400 flex items-center justify-center">
+                  <svg class="w-12 h-12 text-emerald-300/80" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
+                </div>
+                <span class="absolute top-2 right-2 bg-white/90 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-md">สลับกล้องหน้า/หลัง</span>
+              </div>
+              <div class="py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold shadow">ถ่ายภาพและยืนยันลงเวลา</div>
+            </div>
+            <div class="text-[11px] text-slate-400 text-center">ส่งภาพเก็บใน Google Drive อัตโนมัติ</div>
+          `,
+          4: `
+            <div class="text-center space-y-3 animate-in my-auto">
+              <div class="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                <svg class="w-9 h-9" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+              </div>
+              <div class="inline-block px-3 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-bold">เข้างานตรงเวลา</div>
+              <div class="text-2xl font-extrabold font-num text-slate-900">08:22 น.</div>
+              <div class="bg-white border border-slate-200 rounded-2xl p-3 text-left text-xs space-y-1 shadow-xs">
+                <div class="font-bold text-slate-900">นายจิรพันธ์ โสมสุข (EMP-001)</div>
+                <div class="text-slate-500">ฝ่ายสินเชื่อ • บันทึกเข้า Sheets แล้ว</div>
+              </div>
+            </div>
+            <div class="text-[11px] text-emerald-700 font-semibold text-center">ตอนเย็นสแกนซ้ำเพื่อลงออกงานอัตโนมัติ</div>
+          `
+        };
+
+        screen.innerHTML = views[step] || views[1];
+      }
+
+      // Role Tab Switching
+      document.querySelectorAll('.role-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.role;
+          document.querySelectorAll('.role-panel').forEach((p) => {
+            p.classList.toggle('hidden', p.id !== `panel-${target}`);
+          });
+          document.querySelectorAll('.role-btn').forEach((b) => {
+            const active = b.dataset.role === target;
+            b.className = active
+              ? 'role-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-emerald-950 shadow-md transition-all'
+              : 'role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-100 hover:bg-white/10 transition-all';
+          });
+        });
+      });
+
+      // Step buttons
+      document.querySelectorAll('.sim-step-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (autoPlayTimer) {
+            clearInterval(autoPlayTimer);
+            autoPlayTimer = null;
+            document.getElementById('btn-auto-play').textContent = 'เล่นแอนิเมชันอัตโนมัติ';
+          }
+          renderPhoneSim(Number(btn.dataset.simStep));
+        });
+      });
+
+      // Auto-play toggle
+      document.getElementById('btn-auto-play').addEventListener('click', () => {
+        const btn = document.getElementById('btn-auto-play');
+        if (autoPlayTimer) {
+          clearInterval(autoPlayTimer);
+          autoPlayTimer = null;
+          btn.textContent = 'เล่นแอนิเมชันอัตโนมัติ';
+          return;
+        }
+        btn.textContent = 'หยุดเล่นอัตโนมัติ';
+        autoPlayTimer = setInterval(() => {
+          const next = currentSimStep >= 4 ? 1 : currentSimStep + 1;
+          renderPhoneSim(next);
+        }, 2600);
+      });
+
+      // FAQ Accordions
+      document.querySelectorAll('.faq-toggle').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const item = btn.closest('.faq-item');
+          if (item) item.classList.toggle('open');
+        });
+      });
+
+      // Copy Link (with sandbox-safe execCommand fallback)
+      document.getElementById('btn-copy-link').addEventListener('click', () => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(APP_URL)
+            .then(() => showToast('คัดลอกลิงก์เว็บแอปเรียบร้อยแล้ว'))
+            .catch(() => fallbackCopy(APP_URL));
+        } else {
+          fallbackCopy(APP_URL);
+        }
+      });
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('คัดลอกลิงก์เว็บแอปเรียบร้อยแล้ว');
+        } catch (e) {
+          showToast('ลิงก์: ' + text);
+        }
+        ta.remove();
+      }
+
+      // Print / Save PDF
+      document.getElementById('btn-print-manual').addEventListener('click', () => {
+        window.print();
+      });
+
+      // Init
+      renderAppQr();
+      renderPhoneSim(1);
+    })();
+  </script>
+</body>
+</html>
