@@ -109,6 +109,25 @@
       .no-print { display: none !important; }
       .faq-content { max-height: none !important; }
       body { background: #fff; }
+      body.print-badges-only * { visibility: hidden; }
+      body.print-badges-only #manual-badges-grid,
+      body.print-badges-only #manual-badges-grid * { visibility: visible; }
+      body.print-badges-only #manual-badges-grid {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+        padding: 8px !important;
+      }
+      .manual-badge-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+      }
     }
   </style>
 </head>
@@ -172,6 +191,9 @@
         <button type="button" data-role="faq" class="role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-100 hover:bg-white/10 transition-all">
           คำถามที่พบบ่อย (FAQ)
         </button>
+        <button type="button" data-role="badges" class="role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-amber-300 border border-amber-300/40 hover:bg-white/10 transition-all">
+          รวมบัตร QR พนักงาน (17 คน)
+        </button>
       </div>
     </div>
   </header>
@@ -208,7 +230,7 @@
               <div class="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 font-bold font-num flex items-center justify-center shrink-0">2</div>
               <div>
                 <h3 class="text-sm sm:text-base font-bold text-slate-900">กดปุ่ม “เปิดกล้องสแกน QR” ส่องบัตรประจำตัว</h3>
-                <p class="text-xs sm:text-sm text-slate-600 mt-0.5">ส่องกล้องไปที่บัตร QR Code ประจำตัวของท่าน (เช่น <span class="font-num font-semibold">EMP-001</span>) ระบบจะอ่านรหัสและตรวจสิทธิ์เครื่องอัตโนมัติ</p>
+                <p class="text-xs sm:text-sm text-slate-600 mt-0.5">ส่องกล้องไปที่บัตร QR Code ประจำตัวของท่าน (เช่น <span class="font-num font-semibold">SKP-001</span>) ระบบจะอ่านรหัสและตรวจสิทธิ์เครื่องอัตโนมัติ</p>
               </div>
             </button>
 
@@ -431,6 +453,38 @@
       </div>
     </section>
 
+    <!-- ==================== PANEL 4: ALL EMPLOYEE QR BADGES (17 STAFF) ==================== -->
+    <section id="panel-badges" class="role-panel hidden space-y-6 animate-in">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-5 no-print">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Employee QR Directory</span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">รวมบัตร QR Code พนักงานทั้งหมด (<span id="badge-visible-count" class="font-num">17</span> คน)</h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">รหัสพนักงานชุด <strong>SKP-001 ถึง SKP-017</strong> — แยกแท็บไว้เฉพาะสำหรับสั่งพิมพ์เป็นบัตรประจำตัวหรือดาวน์โหลดรายบุคคลครับ</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <button type="button" id="btn-print-all-badges" class="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold shadow-md shadow-emerald-700/20 transition-all">
+              พิมพ์บัตร QR พนักงานทั้งหมด
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+          <div>
+            <label for="badge-search-input" class="block text-xs font-semibold text-slate-700 mb-1">ค้นหาชื่อ หรือรหัสพนักงาน</label>
+            <input type="text" id="badge-search-input" placeholder="พิมพ์ชื่อ หรือ SKP-001" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+          </div>
+          <div>
+            <label for="badge-dept-filter" class="block text-xs font-semibold text-slate-700 mb-1">กรองตามแผนก / ฝ่าย</label>
+            <select id="badge-dept-filter" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Printable 2-Column Employee QR Cards Grid -->
+      <div id="manual-badges-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
   </main>
 
   <footer class="bg-white border-t border-slate-200 py-5 text-center text-xs text-slate-500">
@@ -523,7 +577,7 @@
                 </div>
                 <div class="sim-laser"></div>
               </div>
-              <div class="text-xs font-bold text-slate-800">อ่านรหัสสำเร็จ: <span class="text-emerald-700 font-num">EMP-001</span></div>
+              <div class="text-xs font-bold text-slate-800">อ่านรหัสสำเร็จ: <span class="text-emerald-700 font-num">SKP-001</span></div>
             </div>
             <div class="text-[11px] text-slate-400 text-center">ระบบตรวจสิทธิ์ 1 เครื่อง/1 คน อัตโนมัติ</div>
           `,
@@ -548,7 +602,7 @@
               <div class="inline-block px-3 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-bold">เข้างานตรงเวลา</div>
               <div class="text-2xl font-extrabold font-num text-slate-900">08:22 น.</div>
               <div class="bg-white border border-slate-200 rounded-2xl p-3 text-left text-xs space-y-1 shadow-xs">
-                <div class="font-bold text-slate-900">นายจิรพันธ์ โสมสุข (EMP-001)</div>
+                <div class="font-bold text-slate-900">นายจิรพันธ์ โสมสุข (SKP-001)</div>
                 <div class="text-slate-500">ฝ่ายสินเชื่อ • บันทึกเข้า Sheets แล้ว</div>
               </div>
             </div>
@@ -568,9 +622,13 @@
           });
           document.querySelectorAll('.role-btn').forEach((b) => {
             const active = b.dataset.role === target;
-            b.className = active
-              ? 'role-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-emerald-950 shadow-md transition-all'
-              : 'role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-100 hover:bg-white/10 transition-all';
+            if (active) {
+              b.className = 'role-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-emerald-950 shadow-md transition-all';
+            } else if (b.dataset.role === 'badges') {
+              b.className = 'role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-amber-300 border border-amber-300/40 hover:bg-white/10 transition-all';
+            } else {
+              b.className = 'role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-100 hover:bg-white/10 transition-all';
+            }
           });
         });
       });
@@ -638,14 +696,120 @@
         ta.remove();
       }
 
-      // Print / Save PDF
+      // ==================== ALL 17 EMPLOYEE QR BADGES (SKP-001..SKP-017) ====================
+      const STAFF_LIST = [
+        { id: 'SKP-001', name: 'นายจิรพันธ์ โสมสุข', dept: 'ฝ่ายสินเชื่อ' },
+        { id: 'SKP-002', name: 'นางสาวปวีณา ศาลางาม', dept: 'ฝ่ายสินเชื่อ' },
+        { id: 'SKP-003', name: 'นายรัฐธรรมนูญ อภัยรุณ', dept: 'ฝ่ายสินเชื่อ' },
+        { id: 'SKP-004', name: 'นายสุเมธ จันทร์เหลือง', dept: 'ฝ่ายสินเชื่อ' },
+        { id: 'SKP-005', name: 'นายสุทธญาณ์ ละดาดาษ', dept: 'ฝ่ายสินเชื่อ' },
+        { id: 'SKP-006', name: 'นายจักรพันธุ์ พรหมบุตร', dept: 'ฝ่ายสินเชื่อ' },
+        { id: 'SKP-007', name: 'นายจักรกฤษ พรหมบุตร', dept: 'ฝ่ายการตลาด' },
+        { id: 'SKP-008', name: 'นางสาวระเบียบ จันทร์หอม', dept: 'ฝ่ายการตลาด' },
+        { id: 'SKP-009', name: 'นางสาวสุนิสา พลแสน', dept: 'ฝ่ายการตลาด' },
+        { id: 'SKP-010', name: 'นางสาวสุมิตรา เเพงศรี', dept: 'ฝ่ายการเงิน' },
+        { id: 'SKP-011', name: 'นางสาวกาญจนา คันโทเงิน', dept: 'ฝ่ายการเงิน' },
+        { id: 'SKP-012', name: 'นางสาวอัมพร อินทร์สำราญ', dept: 'ฝ่ายบัญชี' },
+        { id: 'SKP-013', name: 'นางสาวกิ่งกาญจน์ จันทร์เหลือง', dept: 'ฝ่ายธุรการ' },
+        { id: 'SKP-014', name: 'จารุกิต น้อยยะ', dept: 'ฝ่ายธุรการ' },
+        { id: 'SKP-015', name: 'นายณัฐพนธ์ โพธิ์ทอง', dept: 'ฝ่ายคอมพิวเตอร์' },
+        { id: 'SKP-016', name: 'นายบุญรอด บุญคุ้ม', dept: 'ภารโรง' },
+        { id: 'SKP-017', name: 'นางสาวสุภาพร วงพุธทะ', dept: 'เเม่บ้าน' }
+      ];
+
+      function escapeHtml(str) {
+        return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function makeQrImgUrl(text) {
+        if (typeof qrcode === 'undefined') return '';
+        const qr = qrcode(0, 'M');
+        qr.addData(text);
+        qr.make();
+        return qr.createDataURL(6, 4);
+      }
+
+      function initBadgeDeptFilter() {
+        const sel = document.getElementById('badge-dept-filter');
+        if (!sel) return;
+        const depts = Array.from(new Set(STAFF_LIST.map((s) => s.dept)));
+        sel.innerHTML = '<option value="all">ทุกแผนก (17 คน)</option>' +
+          depts.map((d) => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
+      }
+
+      function renderManualBadges() {
+        const grid = document.getElementById('manual-badges-grid');
+        const countEl = document.getElementById('badge-visible-count');
+        if (!grid) return;
+        const q = (document.getElementById('badge-search-input').value || '').trim().toLowerCase();
+        const dept = document.getElementById('badge-dept-filter').value || 'all';
+
+        const filtered = STAFF_LIST.filter((emp) => {
+          if (dept !== 'all' && emp.dept !== dept) return false;
+          if (q && !`${emp.id} ${emp.name} ${emp.dept}`.toLowerCase().includes(q)) return false;
+          return true;
+        });
+
+        if (countEl) countEl.textContent = filtered.length;
+
+        if (!filtered.length) {
+          grid.innerHTML = '<div class="col-span-2 bg-white rounded-2xl border border-slate-200 p-8 text-center text-sm text-slate-400">ไม่พบรายชื่อพนักงานตามเงื่อนไขที่ค้นหา</div>';
+          return;
+        }
+
+        grid.innerHTML = filtered.map((emp) => {
+          const qrUrl = makeQrImgUrl(emp.id);
+          return `
+            <div class="manual-badge-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+              <div class="bg-emerald-900 text-white px-4 py-2.5">
+                <div class="text-[11px] text-amber-300 font-bold tracking-wide">สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด</div>
+                <div class="text-xs text-emerald-100">บัตรประจำตัวพนักงานสำหรับสแกนลงเวลา</div>
+              </div>
+              <div class="p-4 flex items-center gap-4 flex-1">
+                <div class="shrink-0 bg-white p-1.5 rounded-xl border border-slate-200">
+                  <img src="${qrUrl}" alt="QR Code ${escapeHtml(emp.id)}" class="w-24 h-24 block" />
+                </div>
+                <div class="min-w-0 flex-1 space-y-1">
+                  <div class="inline-block px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold font-num">${escapeHtml(emp.id)}</div>
+                  <div class="text-base font-bold text-slate-900 truncate">${escapeHtml(emp.name)}</div>
+                  <div class="text-xs text-slate-600 truncate">${escapeHtml(emp.dept)}</div>
+                </div>
+              </div>
+              <div class="px-4 py-2 bg-slate-50 border-t border-slate-100 flex items-center justify-between no-print">
+                <span class="text-[11px] text-slate-400">สแกนผ่านเว็บแอปสหกรณ์</span>
+                <a href="${qrUrl}" download="QR_${escapeHtml(emp.id)}.gif" class="text-xs font-semibold text-emerald-800 hover:text-emerald-950 px-2.5 py-1 rounded-lg bg-white border border-slate-200">
+                  ดาวน์โหลด QR
+                </a>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('badge-search-input').addEventListener('input', renderManualBadges);
+      document.getElementById('badge-dept-filter').addEventListener('change', renderManualBadges);
+
+      // Print Manual (Full Guide)
       document.getElementById('btn-print-manual').addEventListener('click', () => {
+        document.body.classList.remove('print-badges-only');
         window.print();
+      });
+
+      // Print Employee QR Badges Only (Clean 2-Column Cutout Layout)
+      document.getElementById('btn-print-all-badges').addEventListener('click', () => {
+        document.body.classList.add('print-badges-only');
+        window.print();
+      });
+
+      window.addEventListener('afterprint', () => {
+        document.body.classList.remove('print-badges-only');
       });
 
       // Init
       renderAppQr();
       renderPhoneSim(1);
+      initBadgeDeptFilter();
+      renderManualBadges();
     })();
   </script>
 </body>
