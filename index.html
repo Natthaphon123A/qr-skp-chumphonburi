@@ -921,6 +921,7 @@
       const DEFAULT_COOP_LAT = 15.349312;
       const DEFAULT_COOP_LNG = 103.412188;
       const DEFAULT_COOP_RADIUS_M = 120;
+      const GPS_MAX_ACCURACY_M = 100;    // ไม่รับพิกัดที่คลาดเคลื่อนเกิน ±100 ม. (กันสัญญาณ GPS หยาบจากเสา/WiFi)
 
       const DEFAULT_EMPLOYEES = [
         { id: 'SKP-001', name: 'นายจิรพันธ์ โสมสุข', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
@@ -1202,6 +1203,94 @@
         if (outingLbl) outingLbl.textContent = formatThaiDate(getLocalDateStr(now));
       }
 
+      // ==================== DEVICE / BROWSER HELPERS ====================
+      const UA = navigator.userAgent || '';
+      const IS_IOS = /iPhone|iPad|iPod/i.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const IS_ANDROID = /Android/i.test(UA);
+      function detectInAppBrowser() {
+        if (/\bLine\//i.test(UA)) return 'LINE';
+        if (/FBAN|FBAV|FB_IAB|FBIOS/i.test(UA)) return 'Facebook';
+        if (/Instagram/i.test(UA)) return 'Instagram';
+        if (/MicroMessenger/i.test(UA)) return 'WeChat';
+        if (/TikTok|musical_ly|BytedanceWebview/i.test(UA)) return 'TikTok';
+        if (IS_ANDROID && /; wv\)/.test(UA)) return 'แอปอื่น';
+        return '';
+      }
+      const IN_APP_BROWSER = detectInAppBrowser();
+
+      // เปิดจาก LINE: สั่งให้ LINE เปิดหน้าเดิมใน Safari/Chrome ทันที (LINE รองรับพารามิเตอร์ openExternalBrowser=1)
+      (function redirectOutOfLine() {
+        if (IN_APP_BROWSER !== 'LINE') return;
+        try {
+          const u = new URL(window.location.href);
+          if (u.searchParams.get('openExternalBrowser') === '1') return;
+          u.searchParams.set('openExternalBrowser', '1');
+          window.location.replace(u.toString());
+        } catch (e) {}
+      })();
+
+      function showInAppBrowserBanner() {
+        if (!IN_APP_BROWSER) return;
+        const cleanUrl = (() => { try { const u = new URL(window.location.href); u.searchParams.delete('openExternalBrowser'); return u.toString(); } catch (e) { return window.location.href; } })();
+        const howTo = IS_IOS
+          ? 'แตะปุ่ม ••• หรือไอคอนแชร์ แล้วเลือก “เปิดใน Safari” (Open in Safari)'
+          : 'แตะปุ่ม ⋮ มุมขวาบน แล้วเลือก “เปิดในเบราว์เซอร์” หรือกดปุ่มด้านล่าง';
+        const bar = document.createElement('div');
+        bar.id = 'inapp-browser-banner';
+        bar.style.cssText = 'position:sticky;top:0;z-index:9999;background:#b91c1c;color:#fff;padding:12px 16px;font-size:14px;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,.25)';
+        bar.innerHTML = '<div style="max-width:960px;margin:0 auto">' +
+          '<b>กำลังเปิดผ่านเบราว์เซอร์ในแอป ' + escapeHtml(IN_APP_BROWSER) + '</b> ซึ่งมักขอสิทธิ์กล้องและ GPS ไม่ครบ ทำให้สแกนไม่ได้<br>' +
+          escapeHtml(howTo) +
+          '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' +
+          (IS_ANDROID ? '<a id="inapp-open-chrome" style="background:#fff;color:#b91c1c;padding:6px 12px;border-radius:8px;font-weight:700;text-decoration:none">เปิดใน Chrome</a>' : '') +
+          '<button type="button" id="inapp-copy-link" style="background:#fff;color:#b91c1c;padding:6px 12px;border-radius:8px;font-weight:700">คัดลอกลิงก์</button>' +
+          '</div></div>';
+        document.body.prepend(bar);
+        const chromeBtn = document.getElementById('inapp-open-chrome');
+        if (chromeBtn) {
+          const u = new URL(cleanUrl);
+          chromeBtn.href = 'intent://' + u.host + u.pathname + u.search + '#Intent;scheme=https;package=com.android.chrome;end';
+        }
+        document.getElementById('inapp-copy-link').addEventListener('click', () => {
+          const done = () => showToast('คัดลอกลิงก์แล้ว นำไปวางใน Safari หรือ Chrome', 'success');
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(cleanUrl).then(done).catch(() => window.prompt('คัดลอกลิงก์นี้ไปเปิดใน Safari/Chrome', cleanUrl));
+          } else {
+            window.prompt('คัดลอกลิงก์นี้ไปเปิดใน Safari/Chrome', cleanUrl);
+          }
+        });
+      }
+
+      // แปลงข้อผิดพลาดกล้องเป็นคำแนะนำภาษาไทยตามชนิดเครื่อง
+      function cameraErrorMessage(err) {
+        const name = (err && (err.name || err)) ? String(err.name || err) : '';
+        if (!window.isSecureContext) return 'เว็บต้องเปิดผ่าน https:// เท่านั้นจึงจะใช้กล้องได้';
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          return IN_APP_BROWSER
+            ? `เบราว์เซอร์ในแอป ${IN_APP_BROWSER} ไม่รองรับกล้อง กรุณาเปิดลิงก์นี้ใน ${IS_IOS ? 'Safari' : 'Chrome'}`
+            : 'เบราว์เซอร์นี้ไม่รองรับกล้อง กรุณาใช้ Safari (iPhone) หรือ Chrome (Android)';
+        }
+        if (/NotAllowed|Permission/i.test(name)) {
+          if (IN_APP_BROWSER) return `ไม่ได้รับสิทธิ์กล้องในแอป ${IN_APP_BROWSER} กรุณาเปิดลิงก์นี้ใน ${IS_IOS ? 'Safari' : 'Chrome'} แทน`;
+          return IS_IOS
+            ? 'ไม่ได้รับสิทธิ์กล้อง: แตะ “aA” ที่ช่องที่อยู่เว็บ > การตั้งค่าเว็บไซต์ > กล้อง > อนุญาต แล้วโหลดหน้าใหม่ (หรือ การตั้งค่า > Safari > กล้อง > อนุญาต)'
+            : 'ไม่ได้รับสิทธิ์กล้อง: แตะรูปแม่กุญแจที่ช่องที่อยู่เว็บ > สิทธิ์ > กล้อง > อนุญาต แล้วโหลดหน้าใหม่';
+        }
+        if (/NotReadable|TrackStart|Abort/i.test(name)) return 'กล้องถูกใช้งานโดยแอปอื่นอยู่ กรุณาปิดแอปกล้อง/LINE/วิดีโอคอล แล้วลองใหม่';
+        if (/NotFound|Overconstrained|DevicesNotFound/i.test(name)) return 'ไม่พบกล้องที่ใช้งานได้บนอุปกรณ์นี้';
+        return 'เปิดกล้องไม่สำเร็จ (' + (name || 'ไม่ทราบสาเหตุ') + ') กรุณาโหลดหน้าใหม่แล้วลองอีกครั้ง';
+      }
+
+      // เปิดกล้องสแกน QR: ลองกล้องหลังก่อน ถ้าเครื่องไม่มีกล้องหลังจึงใช้กล้องหน้า (ไม่ลองซ้ำเมื่อถูกปฏิเสธสิทธิ์)
+      function startQrScanner(scanner, config, onScan) {
+        return scanner.start({ facingMode: 'environment' }, config, onScan, () => {})
+          .catch((err) => {
+            const name = String((err && err.name) || err || '');
+            if (/NotAllowed|Permission|Secure/i.test(name)) throw err;
+            return scanner.start({ facingMode: 'user' }, config, onScan, () => {});
+          });
+      }
+
       // ==================== GPS GEOFENCING ====================
       function haversineMeters(lat1, lng1, lat2, lng2) {
         const R = 6371000;
@@ -1232,6 +1321,9 @@
         }
         if (Date.now() - (currentGps.updatedAt || 0) > GPS_MAX_AGE_MS) {
           return { allowed: false, code: 'stale_gps', reason: 'พิกัด GPS เก่าเกิน 5 นาที กรุณากดปุ่ม “อัปเดต GPS” เพื่อยืนยันตำแหน่งปัจจุบันก่อนสแกน', distanceMeters };
+        }
+        if (typeof currentGps.accuracy === 'number' && currentGps.accuracy > GPS_MAX_ACCURACY_M) {
+          return { allowed: false, code: 'low_accuracy', reason: `สัญญาณ GPS ไม่แม่นพอ (±${Math.round(currentGps.accuracy)} ม. / ต้องไม่เกิน ±${GPS_MAX_ACCURACY_M} ม.) กรุณาเปิด GPS ความแม่นยำสูง ออกไปที่โล่ง แล้วกด “อัปเดต GPS”`, distanceMeters };
         }
         if (distanceMeters > gpsConfig.radiusMeters) {
           return { allowed: false, code: 'out_of_range', reason: `อยู่นอกรัศมีสหกรณ์ (ห่าง ${distanceMeters.toLocaleString()} ม. / อนุญาตไม่เกิน ${gpsConfig.radiusMeters} ม.)`, distanceMeters };
@@ -1331,13 +1423,19 @@
           },
           (err) => {
             gpsStatusState = 'error';
-            gpsErrorMsg = err && err.code === 1
-              ? 'ไม่ได้รับอนุญาตตำแหน่ง GPS กรุณากดอนุญาตตำแหน่งบนเบราว์เซอร์'
-              : 'ไม่สามารถดึงสัญญาณ GPS ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง';
+            if (err && err.code === 1) {
+              gpsErrorMsg = IN_APP_BROWSER
+                ? `แอป ${IN_APP_BROWSER} ไม่ส่งตำแหน่ง GPS ให้เว็บ กรุณาเปิดลิงก์นี้ใน ${IS_IOS ? 'Safari' : 'Chrome'}`
+                : IS_IOS
+                  ? 'ไม่ได้รับสิทธิ์ตำแหน่ง: เปิด การตั้งค่า > ความเป็นส่วนตัวและความปลอดภัย > บริการหาตำแหน่ง (เปิด) > เว็บไซต์ Safari > ขณะใช้แอป และเปิด “ตำแหน่งที่แม่นยำ” แล้วโหลดหน้าใหม่'
+                  : 'ไม่ได้รับสิทธิ์ตำแหน่ง: แตะรูปแม่กุญแจที่ช่องที่อยู่เว็บ > สิทธิ์ > ตำแหน่ง > อนุญาต และเปิด GPS ของเครื่อง';
+            } else {
+              gpsErrorMsg = 'ดึงสัญญาณ GPS ไม่สำเร็จ กรุณาเปิด GPS/บริการหาตำแหน่ง ออกไปที่โล่ง แล้วกด “อัปเดต GPS” อีกครั้ง';
+            }
             renderGpsStatus();
             if (!silent) showToast(gpsErrorMsg, 'warning');
           },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 15000 }
+          { enableHighAccuracy: true, timeout: 20000, maximumAge: 15000 }
         );
       }
 
@@ -1524,12 +1622,32 @@
         loading.classList.remove('hidden');
         video.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none';
 
+        loading.onclick = null;
+        loading.style.cursor = '';
+        const showRetry = (msg) => {
+          loading.textContent = msg + ' — แตะตรงนี้เพื่อลองเปิดกล้องอีกครั้ง';
+          loading.style.cursor = 'pointer';
+          loading.onclick = () => startSelfieCameraStream(facingMode); // การแตะ = user gesture ที่ iPhone ต้องการ
+        };
+
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          loading.textContent = 'ไม่พบกล้องบนอุปกรณ์นี้ — ระบบบังคับต้องถ่ายภาพยืนยันตัวตนจึงจะลงเวลาได้';
+          loading.textContent = cameraErrorMessage(null) + ' (ระบบบังคับถ่ายภาพยืนยันตัวตนจึงจะลงเวลาได้)';
           return;
         }
 
-        const tryStart = (constraints, allowFallback) => {
+        // iPhone: ต้องตั้ง playsinline/muted ก่อนผูก stream ไม่เช่นนั้นวิดีโอไม่เล่นหรือเด้งเต็มจอ
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.muted = true;
+
+        const markReady = () => {
+          if (selfieCameraReady) return;
+          selfieCameraReady = true;
+          loading.classList.add('hidden');
+          if (captureBtn) captureBtn.disabled = false;
+        };
+
+        const tryStart = (constraints, attempt) => {
           navigator.mediaDevices.getUserMedia(constraints)
             .then((stream) => {
               if (!pendingScanContext) {
@@ -1537,25 +1655,27 @@
                 return;
               }
               selfieStream = stream;
+              video.onloadedmetadata = markReady;
               video.srcObject = stream;
-              video.onloadedmetadata = () => {
-                video.play().catch(() => {});
-                selfieCameraReady = true;
-                loading.classList.add('hidden');
-                if (captureBtn) captureBtn.disabled = false;
-              };
+              const p = video.play();
+              if (p && p.then) p.then(markReady).catch(() => showRetry('กดเพื่อเริ่มกล้อง'));
             })
-            .catch(() => {
-              if (allowFallback) {
-                // Fallback to any available camera (front or back)
-                tryStart({ video: { width: { ideal: 640 }, height: { ideal: 480 } }, audio: false }, false);
+            .catch((err) => {
+              const name = String((err && err.name) || '');
+              if (/NotAllowed|Permission/i.test(name)) {
+                showRetry(cameraErrorMessage(err));
+              } else if (attempt === 0 && /NotReadable|TrackStart|Abort/i.test(name)) {
+                // กล้องสแกน QR อาจยังปล่อยไม่ทัน (พบบ่อยบน iPhone) รอแล้วลองใหม่
+                setTimeout(() => tryStart(constraints, 1), 800);
+              } else if (attempt <= 1 && constraints.video && constraints.video.facingMode) {
+                tryStart({ video: true, audio: false }, 2);
               } else {
-                loading.textContent = 'ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตสิทธิ์กล้องในเบราว์เซอร์ (ต้องมีภาพถ่ายจึงจะลงเวลาได้)';
+                showRetry(cameraErrorMessage(err));
               }
             });
         };
 
-        tryStart({ video: { facingMode: { ideal: facingMode }, width: { ideal: 640 }, height: { ideal: 480 } }, audio: false }, true);
+        tryStart({ video: { facingMode: { ideal: facingMode }, width: { ideal: 640 }, height: { ideal: 480 } }, audio: false }, 0);
       }
 
       function openSelfieModal(ctx) {
@@ -1713,6 +1833,9 @@
           deviceId: gpsConfig.deviceLockEnforced ? deviceProfile.deviceId : '',
           distanceMeters: gpsCheck.distanceMeters !== null ? gpsCheck.distanceMeters : '-',
           coords: currentGps ? `${currentGps.lat.toFixed(6)}, ${currentGps.lng.toFixed(6)}` : '-',
+          lat: currentGps ? currentGps.lat : '',
+          lng: currentGps ? currentGps.lng : '',
+          accuracy: currentGps ? Math.round(currentGps.accuracy || 0) : '',
           photoBase64: photoDataUrl || ''
         }, emp, todayStr, prevSnapshot, wasUnbound);
       }
@@ -2039,6 +2162,9 @@
           deviceId: gpsConfig.deviceLockEnforced ? deviceProfile.deviceId : '',
           category,
           reason,
+          lat: currentGps ? currentGps.lat : '',
+          lng: currentGps ? currentGps.lng : '',
+          accuracy: currentGps ? Math.round(currentGps.accuracy || 0) : '',
           photoBase64: photoDataUrl || ''
         }, prevOutingsSnapshot);
       }
@@ -2071,10 +2197,16 @@
 
       function startOutingCamera() {
         if (outingCameraRunning) return;
+        // เปิดกล้องทันทีภายในการแตะปุ่ม (iPhone ต้องการ) ถ้า GPS แค่เก่า/ยังไม่มา ให้ดึงใหม่เบื้องหลัง
+        // ระบบยังตรวจ GPS ซ้ำตอนสแกนบัตรได้ใน initiateAttendance/initiateOuting
         const gpsCheck = checkGpsEligibility();
         if (!gpsCheck.allowed) {
-          showToast(gpsCheck.reason, 'error');
-          return;
+          if (gpsCheck.code === 'stale_gps' || gpsCheck.code === 'no_user_gps') {
+            refreshGps(true);
+          } else {
+            showToast(gpsCheck.reason, 'error');
+            return;
+          }
         }
         const nowM = timeToMinutes(getLocalTimeStr());
         if (outingAction === 'out') {
@@ -2102,7 +2234,7 @@
           lastScannedAt = now;
           initiateOuting(decodedText, outingAction);
         };
-        outingQrCode.start({ facingMode: 'environment' }, config, onScan, () => {})
+        startQrScanner(outingQrCode, config, onScan)
           .then(() => {
             outingCameraRunning = true;
             document.getElementById('outing-cam-placeholder').classList.add('hidden');
@@ -2110,16 +2242,9 @@
             document.getElementById('btn-outing-start-cam').classList.add('hidden');
             document.getElementById('btn-outing-stop-cam').classList.remove('hidden');
           })
-          .catch(() => {
-            outingQrCode.start({ facingMode: 'user' }, config, onScan, () => {})
-              .then(() => {
-                outingCameraRunning = true;
-                document.getElementById('outing-cam-placeholder').classList.add('hidden');
-                document.getElementById('outing-laser-line').classList.remove('hidden');
-                document.getElementById('btn-outing-start-cam').classList.add('hidden');
-                document.getElementById('btn-outing-stop-cam').classList.remove('hidden');
-              })
-              .catch(() => showToast('ไม่สามารถเข้าถึงกล้องได้ กรุณาอนุญาตสิทธิ์กล้อง', 'warning'));
+          .catch((err) => {
+            try { outingQrCode.clear(); } catch (e) {}
+            showToast(cameraErrorMessage(err), 'error');
           });
       }
 
@@ -2196,10 +2321,16 @@
       // ==================== CAMERA QR SCANNER ====================
       function startCamera() {
         if (cameraRunning) return;
+        // เปิดกล้องทันทีภายในการแตะปุ่ม (iPhone ต้องการ) ถ้า GPS แค่เก่า/ยังไม่มา ให้ดึงใหม่เบื้องหลัง
+        // ระบบยังตรวจ GPS ซ้ำตอนสแกนบัตรได้ใน initiateAttendance/initiateOuting
         const gpsCheck = checkGpsEligibility();
         if (!gpsCheck.allowed) {
-          showToast(gpsCheck.reason, 'error');
-          return;
+          if (gpsCheck.code === 'stale_gps' || gpsCheck.code === 'no_user_gps') {
+            refreshGps(true);
+          } else {
+            showToast(gpsCheck.reason, 'error');
+            return;
+          }
         }
         if (typeof Html5Qrcode === 'undefined') {
           showToast('ไม่สามารถเปิดโมดูลกล้องได้ในขณะนี้', 'error');
@@ -2221,7 +2352,7 @@
           initiateAttendance(decodedText, scanMode);
         };
 
-        html5QrCode.start({ facingMode: 'environment' }, config, onScanSuccess, () => {})
+        startQrScanner(html5QrCode, config, onScanSuccess)
           .then(() => {
             cameraRunning = true;
             placeholder.classList.add('hidden');
@@ -2229,18 +2360,9 @@
             btnStart.classList.add('hidden');
             btnStop.classList.remove('hidden');
           })
-          .catch(() => {
-            html5QrCode.start({ facingMode: 'user' }, config, onScanSuccess, () => {})
-              .then(() => {
-                cameraRunning = true;
-                placeholder.classList.add('hidden');
-                laser.classList.remove('hidden');
-                btnStart.classList.add('hidden');
-                btnStop.classList.remove('hidden');
-              })
-              .catch(() => {
-                showToast('ไม่สามารถเข้าถึงกล้องได้ กรุณากดอนุญาตสิทธิ์กล้องบนเบราว์เซอร์', 'warning');
-              });
+          .catch((err) => {
+            try { html5QrCode.clear(); } catch (e) {}
+            showToast(cameraErrorMessage(err), 'error');
           });
       }
 
@@ -3158,6 +3280,7 @@
       // ==================== INIT ====================
       loadState();
       bindEvents();
+      showInAppBrowserBanner();
       updateClock();
       setInterval(updateClock, 1000);
       renderAll();
