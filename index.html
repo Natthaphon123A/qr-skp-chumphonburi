@@ -322,15 +322,17 @@
             </div>
             <div class="min-w-0">
               <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                <span>สิทธิ์อุปกรณ์ (1 เครื่อง / 1 คน)</span>
+                <span>บัญชีผู้ใช้ (1 เครื่อง / 1 คน)</span>
               </div>
               <div id="device-bind-status" class="text-xs text-slate-600 mt-0.5 truncate">อุปกรณ์นี้ยังไม่ผูกสิทธิ์พนักงาน</div>
               <div id="device-id-display" class="text-[11px] text-slate-400 font-num mt-0.5">ID: --</div>
             </div>
           </div>
-          <button type="button" id="btn-unbind-device" class="admin-only hidden shrink-0 px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-semibold">
-            ปลดล็อกเครื่อง
-          </button>
+          <div class="flex flex-col gap-1.5 shrink-0">
+            <button type="button" id="btn-change-password" class="hidden px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold">เปลี่ยนรหัสผ่าน</button>
+            <button type="button" id="btn-logout" class="hidden px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-semibold">ออกจากระบบ</button>
+            <button type="button" id="btn-login-open" class="hidden px-2.5 py-1.5 rounded-lg bg-emerald-700 text-white text-[11px] font-semibold">เข้าสู่ระบบ</button>
+          </div>
         </div>
       </div>
 
@@ -576,16 +578,7 @@
             </div>
           </div>
 
-          <!-- Admin-only Manual Outing Entry -->
-          <div class="admin-only hidden pt-2 border-t border-slate-100 flex flex-wrap items-end gap-2">
-            <div class="flex-1 min-w-[160px]">
-              <label for="outing-admin-emp" class="block text-xs font-semibold text-slate-600 mb-1">บันทึกแทนพนักงาน (เฉพาะผู้ดูแล)</label>
-              <select id="outing-admin-emp" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white"></select>
-            </div>
-            <button type="button" id="btn-outing-admin-submit" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold">
-              บันทึกตามโหมดที่เลือก
-            </button>
-          </div>
+          <select id="outing-admin-emp" class="hidden"></select><button type="button" id="btn-outing-admin-submit" class="hidden"></button>
         </div>
 
         <!-- Right: Today's Outing Feed -->
@@ -749,7 +742,7 @@
               ล้างตัวกรอง
             </button>
             <button type="button" id="btn-clear-local-logs" class="px-3.5 py-2 rounded-xl border border-rose-200 text-rose-700 hover:bg-rose-50 text-sm font-semibold transition-colors">
-              ล้างประวัติในเครื่อง
+              โหลดข้อมูลใหม่
             </button>
             <button type="button" id="btn-export-logs-csv" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold transition-colors shadow-sm">
               ส่งออก Excel/CSV
@@ -941,7 +934,7 @@
           <input type="checkbox" id="gps-enforce-toggle" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500" />
         </label>
 
-        <label class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+        <label class="hidden">
           <div>
             <div class="text-xs font-bold text-slate-900">บังคับผูก 1 มือถือต่อ 1 พนักงาน</div>
             <div class="text-[11px] text-slate-500">ป้องกันการสแกนแทนกันจากเครื่องเดียวกัน</div>
@@ -993,6 +986,52 @@
   </div>
 
   <!-- Admin Mode Login Modal -->
+  <!-- ==================== EMPLOYEE LOGIN (v3) ==================== -->
+  <div id="login-modal" class="hidden fixed inset-0 z-40 bg-emerald-950/80 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl border border-slate-200 space-y-4">
+      <div>
+        <h3 class="text-lg font-bold text-slate-900">เข้าสู่ระบบพนักงาน</h3>
+        <p class="text-xs text-slate-600 mt-1">ต้องเข้าสู่ระบบก่อนสแกนลงเวลา บัญชีจะผูกกับมือถือเครื่องนี้เครื่องเดียว</p>
+      </div>
+      <div>
+        <label for="login-emp-id" class="block text-xs font-semibold text-slate-700 mb-1">รหัสพนักงาน</label>
+        <input type="text" id="login-emp-id" autocomplete="username" autocapitalize="characters" placeholder="เช่น SKP-001" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+      <div>
+        <label for="login-password" class="block text-xs font-semibold text-slate-700 mb-1">รหัสผ่าน</label>
+        <input type="password" id="login-password" autocomplete="current-password" placeholder="รหัสผ่าน" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        <p class="text-[11px] text-slate-500 mt-1">เข้าใช้ครั้งแรก: ตั้งรหัสผ่านใหม่ของท่านเองในช่องนี้ อย่างน้อย 6 ตัว แล้วจดจำไว้</p>
+      </div>
+      <div id="login-error" class="hidden text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl p-2.5"></div>
+      <button type="button" id="login-submit" class="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-300 text-white text-sm font-bold">เข้าสู่ระบบ</button>
+      <div class="flex items-center justify-between text-[11px] text-slate-500">
+        <span>ลืมรหัสผ่าน / เปลี่ยนมือถือ: แจ้งผู้ดูแลให้กดรีเซ็ต</span>
+        <button type="button" id="login-open-admin" class="font-semibold text-slate-700 hover:underline">ผู้ดูแลระบบ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pw-modal" class="hidden fixed inset-0 z-50 bg-slate-900/55 flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl border border-slate-200 space-y-3">
+      <h3 class="text-base font-bold text-slate-900">เปลี่ยนรหัสผ่าน</h3>
+      <input type="password" id="pw-current" autocomplete="current-password" placeholder="รหัสผ่านเดิม" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+      <input type="password" id="pw-new" autocomplete="new-password" placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+      <input type="password" id="pw-new2" autocomplete="new-password" placeholder="ยืนยันรหัสผ่านใหม่" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+      <div class="flex justify-end gap-2 pt-1">
+        <button type="button" id="pw-cancel" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-700">ยกเลิก</button>
+        <button type="button" id="pw-submit" class="px-4 py-2 rounded-xl bg-emerald-700 text-sm font-bold text-white">บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="retry-bar" class="hidden fixed bottom-0 inset-x-0 z-50 bg-rose-700 text-white px-4 py-3 shadow-2xl no-print">
+    <div class="max-w-5xl mx-auto flex flex-wrap items-center gap-3">
+      <div class="flex-1 min-w-[200px] text-sm"><b>ยังไม่ได้บันทึก</b> <span id="retry-bar-msg"></span></div>
+      <button type="button" id="retry-bar-send" class="px-4 py-2 rounded-xl bg-white text-rose-700 text-sm font-bold">ลองส่งใหม่</button>
+      <button type="button" id="retry-bar-cancel" class="px-3 py-2 rounded-xl border border-white/60 text-sm font-semibold">ยกเลิก</button>
+    </div>
+  </div>
+
   <div id="admin-login-modal" class="hidden fixed inset-0 z-50 bg-slate-900/55 backdrop-blur-xs flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl border border-slate-200 space-y-4">
       <div class="flex items-center justify-between">
@@ -1021,15 +1060,16 @@
       const STORAGE_KEY_GPS = 'skp_chumphonburi_gps_v2';
       const STORAGE_KEY_DEVICE = 'skp_chumphonburi_device_v2';
       const STORAGE_KEY_OUTINGS = 'skp_chumphonburi_outings_v1';
+      const STORAGE_KEY_SESSION = 'skp_chumphonburi_session_v3';
 
-      const WORK_START_MIN = 8 * 60 + 30;  // 08:30
-      const WORK_END_MIN = 16 * 60 + 30;   // 16:30
+      let WORK_START_MIN = 8 * 60 + 30;  // 08:30
+      let WORK_END_MIN = 16 * 60 + 30;   // 16:30
       const MIN_CHECKOUT_GAP_MINS = 30;    // เว้นอย่างน้อย 30 นาทีหลังเข้างาน กันเผลอสแกนเบิ้ลตอนเช้า
       const MIN_OUTING_RETURN_MINS = 2;    // เว้นอย่างน้อย 2 นาทีหลังแจ้งออก กันสแกนกลับเบิ้ล
-      const SYS_OPEN_MIN = 5 * 60 + 30;    // เปิดระบบลงเวลา 05:30 น.
-      const SYS_CLOSE_MIN = 22 * 60;       // ปิดระบบลงเวลา 22:00 น. (กันมือบอนสแกนกลางดึก)
-      const OUTING_START_MIN = 8 * 60;     // แจ้งออกนอกสำนักงานได้ตั้งแต่ 08:00 น.
-      const OUTING_END_MIN = 16 * 60 + 30; // แจ้งออกนอกสำนักงานได้ไม่เกิน 16:30 น.
+      let SYS_OPEN_MIN = 5 * 60 + 30;    // เปิดระบบลงเวลา 05:30 น.
+      let SYS_CLOSE_MIN = 22 * 60; let CHECKOUT_CLOSE_MIN = 23 * 60 + 59;       // ปิดระบบลงเวลา 22:00 น. (กันมือบอนสแกนกลางดึก)
+      let OUTING_START_MIN = 8 * 60;     // แจ้งออกนอกสำนักงานได้ตั้งแต่ 08:00 น.
+      let OUTING_END_MIN = 16 * 60 + 30; // แจ้งออกนอกสำนักงานได้ไม่เกิน 16:30 น.
       const GPS_MAX_AGE_MS = 5 * 60 * 1000; // รีเฟรช GPS หากพิกัดเก่าเกิน 5 นาที
       const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCmZYUrdZ00cakhoo_uTEQ4OvpXM8D09pZ53Af21Mj6HQIOBUYNYYBXCFcvNtsKV6NFg/exec';
       // พิกัดสหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด (Plus Code: 7P758CX6+PV)
@@ -1038,25 +1078,7 @@
       const DEFAULT_COOP_RADIUS_M = 120;
       const GPS_MAX_ACCURACY_M = 100;    // ไม่รับพิกัดที่คลาดเคลื่อนเกิน ±100 ม. (กันสัญญาณ GPS หยาบจากเสา/WiFi)
 
-      const DEFAULT_EMPLOYEES = [
-        { id: 'SKP-001', name: 'นายจิรพันธ์ โสมสุข', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'SKP-002', name: 'นางสาวปวีณา ศาลางาม', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'SKP-003', name: 'นายรัฐธรรมนูญ อภัยรุณ', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'SKP-004', name: 'นายสุเมธ จันทร์เหลือง', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'SKP-005', name: 'นายสุทธญาณ์ ละดาดาษ', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'SKP-006', name: 'นายจักรพันธุ์ พรหมบุตร', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'SKP-007', name: 'นายจักรกฤษ พรหมบุตร', dept: 'ฝ่ายการตลาด', deviceId: '' },
-        { id: 'SKP-008', name: 'นางสาวระเบียบ จันทร์หอม', dept: 'ฝ่ายการตลาด', deviceId: '' },
-        { id: 'SKP-009', name: 'นางสาวสุนิสา พลแสน', dept: 'ฝ่ายการตลาด', deviceId: '' },
-        { id: 'SKP-010', name: 'นางสาวสุมิตรา เเพงศรี', dept: 'ฝ่ายการเงิน', deviceId: '' },
-        { id: 'SKP-011', name: 'นางสาวกาญจนา คันโทเงิน', dept: 'ฝ่ายการเงิน', deviceId: '' },
-        { id: 'SKP-012', name: 'นางสาวอัมพร อินทร์สำราญ', dept: 'ฝ่ายบัญชี', deviceId: '' },
-        { id: 'SKP-013', name: 'นางสาวกิ่งกาญจน์ จันทร์เหลือง', dept: 'ฝ่ายธุรการ', deviceId: '' },
-        { id: 'SKP-014', name: 'จารุกิต น้อยยะ', dept: 'ฝ่ายธุรการ', deviceId: '' },
-        { id: 'SKP-015', name: 'นายณัฐพนธ์ โพธิ์ทอง', dept: 'ฝ่ายคอมพิวเตอร์', deviceId: '' },
-        { id: 'SKP-016', name: 'นายบุญรอด บุญคุ้ม', dept: 'ภารโรง', deviceId: '' },
-        { id: 'SKP-017', name: 'นางสาวสุภาพร วงพุธทะ', dept: 'เเม่บ้าน', deviceId: '' }
-      ];
+      const DEFAULT_EMPLOYEES = [];
 
       // ==================== STATE ====================
       let employees = [];
@@ -1076,6 +1098,9 @@
       let pendingConfirmAction = null;
       let isAdminUnlocked = false;
       let sessionAdminPin = ''; // เก็บเฉพาะในหน่วยความจำชั่วคราวระหว่างล็อกอิน
+      let session = null;        // { token, profile:{id,name,dept} } ของพนักงานที่ login บนเครื่องนี้
+      let holidays = [];
+      let pendingRetry = null;   // รายการที่ส่งไม่สำเร็จ รอกดลองส่งใหม่
 
       let gpsConfig = {
         enforced: true,
@@ -1128,9 +1153,10 @@
         return h * 60 + m;
       }
 
-      function evaluateCheckIn(hhmm) {
+      function evaluateCheckIn(hhmm, dayOff) {
         const mins = timeToMinutes(hhmm);
         if (mins === null) return { status: 'none', lateMins: 0, label: '-' };
+        if (dayOff) return { status: 'normal', lateMins: 0, label: 'วันหยุด / OT' };
         if (mins > WORK_START_MIN) {
           const lateMins = mins - WORK_START_MIN;
           return { status: 'late', lateMins, label: `เข้าสาย (${lateMins} นาที)` };
@@ -1138,9 +1164,10 @@
         return { status: 'normal', lateMins: 0, label: 'ตรงเวลา' };
       }
 
-      function evaluateCheckOut(hhmm) {
+      function evaluateCheckOut(hhmm, dayOff) {
         const mins = timeToMinutes(hhmm);
         if (mins === null) return { status: 'none', earlyMins: 0, label: 'ยังไม่ออกงาน' };
+        if (dayOff) return { status: 'normal', earlyMins: 0, label: 'วันหยุด / OT' };
         if (mins < WORK_END_MIN) {
           const earlyMins = WORK_END_MIN - mins;
           return { status: 'early', earlyMins, label: `ออกก่อนเวลา (${earlyMins} นาที)` };
@@ -1169,9 +1196,14 @@
       }
 
       function generateDeviceId() {
+        try {
+          const a = new Uint8Array(12);
+          crypto.getRandomValues(a);
+          return 'DEV-' + Array.from(a, (b) => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        } catch (e) { /* fallback below */ }
         const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         let out = 'DEV-';
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 20; i++) {
           if (i === 4) out += '-';
           out += chars.charAt(Math.floor(Math.random() * chars.length));
         }
@@ -1232,28 +1264,13 @@
       }
 
       // ==================== STORAGE ====================
+      // v3: เก็บในเครื่องเฉพาะ รหัสเครื่อง, การเข้าสู่ระบบ และลิงก์ระบบกลาง ไม่เก็บประวัติของคนอื่น
       function saveState() {
         try {
-          localStorage.setItem(STORAGE_KEY_EMP, JSON.stringify(employees));
-          const compactLogs = logs.map((l) => ({
-            logId: l.logId,
-            empId: l.empId,
-            date: l.date,
-            checkIn: l.checkIn,
-            checkOut: l.checkOut,
-            photoUrl: l.photoUrl || ''
-          }));
-          localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(compactLogs));
-          localStorage.setItem(STORAGE_KEY_GPS, JSON.stringify(gpsConfig));
-          localStorage.setItem(STORAGE_KEY_DEVICE, JSON.stringify(deviceProfile));
-          const compactOutings = outings.map((o) => ({
-            outingId: o.outingId, empId: o.empId, date: o.date,
-            category: o.category, reason: o.reason,
-            outTime: o.outTime, returnTime: o.returnTime,
-            durationMins: o.durationMins, status: o.status,
-            photoUrl: o.photoUrl || ''
-          }));
-          localStorage.setItem(STORAGE_KEY_OUTINGS, JSON.stringify(compactOutings));
+          localStorage.setItem(STORAGE_KEY_GPS, JSON.stringify({ appsScriptUrl: gpsConfig.appsScriptUrl }));
+          localStorage.setItem(STORAGE_KEY_DEVICE, JSON.stringify({ deviceId: deviceProfile.deviceId }));
+          if (session) localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+          else localStorage.removeItem(STORAGE_KEY_SESSION);
         } catch (e) {
           // Ignore sandbox storage errors
         }
@@ -1263,41 +1280,207 @@
         try {
           const rawGps = localStorage.getItem(STORAGE_KEY_GPS);
           if (rawGps) {
-            gpsConfig = { ...gpsConfig, ...JSON.parse(rawGps) };
-            if (!gpsConfig.appsScriptUrl) gpsConfig.appsScriptUrl = DEFAULT_APPS_SCRIPT_URL;
-            if (typeof gpsConfig.coopLat !== 'number' || Number.isNaN(gpsConfig.coopLat)) gpsConfig.coopLat = DEFAULT_COOP_LAT;
-            if (typeof gpsConfig.coopLng !== 'number' || Number.isNaN(gpsConfig.coopLng)) gpsConfig.coopLng = DEFAULT_COOP_LNG;
+            const g = JSON.parse(rawGps);
+            if (g && typeof g.appsScriptUrl === 'string' && /^https:\/\/script\.google\.com\//.test(g.appsScriptUrl)) gpsConfig.appsScriptUrl = g.appsScriptUrl;
           }
           const rawDev = localStorage.getItem(STORAGE_KEY_DEVICE);
           if (rawDev) {
-            deviceProfile = { ...deviceProfile, ...JSON.parse(rawDev) };
-            if (deviceProfile.boundEmpId && /^EMP-/i.test(deviceProfile.boundEmpId)) {
-              deviceProfile.boundEmpId = deviceProfile.boundEmpId.replace(/^EMP-/i, 'SKP-');
-            }
+            const dv = JSON.parse(rawDev);
+            if (dv && dv.deviceId) deviceProfile.deviceId = String(dv.deviceId);
           }
-          const rawEmp = localStorage.getItem(STORAGE_KEY_EMP);
-          const rawLogs = localStorage.getItem(STORAGE_KEY_LOGS);
-          const rawOutings = localStorage.getItem(STORAGE_KEY_OUTINGS);
-          if (rawEmp) employees = JSON.parse(rawEmp);
-          if (rawLogs) logs = JSON.parse(rawLogs);
-          if (rawOutings) outings = JSON.parse(rawOutings);
+          const rawSes = localStorage.getItem(STORAGE_KEY_SESSION);
+          if (rawSes) {
+            const se = JSON.parse(rawSes);
+            if (se && se.token && se.profile && se.profile.id) session = se;
+          }
+          // ล้างข้อมูลจากเวอร์ชันเก่าที่เคยเก็บรายชื่อและประวัติของทุกคนไว้ในเครื่อง
+          [STORAGE_KEY_EMP, STORAGE_KEY_LOGS, STORAGE_KEY_OUTINGS].forEach((k) => localStorage.removeItem(k));
         } catch (e) {
           // Ignore storage read errors
         }
+        if (!deviceProfile.deviceId) deviceProfile.deviceId = generateDeviceId();
+        employees = session ? [{ ...session.profile }] : [];
+        logs = [];
+        outings = [];
+        saveState();
+      }
 
-        if (!deviceProfile.deviceId) {
-          deviceProfile.deviceId = generateDeviceId();
+      // ==================== SERVER API (v3) ====================
+      function apiUrl() {
+        return (gpsConfig.appsScriptUrl || '').trim() || DEFAULT_APPS_SCRIPT_URL;
+      }
+
+      async function api(payload, timeoutMs) {
+        const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs || 60000) : null;
+        try {
+          const res = await fetch(apiUrl(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload),
+            redirect: 'follow',
+            signal: ctrl ? ctrl.signal : undefined
+          });
+          const text = await res.text();
+          let r = null;
+          try { r = JSON.parse(text); } catch (e) { r = null; }
+          if (!r) return { ok: false, network: true, message: 'ระบบกลางตอบกลับไม่ถูกต้อง กรุณาลองใหม่' };
+          if (r.needLogin && session && payload.type !== 'login') onSessionExpired(r.message);
+          return r;
+        } catch (e) {
+          return { ok: false, network: true, message: 'ส่งข้อมูลไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตแล้วกด “ลองส่งใหม่”' };
+        } finally {
+          if (timer) clearTimeout(timer);
         }
-        if (!Array.isArray(employees) || employees.length === 0) {
-          employees = DEFAULT_EMPLOYEES.map((e) => ({ ...e }));
+      }
+
+      function hhmmToMin(v, fallback) {
+        const m = timeToMinutes(String(v || ''));
+        return m === null ? fallback : m;
+      }
+
+      // ค่าตั้งค่ามาจากเซิร์ฟเวอร์เท่านั้น ทุกเครื่องจึงใช้ค่าเดียวกัน
+      function applyServerConfig(c) {
+        if (!c) return;
+        gpsConfig.enforced = c.geoEnforced !== false;
+        gpsConfig.selfieEnforced = c.photoRequired !== false;
+        gpsConfig.deviceLockEnforced = true;
+        if (typeof c.coopLat === 'number' && !Number.isNaN(c.coopLat)) gpsConfig.coopLat = c.coopLat;
+        if (typeof c.coopLng === 'number' && !Number.isNaN(c.coopLng)) gpsConfig.coopLng = c.coopLng;
+        if (c.radiusM) gpsConfig.radiusMeters = Number(c.radiusM);
+        if (c.maxAccuracyM) gpsConfig.maxAccuracyM = Number(c.maxAccuracyM);
+        WORK_START_MIN = hhmmToMin(c.workStart, WORK_START_MIN);
+        WORK_END_MIN = hhmmToMin(c.workEnd, WORK_END_MIN);
+        SYS_OPEN_MIN = hhmmToMin(c.scanOpen, SYS_OPEN_MIN);
+        SYS_CLOSE_MIN = hhmmToMin(c.scanClose, SYS_CLOSE_MIN);
+        CHECKOUT_CLOSE_MIN = hhmmToMin(c.checkoutClose, CHECKOUT_CLOSE_MIN);
+        OUTING_START_MIN = hhmmToMin(c.outingStart, OUTING_START_MIN);
+        OUTING_END_MIN = hhmmToMin(c.outingEnd, OUTING_END_MIN);
+        gpsConfig.serverConfig = c;
+      }
+
+      function minToHhmm(m) {
+        return `${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`;
+      }
+
+      function isDayOffLocal(dateStr) {
+        const p = String(dateStr).split('-').map(Number);
+        const dow = new Date(p[0], p[1] - 1, p[2]).getDay();
+        if (dow === 0 || dow === 6) return true;
+        return holidays.some((h) => h.date === dateStr);
+      }
+
+      function setSyncBadge(state, text) {
+        const badge = document.getElementById('sheet-sync-badge');
+        if (!badge) return;
+        const cls = {
+          ok: 'bg-emerald-100 text-emerald-800',
+          busy: 'bg-sky-100 text-sky-800',
+          warn: 'bg-amber-100 text-amber-800',
+          err: 'bg-rose-100 text-rose-800'
+        };
+        badge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${cls[state] || cls.ok}`;
+        badge.textContent = text;
+      }
+
+      // ==================== EMPLOYEE LOGIN (v3) ====================
+      function openLoginModal(msg) {
+        if (isAdminUnlocked) return;
+        const err = document.getElementById('login-error');
+        if (msg) {
+          err.textContent = msg;
+          err.classList.remove('hidden');
+        } else {
+          err.classList.add('hidden');
         }
-        if (!Array.isArray(logs)) {
+        document.getElementById('login-modal').classList.remove('hidden');
+        setTimeout(() => {
+          const f = document.getElementById('login-emp-id');
+          if (f && !f.value) f.focus();
+        }, 50);
+      }
+
+      function closeLoginModal() {
+        document.getElementById('login-modal').classList.add('hidden');
+      }
+
+      async function submitLogin() {
+        const idEl = document.getElementById('login-emp-id');
+        const pwEl = document.getElementById('login-password');
+        const err = document.getElementById('login-error');
+        const btn = document.getElementById('login-submit');
+        const empId = idEl.value.trim().toUpperCase();
+        const pw = pwEl.value;
+        if (!empId || !pw) {
+          err.textContent = 'กรุณากรอกรหัสพนักงานและรหัสผ่าน';
+          err.classList.remove('hidden');
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = 'กำลังตรวจสอบ...';
+        const r = await api({ type: 'login', empId, password: pw, deviceId: deviceProfile.deviceId });
+        btn.disabled = false;
+        btn.textContent = 'เข้าสู่ระบบ';
+        if (!r.ok) {
+          err.textContent = r.message || 'เข้าสู่ระบบไม่สำเร็จ';
+          err.classList.remove('hidden');
+          return;
+        }
+        session = { token: r.token, profile: r.profile };
+        employees = [{ ...r.profile }];
+        pwEl.value = '';
+        saveState();
+        closeLoginModal();
+        renderAll();
+        showToast(r.firstTime
+          ? `ตั้งรหัสผ่านและผูกมือถือเครื่องนี้กับ ${r.profile.name} เรียบร้อย กรุณาจำรหัสผ่านไว้`
+          : `ยินดีต้อนรับ ${r.profile.name}`, 'success');
+        fetchFromGoogleSheet(true);
+      }
+
+      function onSessionExpired(msg) {
+        session = null;
+        if (!isAdminUnlocked) {
+          employees = [];
           logs = [];
-        }
-        if (!Array.isArray(outings)) {
           outings = [];
         }
         saveState();
+        renderAll();
+        openLoginModal(msg || 'กรุณาเข้าสู่ระบบใหม่');
+      }
+
+      async function logoutEmployee() {
+        if (session) await api({ type: 'logout', token: session.token, deviceId: deviceProfile.deviceId });
+        session = null;
+        employees = [];
+        logs = [];
+        outings = [];
+        hideRetry();
+        saveState();
+        renderAll();
+        openLoginModal();
+      }
+
+      function requireSession() {
+        if (session) return true;
+        if (cameraRunning) stopCamera();
+        if (outingCameraRunning) stopOutingCamera();
+        openLoginModal('กรุณาเข้าสู่ระบบก่อนสแกน');
+        return false;
+      }
+
+      // ==================== RETRY BAR (ส่งไม่สำเร็จ) ====================
+      function showRetry(message, fn) {
+        pendingRetry = fn;
+        document.getElementById('retry-bar-msg').textContent = message || '';
+        document.getElementById('retry-bar').classList.remove('hidden');
+      }
+
+      function hideRetry() {
+        pendingRetry = null;
+        const bar = document.getElementById('retry-bar');
+        if (bar) bar.classList.add('hidden');
       }
 
       // ==================== LIVE CLOCK ====================
@@ -1437,8 +1620,8 @@
         if (Date.now() - (currentGps.updatedAt || 0) > GPS_MAX_AGE_MS) {
           return { allowed: false, code: 'stale_gps', reason: 'พิกัด GPS เก่าเกิน 5 นาที กรุณากดปุ่ม “อัปเดต GPS” เพื่อยืนยันตำแหน่งปัจจุบันก่อนสแกน', distanceMeters };
         }
-        if (typeof currentGps.accuracy === 'number' && currentGps.accuracy > GPS_MAX_ACCURACY_M) {
-          return { allowed: false, code: 'low_accuracy', reason: `สัญญาณ GPS ไม่แม่นพอ (±${Math.round(currentGps.accuracy)} ม. / ต้องไม่เกิน ±${GPS_MAX_ACCURACY_M} ม.) กรุณาเปิด GPS ความแม่นยำสูง ออกไปที่โล่ง แล้วกด “อัปเดต GPS”`, distanceMeters };
+        if (typeof currentGps.accuracy === 'number' && currentGps.accuracy > (gpsConfig.maxAccuracyM || GPS_MAX_ACCURACY_M)) {
+          return { allowed: false, code: 'low_accuracy', reason: `สัญญาณ GPS ไม่แม่นพอ (±${Math.round(currentGps.accuracy)} ม. / ต้องไม่เกิน ±${gpsConfig.maxAccuracyM || GPS_MAX_ACCURACY_M} ม.) กรุณาเปิด GPS ความแม่นยำสูง ออกไปที่โล่ง แล้วกด “อัปเดต GPS”`, distanceMeters };
         }
         if (distanceMeters > gpsConfig.radiusMeters) {
           return { allowed: false, code: 'out_of_range', reason: `อยู่นอกรัศมีสหกรณ์ (ห่าง ${distanceMeters.toLocaleString()} ม. / อนุญาตไม่เกิน ${gpsConfig.radiusMeters} ม.)`, distanceMeters };
@@ -1493,17 +1676,20 @@
       function renderDeviceStatus() {
         const statusEl = document.getElementById('device-bind-status');
         const idEl = document.getElementById('device-id-display');
-        if (idEl) idEl.textContent = `รหัสอุปกรณ์: ${deviceProfile.deviceId}`;
+        if (idEl) idEl.textContent = `รหัสเครื่อง: …${String(deviceProfile.deviceId || '').slice(-6)}`;
+        const show = (id, on) => {
+          const el = document.getElementById(id);
+          if (el) el.classList.toggle('hidden', !on);
+        };
+        show('btn-logout', Boolean(session));
+        show('btn-change-password', Boolean(session));
+        show('btn-login-open', !session);
         if (!statusEl) return;
-
-        if (!gpsConfig.deviceLockEnforced) {
-          statusEl.textContent = 'โหมดเครื่องกลาง (ไม่ผูกเฉพาะบุคคล)';
-          statusEl.className = 'text-xs text-slate-600 mt-0.5 truncate';
-        } else if (deviceProfile.boundEmpId) {
-          statusEl.textContent = `ผูกสิทธิ์แล้ว: ${deviceProfile.boundEmpId} (${deviceProfile.boundEmpName || 'พนักงาน'})`;
+        if (session) {
+          statusEl.textContent = `เข้าสู่ระบบ: ${session.profile.name} (${session.profile.id})`;
           statusEl.className = 'text-xs font-semibold text-emerald-700 mt-0.5 truncate';
         } else {
-          statusEl.textContent = 'พร้อมผูกสิทธิ์อัตโนมัติเมื่อสแกนครั้งแรก';
+          statusEl.textContent = 'ยังไม่ได้เข้าสู่ระบบ';
           statusEl.className = 'text-xs text-amber-700 font-medium mt-0.5 truncate';
         }
       }
@@ -1576,121 +1762,63 @@
         return { ok: true };
       }
 
-      function initiateAttendance(rawCode, forcedType) {
+      function attendanceError(title, meta, typeLabel, badge, tone) {
+        playBeep(true);
+        showScanFeedback({ title, meta, time: `${getLocalTimeStr()} น.`, typeLabel, badge, tone: tone || 'error', photo: '' });
+        showToast(meta, tone === 'info' ? 'info' : (tone === 'warning' ? 'warning' : 'error'));
+      }
+
+      // พนักงานสแกนบัตรของตัวเอง (เซิร์ฟเวอร์เป็นผู้ตัดสินว่าเป็นเข้า/ออก)
+      function initiateAttendance(rawCode) {
+        if (isSubmittingAttendance) {
+          showToast('กำลังบันทึกรายการก่อนหน้า กรุณารอสักครู่', 'warning');
+          return;
+        }
+        if (!requireSession()) return;
+
         const gpsCheck = checkGpsEligibility();
         if (!gpsCheck.allowed) {
-          playBeep(true);
-          showScanFeedback({
-            title: 'ไม่สามารถลงเวลานอกพื้นที่สหกรณ์ได้',
-            meta: gpsCheck.reason,
-            time: `${getLocalTimeStr()} น.`,
-            typeLabel: 'ตรวจสอบ GPS ไม่ผ่าน',
-            badge: 'ล็อกการสแกน (GPS)',
-            tone: 'error',
-            photo: ''
-          });
-          showToast(gpsCheck.reason, 'error');
+          attendanceError('ไม่สามารถลงเวลานอกพื้นที่สหกรณ์ได้', gpsCheck.reason, 'ตรวจสอบ GPS ไม่ผ่าน', 'ล็อกการสแกน (GPS)');
           return;
         }
 
         const cleanCode = String(rawCode || '').trim().toUpperCase();
         if (!cleanCode) {
-          showToast('กรุณาสแกนบัตร QR Code หรือกรอกรหัสพนักงาน', 'warning');
+          showToast('กรุณาสแกนบัตร QR Code ของท่าน', 'warning');
           return;
         }
-
-        const emp = employees.find((e) => e.id.toUpperCase() === cleanCode);
-        if (!emp) {
-          playBeep(true);
-          showScanFeedback({
-            title: `ไม่พบรหัสพนักงาน: ${cleanCode}`,
-            meta: 'กรุณาตรวจสอบรหัสพนักงานให้ถูกต้อง หรือติดต่อผู้ดูแลระบบ',
-            time: `${getLocalTimeStr()} น.`,
-            typeLabel: 'ไม่พบข้อมูล',
-            badge: 'ไม่พบรหัสในระบบ',
-            tone: 'error',
-            photo: ''
-          });
-          showToast(`ไม่พบรหัสพนักงาน ${cleanCode} ในระบบ`, 'error');
-          return;
-        }
-
-        const devCheck = validateDeviceBinding(emp);
-        if (!devCheck.ok) {
-          playBeep(true);
-          showScanFeedback({
-            title: 'ระบบป้องกันการสแกนแทนกัน',
-            meta: devCheck.reason,
-            time: `${getLocalTimeStr()} น.`,
-            typeLabel: 'สิทธิ์อุปกรณ์ไม่ตรงกัน',
-            badge: 'ล็อก 1 เครื่อง / 1 คน',
-            tone: 'error',
-            photo: ''
-          });
-          showToast(devCheck.reason, 'error');
+        const emp = session.profile;
+        if (cleanCode !== String(emp.id).toUpperCase()) {
+          attendanceError('บัตรนี้ไม่ใช่ของท่าน', `ท่านเข้าสู่ระบบในชื่อ ${emp.id} แต่สแกนบัตร ${cleanCode} (ไม่อนุญาตให้สแกนแทนกัน)`, 'บัตรไม่ตรงกับบัญชี', 'ล็อก 1 เครื่อง / 1 คน');
           return;
         }
 
         const todayStr = getLocalDateStr();
         const existing = logs.find((l) => l.empId === emp.id && l.date === todayStr);
-        const nowObj = new Date();
-        const nowMins = timeToMinutes(getLocalTimeStr(nowObj));
-        const isWeekend = nowObj.getDay() === 0 || nowObj.getDay() === 6;
+        const nowMins = timeToMinutes(getLocalTimeStr(new Date()));
+        const dayOff = isDayOffLocal(todayStr);
 
-        // Guard 1: Operating hours (05:30 - 22:00)
-        if (!isAdminUnlocked && nowMins !== null && (nowMins < SYS_OPEN_MIN || nowMins > SYS_CLOSE_MIN)) {
-          playBeep(true);
-          showScanFeedback({
-            title: 'อยู่นอกเวลาทำการของระบบ',
-            meta: 'ระบบเปิดให้สแกนลงเวลาเฉพาะช่วง 05:30 – 22:00 น. เท่านั้น',
-            time: `${getLocalTimeStr()} น.`,
-            typeLabel: 'นอกเวลาทำการ',
-            badge: 'ระบบปิดรับสแกน',
-            tone: 'error',
-            photo: ''
-          });
-          showToast('ระบบเปิดให้สแกนเฉพาะช่วง 05:30 – 22:00 น. เท่านั้น', 'error');
+        if (existing && existing.checkIn && existing.checkOut) {
+          attendanceError(emp.name, `ลงเวลาครบแล้ววันนี้ (เข้า ${existing.checkIn} น. • ออก ${existing.checkOut} น.)`, 'บันทึกครบแล้ว', 'ลงเวลาวันนี้ครบแล้ว', 'info');
           return;
         }
 
-        // Enforce strict Auto mode for non-admins
-        let actionType = isAdminUnlocked ? forcedType : 'auto';
-        if (!actionType || actionType === 'auto') {
-          if (existing && existing.checkIn && existing.checkOut) {
-            playBeep(true);
-            showScanFeedback({
-              title: emp.name,
-              meta: `ลงเวลาครบแล้ววันนี้ (เข้า ${existing.checkIn} น. • ออก ${existing.checkOut} น.)`,
-              time: `${getLocalTimeStr()} น.`,
-              typeLabel: 'บันทึกครบแล้ว',
-              badge: 'ลงเวลาวันนี้ครบแล้ว',
-              tone: 'info',
-              photo: ''
-            });
-            showToast(`${emp.name} ลงเวลาเข้า–ออกงานวันนี้ครบเรียบร้อยแล้ว`, 'info');
+        let actionType = 'in';
+        if (existing && existing.checkIn) {
+          const inMins = timeToMinutes(existing.checkIn);
+          if (inMins !== null && nowMins !== null && (nowMins - inMins) < MIN_CHECKOUT_GAP_MINS) {
+            const remain = MIN_CHECKOUT_GAP_MINS - (nowMins - inMins);
+            attendanceError(emp.name, `ลงเวลาเข้างานแล้วเมื่อ ${existing.checkIn} น. (กันสแกนเบิ้ล: ลงออกงานได้อีกใน ${remain} นาที)`, 'ป้องกันการสแกนซ้ำ', 'ลงเข้างานไปแล้ว', 'warning');
             return;
           }
-          if (existing && existing.checkIn) {
-            const inMins = timeToMinutes(existing.checkIn);
-            if (inMins !== null && nowMins !== null && (nowMins - inMins) < MIN_CHECKOUT_GAP_MINS) {
-              const remain = MIN_CHECKOUT_GAP_MINS - (nowMins - inMins);
-              playBeep(true);
-              showScanFeedback({
-                title: emp.name,
-                meta: `ลงเวลาเข้างานแล้วเมื่อ ${existing.checkIn} น. (กันสแกนเบิ้ล: ลงออกงานได้อีกใน ${remain} นาที)`,
-                time: `${getLocalTimeStr()} น.`,
-                typeLabel: 'ป้องกันการสแกนซ้ำ',
-                badge: 'ลงเข้างานไปแล้ว',
-                tone: 'warning',
-                photo: ''
-              });
-              showToast(`ลงเวลาเข้างานแล้วเมื่อ ${existing.checkIn} น. (ป้องกันการสแกนเบิ้ล)`, 'warning');
-              return;
-            }
-            actionType = 'out';
-          } else {
-            actionType = 'in';
+          if (nowMins !== null && nowMins > CHECKOUT_CLOSE_MIN) {
+            attendanceError('หมดเวลาสแกนออกงาน', `สแกนออกงานได้ถึง ${minToHhmm(CHECKOUT_CLOSE_MIN)} น. กรุณาแจ้งผู้ดูแลบันทึกให้`, 'นอกเวลาทำการ', 'ระบบปิดรับสแกน');
+            return;
           }
+          actionType = 'out';
+        } else if (nowMins !== null && (nowMins < SYS_OPEN_MIN || nowMins > SYS_CLOSE_MIN)) {
+          attendanceError('อยู่นอกเวลาทำการของระบบ', `สแกนเข้างานได้ช่วง ${minToHhmm(SYS_OPEN_MIN)} – ${minToHhmm(SYS_CLOSE_MIN)} น.`, 'นอกเวลาทำการ', 'ระบบปิดรับสแกน');
+          return;
         }
 
         const proceedScan = () => {
@@ -1701,18 +1829,55 @@
           }
         };
 
-        // Guard 2: Warn before accidental early check-out on weekdays before 16:30
-        if (actionType === 'out' && !isWeekend && nowMins !== null && nowMins < WORK_END_MIN) {
+        // เตือนก่อนสแกนออกก่อนเวลา (วันทำงานปกติ)
+        if (actionType === 'out' && !dayOff && nowMins !== null && nowMins < WORK_END_MIN) {
           if (cameraRunning) stopCamera();
           openConfirmModal(
             'ยืนยันการลงเวลาเลิกงานก่อนกำหนด?',
-            `ขณะนี้เวลา ${getLocalTimeStr()} น. (ยังไม่ถึง 16:30 น.) หากยืนยันจะถือว่า “ออกก่อนเวลากำหนด” — หากท่านต้องการออกไปทำธุระหรือปฏิบัติงานระหว่างวัน กรุณากด “ยกเลิก” แล้วใช้แท็บ “ออกนอกสำนักงาน” แทน`,
+            `ขณะนี้เวลา ${getLocalTimeStr()} น. (ยังไม่ถึง ${minToHhmm(WORK_END_MIN)} น.) หากยืนยันจะถือว่า “ออกก่อนเวลากำหนด” หากต้องการออกไปทำธุระหรือปฏิบัติงานระหว่างวัน กรุณากด “ยกเลิก” แล้วใช้แท็บ “ออกนอกสำนักงาน” แทน`,
             proceedScan
           );
           return;
         }
 
         proceedScan();
+      }
+
+      // ผู้ดูแลบันทึก/แก้เวลาแทนพนักงาน (เก็บเหตุผลและประวัติการแก้ไขไว้ในชีต)
+      async function adminManualRecord(code, action) {
+        if (!isAdminUnlocked) return;
+        const empId = String(code || '').trim().toUpperCase();
+        if (!empId) {
+          showToast('กรุณาเลือกหรือกรอกรหัสพนักงาน', 'warning');
+          return;
+        }
+        const emp = employees.find((e) => String(e.id).toUpperCase() === empId);
+        if (!emp) {
+          showToast(`ไม่พบรหัสพนักงาน ${empId}`, 'error');
+          return;
+        }
+        const label = action === 'in' ? 'เข้า' : 'ออก';
+        const timeIn = window.prompt(`เวลา${label}งานของ ${emp.name} (เช่น 08:15)\nเว้นว่าง = เวลาปัจจุบัน`, '');
+        if (timeIn === null) return;
+        if (timeIn.trim() && !/^\d{2}:\d{2}$/.test(timeIn.trim())) {
+          showToast('รูปแบบเวลาต้องเป็น HH:mm เช่น 08:15', 'error');
+          return;
+        }
+        const dateIn = window.prompt('วันที่ แบบ ค.ศ. ปปปป-ดด-วว (เช่น 2026-11-25)\nเว้นว่าง = วันนี้', '');
+        if (dateIn === null) return;
+        if (dateIn.trim() && !/^\d{4}-\d{2}-\d{2}$/.test(dateIn.trim())) {
+          showToast('รูปแบบวันที่ต้องเป็น ปปปป-ดด-วว (ค.ศ.)', 'error');
+          return;
+        }
+        const note = window.prompt('เหตุผลที่บันทึกแทน (จำเป็น) เช่น ลืมสแกน, มือถือเสีย, อบรมนอกสถานที่', '');
+        if (note === null) return;
+        const r = await api({ type: 'admin_record', pin: sessionAdminPin, empId, action, time: timeIn.trim(), date: dateIn.trim(), note: note.trim() });
+        if (r.ok) {
+          showToast(`บันทึกเวลา${label}ให้ ${emp.name} วันที่ ${formatThaiDate(r.date)} ${r.time} น. แล้ว (${r.status})`, 'success');
+          loadAdminData(true);
+        } else {
+          showToast(r.message || 'บันทึกไม่สำเร็จ', 'error');
+        }
       }
 
       function stopSelfieStreamOnly() {
@@ -1856,103 +2021,87 @@
         }
       }
 
-      function finalizeAttendance(ctx, photoDataUrl) {
-        const { emp, actionType, gpsCheck } = ctx;
-        const todayStr = getLocalDateStr();
-        const timeStr = getLocalTimeStr();
-        const gpsMetaSuffix = gpsCheck.distanceMeters !== null ? ` • ห่างจุดสหกรณ์ ${gpsCheck.distanceMeters} ม.` : '';
-
-        const wasUnbound = !deviceProfile.boundEmpId;
-        // Bind device locally on first check-in/out when Device Lock is enabled
-        if (gpsConfig.deviceLockEnforced && wasUnbound) {
-          deviceProfile.boundEmpId = emp.id;
-          deviceProfile.boundEmpName = emp.name;
-          emp.deviceId = deviceProfile.deviceId;
+      async function finalizeAttendance(ctx, photoDataUrl) {
+        const { emp, gpsCheck } = ctx;
+        if (!session) {
+          openLoginModal('กรุณาเข้าสู่ระบบก่อนสแกน');
+          return;
         }
+        isSubmittingAttendance = true;
+        hideRetry();
+        showScanFeedback({
+          title: emp.name,
+          meta: 'กำลังส่งข้อมูลไปยังระบบกลาง กรุณารอจนขึ้นผลลัพธ์ อย่าเพิ่งปิดหน้านี้',
+          time: `${getLocalTimeStr()} น.`,
+          typeLabel: 'กำลังบันทึก',
+          badge: 'กำลังบันทึก...',
+          tone: 'info',
+          photo: photoDataUrl
+        });
+        setSyncBadge('busy', 'กำลังบันทึกเข้าฐานข้อมูลกลาง...');
 
-        let existing = logs.find((l) => l.empId === emp.id && l.date === todayStr);
-        const prevSnapshot = existing ? { ...existing } : null;
-
-        if (actionType === 'in') {
-          const checkInEval = evaluateCheckIn(timeStr);
-          if (existing) {
-            existing.checkIn = timeStr;
-            if (photoDataUrl) existing.photo = photoDataUrl;
-          } else {
-            logs.push({
-              logId: `LOG-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-              empId: emp.id,
-              date: todayStr,
-              checkIn: timeStr,
-              checkOut: '',
-              photo: photoDataUrl || ''
-            });
-          }
-          const isLate = checkInEval.status === 'late';
-          playBeep(isLate);
-          showScanFeedback({
-            title: emp.name,
-            meta: `รหัส ${emp.id} • ${emp.dept}${gpsMetaSuffix}`,
-            time: `${timeStr} น.`,
-            typeLabel: 'ลงเวลาเข้างาน',
-            badge: isLate ? checkInEval.label : 'เข้างานตรงเวลา',
-            tone: isLate ? 'warning' : 'success',
-            photo: photoDataUrl
-          });
-          showToast(`${emp.name} ลงเวลาเข้างาน ${timeStr} น. (${checkInEval.label})`, isLate ? 'warning' : 'success');
-        } else {
-          const checkOutEval = evaluateCheckOut(timeStr);
-          if (existing) {
-            existing.checkOut = timeStr;
-            if (photoDataUrl) existing.photo = photoDataUrl;
-          } else {
-            logs.push({
-              logId: `LOG-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-              empId: emp.id,
-              date: todayStr,
-              checkIn: '',
-              checkOut: timeStr,
-              photo: photoDataUrl || ''
-            });
-          }
-          const isEarly = checkOutEval.status === 'early';
-          playBeep(isEarly);
-          showScanFeedback({
-            title: emp.name,
-            meta: `รหัส ${emp.id} • ${emp.dept}${gpsMetaSuffix}`,
-            time: `${timeStr} น.`,
-            typeLabel: 'ลงเวลาออกงาน',
-            badge: isEarly ? checkOutEval.label : 'ออกงานปกติ',
-            tone: isEarly ? 'error' : 'info',
-            photo: photoDataUrl
-          });
-          // Auto-close any open mid-day outing when checking out for the day
-          const openOut = outings.find((o) => o.empId === emp.id && o.date === todayStr && !o.returnTime);
-          if (openOut) {
-            openOut.returnTime = timeStr;
-            const mOut = timeToMinutes(openOut.outTime);
-            const mRet = timeToMinutes(timeStr);
-            openOut.durationMins = (mOut !== null && mRet !== null && mRet >= mOut) ? (mRet - mOut) : 0;
-            openOut.status = 'กลับพร้อมเลิกงาน';
-          }
-          showToast(`${emp.name} ลงเวลาออกงาน ${timeStr} น. (${checkOutEval.label})`, isEarly ? 'warning' : 'success');
-        }
-
-        saveState();
-        renderAll();
-
-        // Sync to Google Sheets & Google Drive via Apps Script (with rollback if server rejects)
-        syncToGoogleSheet({
-          empId: emp.id,
-          mode: actionType,
-          deviceId: gpsConfig.deviceLockEnforced ? deviceProfile.deviceId : '',
-          distanceMeters: gpsCheck.distanceMeters !== null ? gpsCheck.distanceMeters : '-',
-          coords: currentGps ? `${currentGps.lat.toFixed(6)}, ${currentGps.lng.toFixed(6)}` : '-',
+        const r = await api({
+          type: 'scan',
+          token: session.token,
+          deviceId: deviceProfile.deviceId,
+          qrCode: emp.id,
           lat: currentGps ? currentGps.lat : '',
           lng: currentGps ? currentGps.lng : '',
           accuracy: currentGps ? Math.round(currentGps.accuracy || 0) : '',
           photoBase64: photoDataUrl || ''
-        }, emp, todayStr, prevSnapshot, wasUnbound);
+        });
+        isSubmittingAttendance = false;
+
+        if (r.ok) {
+          let log = logs.find((l) => l.empId === emp.id && l.date === r.date);
+          if (!log) {
+            log = { logId: `${r.date}_${emp.id}`, empId: emp.id, date: r.date, checkIn: '', checkOut: '', dayOff: Boolean(r.dayOff) };
+            logs.push(log);
+          }
+          if (r.action === 'in') {
+            log.checkIn = r.time;
+            log.statusIn = r.status;
+          } else {
+            log.checkOut = r.time;
+            log.statusOut = r.status;
+            const openOut = outings.find((o) => o.empId === emp.id && o.date === r.date && !o.returnTime);
+            if (openOut) {
+              openOut.returnTime = r.time;
+              openOut.status = 'กลับพร้อมเลิกงาน';
+            }
+          }
+          const bad = /สาย|ก่อนเวลา/.test(r.status || '');
+          const gpsMetaSuffix = gpsCheck && gpsCheck.distanceMeters !== null ? ` • ห่างจุดสหกรณ์ ${gpsCheck.distanceMeters} ม.` : '';
+          playBeep(bad);
+          showScanFeedback({
+            title: emp.name,
+            meta: `รหัส ${emp.id} • ${emp.dept}${gpsMetaSuffix}`,
+            time: `${r.time} น.`,
+            typeLabel: r.action === 'in' ? 'ลงเวลาเข้างาน' : 'ลงเวลาออกงาน',
+            badge: `บันทึกแล้ว • ${r.status}`,
+            tone: bad ? 'warning' : 'success',
+            photo: photoDataUrl
+          });
+          setSyncBadge('ok', `บันทึกสำเร็จ (${r.time} น.)`);
+          showToast(`บันทึกเวลา${r.action === 'in' ? 'เข้า' : 'ออก'}งาน ${r.time} น. เรียบร้อยแล้ว (${r.status})`, bad ? 'warning' : 'success');
+          renderAll();
+          return;
+        }
+
+        playBeep(true);
+        showScanFeedback({
+          title: r.network ? 'ส่งข้อมูลไม่สำเร็จ ยังไม่ได้บันทึกเวลา' : 'ระบบกลางไม่อนุญาตให้บันทึก',
+          meta: r.message || 'เงื่อนไขไม่ผ่านการตรวจสอบจากเซิร์ฟเวอร์',
+          time: `${getLocalTimeStr()} น.`,
+          typeLabel: 'ยังไม่ได้บันทึก',
+          badge: 'ไม่บันทึกข้อมูล',
+          tone: 'error',
+          photo: ''
+        });
+        setSyncBadge('err', 'ยังไม่ได้บันทึก');
+        showToast(r.message || 'บันทึกไม่สำเร็จ', 'error');
+        if (r.network || r.retry) showRetry(r.message, () => finalizeAttendance(ctx, photoDataUrl));
+        if (r.done || r.duplicate) fetchFromGoogleSheet(true);
       }
 
       function showScanFeedback(info) {
@@ -2012,156 +2161,85 @@
         setTimeout(() => el.remove(), 1350);
       }
 
-      // ==================== GOOGLE SHEETS TWO-WAY SYNC ====================
-      async function syncToGoogleSheet(payload, emp, todayStr, prevSnapshot, wasUnbound) {
-        const url = (gpsConfig.appsScriptUrl || '').trim();
-        const badge = document.getElementById('sheet-sync-badge');
-        if (!url) return;
-
-        if (badge) {
-          badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800';
-          badge.textContent = 'กำลังบันทึกเข้าฐานข้อมูลกลาง...';
+      // ==================== LOAD DATA FROM SERVER (v3) ====================
+      // พนักงานเห็นเฉพาะข้อมูลของตัวเอง ผู้ดูแลเห็นทั้งหมดหลังใส่ PIN (ไม่บันทึกลงเครื่อง)
+      async function fetchFromGoogleSheet(silent) {
+        if (isAdminUnlocked && sessionAdminPin) return loadAdminData(silent);
+        if (!session) {
+          await loadPublicConfig();
+          renderAll();
+          return;
         }
-        try {
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload),
-            redirect: 'follow'
-          });
-          const text = await res.text();
-          let result = null;
-          try { result = JSON.parse(text); } catch (e) { result = null; }
-
-          if (result && result.ok) {
-            const serverTime = result.time || getLocalTimeStr();
-            const targetLog = logs.find((l) => l.empId === emp.id && l.date === todayStr);
-            if (targetLog) {
-              if (result.action === 'in') targetLog.checkIn = serverTime;
-              else targetLog.checkOut = serverTime;
-              if (result.photoUrl) targetLog.photoUrl = result.photoUrl;
-              saveState();
-              renderAll();
-            }
-            if (badge) {
-              badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800';
-              badge.textContent = `บันทึกสำเร็จ (${serverTime} น.)`;
-            }
-            showToast(`บันทึกข้อมูลและเวลาจริง (${serverTime} น.) เรียบร้อยแล้ว`, 'success');
-          } else if (result && result.ok === false) {
-            // Roll back unconfirmed local change when Google Sheets server rejects the scan
-            if (prevSnapshot) {
-              const idx = logs.findIndex((l) => l.empId === emp.id && l.date === todayStr);
-              if (idx !== -1) logs[idx] = prevSnapshot;
-            } else {
-              logs = logs.filter((l) => !(l.empId === emp.id && l.date === todayStr));
-            }
-            if (wasUnbound) {
-              deviceProfile.boundEmpId = '';
-              deviceProfile.boundEmpName = '';
-              emp.deviceId = '';
-            }
-            saveState();
-            renderAll();
-            playBeep(true);
-            showScanFeedback({
-              title: 'ระบบกลางไม่อนุญาตให้บันทึก',
-              meta: result.message || 'เงื่อนไขไม่ผ่านการตรวจสอบจากเซิร์ฟเวอร์',
-              time: `${getLocalTimeStr()} น.`,
-              typeLabel: 'ถูกปฏิเสธโดยระบบกลาง',
-              badge: 'ไม่บันทึกข้อมูล',
-              tone: 'error',
-              photo: ''
-            });
-            if (badge) {
-              badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800';
-              badge.textContent = 'ระบบกลางปฏิเสธรายการ';
-            }
-            showToast(result.message || 'ไม่สามารถบันทึกข้อมูลเข้าฐานข้อมูลกลางได้', 'error');
-          }
-        } catch (err) {
-          if (badge) {
-            badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800';
-            badge.textContent = 'บันทึกสำรองในเครื่องแล้ว';
-          }
-          showToast('สัญญาณอินเทอร์เน็ตขัดข้อง ระบบบันทึกสำรองไว้ในเครื่องชั่วคราว', 'warning');
+        const r = await api({ type: 'me', token: session.token, deviceId: deviceProfile.deviceId });
+        if (r && r.ok) {
+          applyServerConfig(r.config);
+          holidays = r.holidays || [];
+          session.profile = r.profile;
+          employees = [{ ...r.profile }];
+          logs = r.logs || [];
+          outings = r.outings || [];
+          saveState();
+          renderAll();
+          setSyncBadge('ok', 'เชื่อมต่อระบบกลางแล้ว');
+          if (!silent) showToast('อัปเดตข้อมูลจากระบบกลางแล้ว', 'success');
+        } else if (r && !r.needLogin) {
+          setSyncBadge('warn', 'เชื่อมต่อระบบกลางไม่ได้');
+          if (!silent) showToast(r.message || 'เชื่อมต่อระบบกลางไม่ได้', 'warning');
         }
       }
 
-      async function fetchFromGoogleSheet(silent) {
-        const url = (gpsConfig.appsScriptUrl || '').trim();
-        const badge = document.getElementById('sheet-sync-badge');
-        if (!url) return;
-
+      async function loadPublicConfig() {
         try {
-          const res = await fetch(url, { method: 'GET', redirect: 'follow' });
-          const text = await res.text();
-          let data = null;
-          try { data = JSON.parse(text); } catch (e) { data = null; }
+          const res = await fetch(apiUrl(), { method: 'GET', redirect: 'follow' });
+          const d = JSON.parse(await res.text());
+          if (d && d.ok) applyServerConfig(d.config);
+        } catch (e) {
+          // ใช้ค่าเริ่มต้นไปก่อน
+        }
+      }
 
-          if (data && data.ok) {
-            if (Array.isArray(data.employees) && data.employees.length > 0) {
-              employees = data.employees;
-            }
-            if (Array.isArray(data.logs)) {
-              logs = data.logs;
-            }
-            if (Array.isArray(data.outings)) {
-              outings = data.outings;
-            }
-            saveState();
-            renderAll();
-            if (badge) {
-              badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800';
-              badge.textContent = `ซิงก์ระบบกลางแล้ว (${employees.length} คน)`;
-            }
-            if (!silent) {
-              showToast(`ซิงก์ข้อมูลจาก Google Sheets สำเร็จ (พนักงาน ${employees.length} คน)`, 'success');
-            }
-          } else if (!silent) {
-            showToast('กรุณาอัปเดตโค้ด Apps Script และ Deploy เวอร์ชันใหม่เพื่อเปิดซิงก์สองทาง', 'warning');
-          }
-        } catch (err) {
-          if (!silent) showToast('ไม่สามารถเชื่อมต่อฐานข้อมูลกลางได้ในขณะนี้', 'warning');
+      async function loadAdminData(silent) {
+        const r = await api({ type: 'admin_data', pin: sessionAdminPin });
+        if (r && r.ok) {
+          applyServerConfig(r.config);
+          holidays = r.holidays || [];
+          employees = r.employees || [];
+          logs = r.logs || [];
+          outings = r.outings || [];
+          renderAll();
+          setSyncBadge('ok', `ข้อมูลผู้ดูแล (${employees.length} คน)`);
+          if (!silent) showToast(`โหลดข้อมูลจากระบบกลางแล้ว (พนักงาน ${employees.length} คน)`, 'success');
+        } else {
+          showToast((r && r.message) || 'โหลดข้อมูลผู้ดูแลไม่สำเร็จ', 'error');
         }
       }
 
       async function verifyAdminPinOnServer(pin) {
-        const url = (gpsConfig.appsScriptUrl || '').trim();
-        if (!url) return { ok: false, message: 'ไม่พบลิงก์เชื่อมต่อเซิร์ฟเวอร์' };
-        try {
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ type: 'verify_pin', pin: String(pin || '').trim() }),
-            redirect: 'follow'
-          });
-          const data = JSON.parse(await res.text());
-          return data;
-        } catch (err) {
-          return { ok: false, message: 'ไม่สามารถตรวจสอบรหัส PIN กับเซิร์ฟเวอร์ได้ กรุณาตรวจอินเทอร์เน็ต' };
-        }
+        return api({ type: 'admin_verify', pin: String(pin || '').trim() });
       }
 
       async function changeAdminPinOnServer(currentPin, newPin) {
-        const url = (gpsConfig.appsScriptUrl || '').trim();
-        if (!url) return { ok: false, message: 'ไม่พบลิงก์เชื่อมต่อเซิร์ฟเวอร์' };
-        try {
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ type: 'change_pin', currentPin: String(currentPin || ''), newPin: String(newPin || '').trim() }),
-            redirect: 'follow'
-          });
-          const data = JSON.parse(await res.text());
-          return data;
-        } catch (err) {
-          return { ok: false, message: 'เปลี่ยนรหัส PIN บนเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองใหม่' };
+        return api({ type: 'admin_change_pin', pin: String(currentPin || ''), newPin: String(newPin || '').trim() });
+      }
+
+      async function showAdminPhoto(url, title) {
+        const r = await api({ type: 'admin_photo', pin: sessionAdminPin, url });
+        if (!r.ok) {
+          showToast(r.message || 'เปิดรูปไม่สำเร็จ', 'error');
+          return;
         }
+        document.getElementById('photo-preview-title').textContent = title;
+        document.getElementById('photo-preview-img').src = r.dataUrl;
+        document.getElementById('photo-preview-modal').classList.remove('hidden');
       }
 
       // ==================== MID-DAY OUTING LOGIC ====================
       function initiateOuting(rawCode, forcedAction) {
+        if (isSubmittingAttendance) {
+          showToast('กำลังบันทึกรายการก่อนหน้า กรุณารอสักครู่', 'warning');
+          return;
+        }
+        if (!requireSession()) return;
         const gpsCheck = checkGpsEligibility();
         if (!gpsCheck.allowed) {
           playBeep(true);
@@ -2175,17 +2253,10 @@
           return;
         }
 
-        const emp = employees.find((e) => e.id.toUpperCase() === cleanCode);
-        if (!emp) {
+        const emp = session.profile;
+        if (cleanCode !== String(emp.id).toUpperCase()) {
           playBeep(true);
-          showToast(`ไม่พบรหัสพนักงาน ${cleanCode} ในระบบ`, 'error');
-          return;
-        }
-
-        const devCheck = validateDeviceBinding(emp);
-        if (!devCheck.ok) {
-          playBeep(true);
-          showToast(devCheck.reason, 'error');
+          showToast(`บัตร ${cleanCode} ไม่ใช่บัตรของท่าน (${emp.id}) ไม่อนุญาตให้สแกนแทนกัน`, 'error');
           return;
         }
 
@@ -2209,9 +2280,9 @@
             return;
           }
           // Guard C: Exit only allowed during working hours (08:00 - 16:30)
-          if (!isAdminUnlocked && nowMins !== null && (nowMins < OUTING_START_MIN || nowMins > OUTING_END_MIN)) {
+          if (nowMins !== null && (nowMins < OUTING_START_MIN || nowMins > OUTING_END_MIN)) {
             playBeep(true);
-            showToast('แจ้งออกนอกสำนักงานได้เฉพาะในเวลางาน (08:00 – 16:30 น.) เท่านั้น', 'error');
+            showToast(`แจ้งออกนอกสำนักงานได้เฉพาะ ${minToHhmm(OUTING_START_MIN)} – ${minToHhmm(OUTING_END_MIN)} น.`, 'error');
             return;
           }
           if (openOuting) {
@@ -2250,82 +2321,64 @@
         }
       }
 
-      function finalizeOuting(ctx, photoDataUrl) {
+      async function finalizeOuting(ctx, photoDataUrl) {
         const { emp, outingAction: act, category, reason } = ctx;
-        const todayStr = getLocalDateStr();
-        const timeStr = getLocalTimeStr();
-        const prevOutingsSnapshot = outings.map((o) => ({ ...o }));
-
-        if (act === 'out') {
-          outings.push({
-            outingId: `OUT-${Date.now()}`,
-            empId: emp.id,
-            date: todayStr,
-            category,
-            reason,
-            outTime: timeStr,
-            returnTime: '',
-            durationMins: 0,
-            status: 'อยู่นอกสำนักงาน',
-            photoUrl: ''
-          });
-          document.getElementById('outing-reason').value = '';
-          playBeep(false);
-          showToast(`${emp.name} แจ้งออกนอกสำนักงานเวลา ${timeStr} น. (${category})`, 'success');
-        } else {
-          const target = outings.find((o) => o.empId === emp.id && o.date === todayStr && !o.returnTime);
-          if (target) {
-            target.returnTime = timeStr;
-            const mOut = timeToMinutes(target.outTime);
-            const mRet = timeToMinutes(timeStr);
-            target.durationMins = (mOut !== null && mRet !== null && mRet >= mOut) ? (mRet - mOut) : 0;
-            target.status = 'กลับเข้าสำนักงานแล้ว';
-          }
-          playBeep(false);
-          showToast(`${emp.name} กลับเข้าสำนักงานเวลา ${timeStr} น. เรียบร้อยแล้ว`, 'success');
+        if (!session) {
+          openLoginModal('กรุณาเข้าสู่ระบบก่อนสแกน');
+          return;
         }
-
-        saveState();
-        renderAll();
-
-        syncOutingToGoogleSheet({
+        isSubmittingAttendance = true;
+        hideRetry();
+        showToast('กำลังส่งข้อมูลไปยังระบบกลาง กรุณารอสักครู่...', 'info');
+        const r = await api({
           type: 'outing',
           outingAction: act,
-          empId: emp.id,
-          deviceId: gpsConfig.deviceLockEnforced ? deviceProfile.deviceId : '',
+          token: session.token,
+          deviceId: deviceProfile.deviceId,
           category,
           reason,
           lat: currentGps ? currentGps.lat : '',
           lng: currentGps ? currentGps.lng : '',
           accuracy: currentGps ? Math.round(currentGps.accuracy || 0) : '',
           photoBase64: photoDataUrl || ''
-        }, prevOutingsSnapshot);
-      }
+        });
+        isSubmittingAttendance = false;
 
-      async function syncOutingToGoogleSheet(payload, prevOutingsSnapshot) {
-        const url = (gpsConfig.appsScriptUrl || '').trim();
-        if (!url) return;
-        try {
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload),
-            redirect: 'follow'
-          });
-          const result = JSON.parse(await res.text());
-          if (result && result.ok) {
-            fetchFromGoogleSheet(true);
-            showToast(`บันทึกลงแท็บ “บันทึกออกนอกพื้นที่” สำเร็จ (${result.time || ''} น.)`, 'success');
-          } else if (result && result.ok === false) {
-            outings = prevOutingsSnapshot;
-            saveState();
-            renderAll();
-            playBeep(true);
-            showToast(result.message || 'ระบบกลางปฏิเสธการบันทึกออกนอกพื้นที่', 'error');
+        if (r.ok) {
+          if (act === 'out') {
+            outings.push({
+              outingId: `${r.date}_${emp.id}_${Date.now()}`,
+              empId: emp.id,
+              date: r.date,
+              category,
+              reason,
+              outTime: r.time,
+              returnTime: '',
+              durationMins: 0,
+              status: r.status,
+              photoUrl: ''
+            });
+            document.getElementById('outing-reason').value = '';
+            showToast(`บันทึกแจ้งออกนอกสำนักงานเวลา ${r.time} น. แล้ว (${category})`, 'success');
+          } else {
+            const target = outings.find((o) => o.empId === emp.id && o.date === r.date && !o.returnTime);
+            if (target) {
+              target.returnTime = r.time;
+              target.durationMins = r.durationMins;
+              target.status = r.status;
+            }
+            showToast(`บันทึกกลับเข้าสำนักงานเวลา ${r.time} น. แล้ว (ออกไป ${r.durationMins} นาที)`, 'success');
           }
-        } catch (err) {
-          showToast('สัญญาณอินเทอร์เน็ตขัดข้อง เก็บสำรองรายการออกนอกพื้นที่ในเครื่องชั่วคราว', 'warning');
+          playBeep(false);
+          showResultBurst(true);
+          renderAll();
+          return;
         }
+
+        playBeep(true);
+        showResultBurst(false);
+        showToast((r.network ? 'ยังไม่ได้บันทึก: ' : '') + (r.message || 'ระบบกลางปฏิเสธการบันทึก'), 'error');
+        if (r.network || r.retry) showRetry(r.message, () => finalizeOuting(ctx, photoDataUrl));
       }
 
       function startOutingCamera() {
@@ -2482,7 +2535,7 @@
           if (decodedText === lastScannedCode && now - lastScannedAt < 3500) return;
           lastScannedCode = decodedText;
           lastScannedAt = now;
-          initiateAttendance(decodedText, scanMode);
+          initiateAttendance(decodedText);
         };
 
         startQrScanner(html5QrCode, config, onScanSuccess)
@@ -2541,7 +2594,7 @@
 
           empLogs.forEach((l) => {
             if (l.checkIn) {
-              const evIn = evaluateCheckIn(l.checkIn);
+              const evIn = evaluateCheckIn(l.checkIn, l.dayOff);
               if (evIn.status === 'late') {
                 lateCount++;
                 totalLateMins += evIn.lateMins;
@@ -2550,7 +2603,7 @@
               }
             }
             if (l.checkOut) {
-              const evOut = evaluateCheckOut(l.checkOut);
+              const evOut = evaluateCheckOut(l.checkOut, l.dayOff);
               if (evOut.status === 'early') earlyCount++;
             }
           });
@@ -2632,11 +2685,11 @@
         todayLogs.forEach((l) => {
           if (l.checkIn) {
             checkedIn++;
-            const ev = evaluateCheckIn(l.checkIn);
+            const ev = evaluateCheckIn(l.checkIn, l.dayOff);
             if (ev.status === 'late') late++;
             else if (ev.status === 'normal') onTime++;
           }
-          if (l.checkOut && evaluateCheckOut(l.checkOut).status === 'early') early++;
+          if (l.checkOut && evaluateCheckOut(l.checkOut, l.dayOff).status === 'early') early++;
         });
 
         document.getElementById('today-checked-in').textContent = checkedIn;
@@ -2654,8 +2707,8 @@
         const empMap = Object.fromEntries(employees.map((e) => [e.id, e]));
         feedEl.innerHTML = [...todayLogs].reverse().map((l) => {
           const emp = empMap[l.empId] || { name: l.empId, dept: '-' };
-          const evIn = evaluateCheckIn(l.checkIn);
-          const evOut = evaluateCheckOut(l.checkOut);
+          const evIn = evaluateCheckIn(l.checkIn, l.dayOff);
+          const evOut = evaluateCheckOut(l.checkOut, l.dayOff);
           const inBadge = l.checkIn
             ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold font-num ${evIn.status === 'late' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">เข้า ${escapeHtml(l.checkIn)}</span>`
             : '';
@@ -2790,8 +2843,8 @@
           if (deptVal && deptVal !== 'all' && emp.dept !== deptVal) return false;
           if (dateVal && l.date !== dateVal) return false;
 
-          const evIn = evaluateCheckIn(l.checkIn);
-          const evOut = evaluateCheckOut(l.checkOut);
+          const evIn = evaluateCheckIn(l.checkIn, l.dayOff);
+          const evOut = evaluateCheckOut(l.checkOut, l.dayOff);
           if (statusVal === 'late' && evIn.status !== 'late') return false;
           if (statusVal === 'early' && evOut.status !== 'early') return false;
           if (statusVal === 'normal' && (evIn.status === 'late' || evOut.status === 'early')) return false;
@@ -2808,8 +2861,8 @@
 
         tbody.innerHTML = filtered.map((l) => {
           const emp = empMap[l.empId] || { name: l.empId, dept: '-' };
-          const evIn = evaluateCheckIn(l.checkIn);
-          const evOut = evaluateCheckOut(l.checkOut);
+          const evIn = evaluateCheckIn(l.checkIn, l.dayOff);
+          const evOut = evaluateCheckOut(l.checkOut, l.dayOff);
 
           const inStatusHtml = evIn.status === 'late'
             ? `<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">${escapeHtml(evIn.label)}</span>`
@@ -2820,11 +2873,10 @@
             : (evOut.status === 'normal' ? '<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-100 text-sky-800">ปกติ</span>' : '<span class="text-slate-400 text-xs">ยังไม่ออก</span>');
 
           let photoCell = '<span class="text-xs text-slate-400">-</span>';
-          if (l.photoUrl) {
-            photoCell = `<a href="${escapeHtml(l.photoUrl)}" target="_blank" rel="noopener" class="text-xs font-semibold text-emerald-700 hover:underline">เปิดรูป Drive</a>`;
-          } else if (l.photo) {
-            photoCell = `<button type="button" data-view-photo="${escapeHtml(l.logId)}" class="view-photo-btn text-xs font-semibold text-emerald-700 hover:underline">ดูภาพ</button>`;
-          }
+          const photoBtns = [];
+          if (l.photoUrl) photoBtns.push(`<button type="button" data-photo-url="${escapeHtml(l.photoUrl)}" data-photo-title="${escapeHtml(l.empId + ' เข้า ' + (l.checkIn || '') + ' ' + l.date)}" class="view-photo-url-btn text-xs font-semibold text-emerald-700 hover:underline">รูปเข้า</button>`);
+          if (l.photoOutUrl) photoBtns.push(`<button type="button" data-photo-url="${escapeHtml(l.photoOutUrl)}" data-photo-title="${escapeHtml(l.empId + ' ออก ' + (l.checkOut || '') + ' ' + l.date)}" class="view-photo-url-btn text-xs font-semibold text-sky-700 hover:underline">รูปออก</button>`);
+          if (photoBtns.length) photoCell = photoBtns.join(' ');
 
           return `
             <tr class="hover:bg-slate-50">
@@ -2838,7 +2890,7 @@
               <td class="px-4 py-3 text-center">${outStatusHtml}</td>
               <td class="px-4 py-3 text-center">${photoCell}</td>
               <td class="px-4 py-3 text-center">
-                <button type="button" data-delete-log="${escapeHtml(l.logId)}" class="delete-log-btn text-xs text-rose-600 hover:text-rose-800 font-semibold">ลบ</button>
+                <button type="button" data-delete-log="${escapeHtml(l.logId)}" data-log-date="${escapeHtml(l.date)}" data-log-emp="${escapeHtml(l.empId)}" class="delete-log-btn text-xs text-rose-600 hover:text-rose-800 font-semibold">ลบ</button>
               </td>
             </tr>
           `;
@@ -2864,9 +2916,7 @@
 
         container.innerHTML = employees.map((emp) => {
           const qrUrl = createQrDataUrl(emp.id);
-          const devBadge = emp.deviceId
-            ? `<div class="text-[10px] text-teal-700 font-num mt-1">ผูกเครื่อง: ${escapeHtml(emp.deviceId)}</div>`
-            : '<div class="text-[10px] text-slate-400 mt-1">ยังไม่ผูกเครื่องมือถือ</div>';
+          const devBadge = `<div class="text-[10px] mt-1 ${emp.deviceBound ? 'text-teal-700' : 'text-slate-400'}">${emp.deviceBound ? `ผูกมือถือแล้ว (…${escapeHtml(emp.deviceTail || '')})` : 'ยังไม่ผูกมือถือ'} • ${emp.hasPassword ? 'ตั้งรหัสผ่านแล้ว' : 'ยังไม่ตั้งรหัสผ่าน'}</div>`;
           return `
             <div class="badge-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
               <div class="hero-gradient text-white px-4 py-2.5">
@@ -2888,6 +2938,7 @@
                 <div class="flex items-center gap-2">
                   <button type="button" data-edit-emp="${escapeHtml(emp.id)}" class="edit-emp-btn text-xs font-semibold text-emerald-700 hover:underline">แก้ไข</button>
                   <button type="button" data-delete-emp="${escapeHtml(emp.id)}" class="delete-emp-btn text-xs font-semibold text-rose-600 hover:underline">ลบ</button>
+                  <button type="button" data-reset-emp="${escapeHtml(emp.id)}" class="reset-emp-btn text-xs font-semibold text-amber-700 hover:underline">รีเซ็ตเครื่อง/รหัสผ่าน</button>
                 </div>
                 <a href="${qrUrl}" download="QR_${escapeHtml(emp.id)}.gif" class="text-xs font-semibold text-slate-700 hover:text-slate-900 px-2.5 py-1 rounded-lg bg-white border border-slate-200">
                   ดาวน์โหลด QR
@@ -2901,6 +2952,10 @@
       function updateAdminUi() {
         document.querySelectorAll('.admin-only').forEach((el) => {
           el.classList.toggle('hidden', !isAdminUnlocked);
+        });
+        // v3: สแกนกล้องเป็นการลงเวลาของตัวเองเสมอ ผู้ดูแลบันทึกแทนผ่านช่องกรอกรหัสเท่านั้น
+        document.querySelectorAll('.scan-mode-btn').forEach((b) => {
+          if (b.dataset.scanMode !== 'auto') b.classList.add('hidden');
         });
         const toggleBtn = document.getElementById('btn-admin-toggle');
         if (toggleBtn) {
@@ -2952,8 +3007,8 @@
           const emp = empMap[l.empId] || { name: l.empId, dept: '-' };
           return [
             l.date, l.empId, emp.name, emp.dept,
-            l.checkIn || '-', evaluateCheckIn(l.checkIn).label,
-            l.checkOut || '-', evaluateCheckOut(l.checkOut).label,
+            l.checkIn || '-', evaluateCheckIn(l.checkIn, l.dayOff).label,
+            l.checkOut || '-', evaluateCheckOut(l.checkOut, l.dayOff).label,
             l.photoUrl || '-'
           ];
         });
@@ -3049,12 +3104,12 @@
 
         document.getElementById('btn-manual-in').addEventListener('click', () => {
           const code = document.getElementById('manual-code-input').value.trim();
-          initiateAttendance(code, 'in');
+          adminManualRecord(code, 'in');
         });
 
         document.getElementById('btn-manual-out').addEventListener('click', () => {
           const code = document.getElementById('manual-code-input').value.trim();
-          initiateAttendance(code, 'out');
+          adminManualRecord(code, 'out');
         });
 
         // Photo Verification Modal controls (including front/back camera switch)
@@ -3074,18 +3129,53 @@
         // GPS & Device Unbind
         document.getElementById('btn-refresh-gps').addEventListener('click', () => refreshGps(false));
 
-        document.getElementById('btn-unbind-device').addEventListener('click', () => {
-          openConfirmModal(
-            'ปลดล็อกสิทธิ์เครื่องมือถือนี้',
-            'ต้องการล้างการผูกสิทธิ์พนักงานบนเครื่องนี้ใช่หรือไม่? (หากผูกไว้ใน Google Sheets ด้วย ให้ลบค่าในคอลัมน์รหัสเครื่องที่ผูกในชีตด้วย)',
-            () => {
-              deviceProfile.boundEmpId = '';
-              deviceProfile.boundEmpName = '';
-              saveState();
-              renderDeviceStatus();
-              showToast('ปลดล็อกสิทธิ์เครื่องเรียบร้อยแล้ว', 'success');
-            }
-          );
+        // Employee login / logout / password / retry
+        document.getElementById('login-submit').addEventListener('click', submitLogin);
+        ['login-emp-id', 'login-password'].forEach((id) => {
+          document.getElementById(id).addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') submitLogin();
+          });
+        });
+        document.getElementById('login-open-admin').addEventListener('click', () => {
+          closeLoginModal();
+          document.getElementById('btn-admin-toggle').click();
+        });
+        document.getElementById('btn-login-open').addEventListener('click', () => openLoginModal());
+        document.getElementById('btn-logout').addEventListener('click', () => {
+          openConfirmModal('ออกจากระบบ', 'ออกจากระบบบนมือถือเครื่องนี้ใช่หรือไม่? (มือถือยังผูกกับบัญชีของท่าน เข้าสู่ระบบใหม่ได้ด้วยรหัสผ่านเดิม)', logoutEmployee);
+        });
+        const pwModal = document.getElementById('pw-modal');
+        document.getElementById('btn-change-password').addEventListener('click', () => {
+          ['pw-current', 'pw-new', 'pw-new2'].forEach((id) => { document.getElementById(id).value = ''; });
+          pwModal.classList.remove('hidden');
+        });
+        document.getElementById('pw-cancel').addEventListener('click', () => pwModal.classList.add('hidden'));
+        document.getElementById('pw-submit').addEventListener('click', async () => {
+          const cur = document.getElementById('pw-current').value;
+          const n1 = document.getElementById('pw-new').value;
+          const n2 = document.getElementById('pw-new2').value;
+          if (n1.length < 6) { showToast('รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัว', 'warning'); return; }
+          if (n1 !== n2) { showToast('รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน', 'warning'); return; }
+          if (!session) return;
+          const r = await api({ type: 'change_password', token: session.token, deviceId: deviceProfile.deviceId, currentPassword: cur, newPassword: n1 });
+          showToast(r.message || (r.ok ? 'เปลี่ยนรหัสผ่านแล้ว' : 'เปลี่ยนรหัสผ่านไม่สำเร็จ'), r.ok ? 'success' : 'error');
+          if (r.ok) pwModal.classList.add('hidden');
+        });
+        document.getElementById('retry-bar-send').addEventListener('click', () => {
+          const fn = pendingRetry;
+          if (!fn) return;
+          hideRetry();
+          const fresh = currentGps && (Date.now() - (currentGps.updatedAt || 0) < GPS_MAX_AGE_MS);
+          if (fresh) fn();
+          else {
+            showToast('กำลังอัปเดต GPS ก่อนส่งใหม่...', 'info');
+            refreshGps(true, () => fn());
+          }
+        });
+        document.getElementById('retry-bar-cancel').addEventListener('click', hideRetry);
+        // กลับมาเปิดแอปอีกครั้ง: ดึงสถานะล่าสุดจากเซิร์ฟเวอร์
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible' && !isSubmittingAttendance) fetchFromGoogleSheet(true);
         });
 
         // Admin Settings Modal
@@ -3144,6 +3234,8 @@
           }
           sessionAdminPin = pinVal;
           isAdminUnlocked = true;
+          closeLoginModal();
+          loadAdminData(true);
           updateAdminUi();
           openGpsFormFields();
         });
@@ -3157,43 +3249,55 @@
         });
 
         document.getElementById('btn-save-gps-settings').addEventListener('click', async () => {
-          const latRaw = document.getElementById('gps-coop-lat').value.trim();
-          const lngRaw = document.getElementById('gps-coop-lng').value.trim();
+          const latNum = parseFloat(document.getElementById('gps-coop-lat').value.trim());
+          const lngNum = parseFloat(document.getElementById('gps-coop-lng').value.trim());
           const radiusRaw = parseInt(document.getElementById('gps-radius-m').value, 10);
           const newPin = document.getElementById('gps-new-pin').value.trim();
-
-          const latNum = latRaw === '' ? null : parseFloat(latRaw);
-          const lngNum = lngRaw === '' ? null : parseFloat(lngRaw);
-          if ((latRaw !== '' || lngRaw !== '') && (Number.isNaN(latNum) || Number.isNaN(lngNum))) {
+          if (Number.isNaN(latNum) || Number.isNaN(lngNum)) {
             showToast('กรุณากรอกค่าละติจูดและลองจิจูดให้ถูกต้อง', 'error');
             return;
           }
-
-          gpsConfig.enforced = document.getElementById('gps-enforce-toggle').checked;
-          gpsConfig.deviceLockEnforced = document.getElementById('device-lock-toggle').checked;
-          gpsConfig.selfieEnforced = document.getElementById('selfie-enforce-toggle').checked;
-          gpsConfig.coopLat = latNum;
-          gpsConfig.coopLng = lngNum;
-          gpsConfig.radiusMeters = Math.max(20, Number.isNaN(radiusRaw) ? 100 : radiusRaw);
-          gpsConfig.appsScriptUrl = document.getElementById('apps-script-url-input').value.trim();
-
+          const btn = document.getElementById('btn-save-gps-settings');
+          const resetBtn = () => { btn.disabled = false; btn.textContent = 'บันทึกการตั้งค่า'; };
+          btn.disabled = true;
+          btn.textContent = 'กำลังบันทึก...';
+          const urlVal = document.getElementById('apps-script-url-input').value.trim();
+          if (urlVal && !/^https:\/\/script\.google\.com\//.test(urlVal)) {
+            resetBtn();
+            showToast('ลิงก์ระบบกลางต้องขึ้นต้นด้วย https://script.google.com/', 'error');
+            return;
+          }
+          const r = await api({
+            type: 'admin_set_config',
+            pin: sessionAdminPin,
+            config: {
+              coopLat: latNum,
+              coopLng: lngNum,
+              radiusM: Number.isNaN(radiusRaw) ? 120 : radiusRaw,
+              geoEnforced: document.getElementById('gps-enforce-toggle').checked,
+              photoRequired: document.getElementById('selfie-enforce-toggle').checked
+            }
+          });
+          if (!r.ok) {
+            resetBtn();
+            showToast(r.message || 'บันทึกการตั้งค่าไม่สำเร็จ', 'error');
+            return;
+          }
+          applyServerConfig(r.config);
+          gpsConfig.appsScriptUrl = urlVal || DEFAULT_APPS_SCRIPT_URL;
           if (newPin) {
-            const btn = document.getElementById('btn-save-gps-settings');
-            btn.disabled = true;
-            btn.textContent = 'กำลังอัปเดต PIN...';
             const pinRes = await changeAdminPinOnServer(sessionAdminPin, newPin);
-            btn.disabled = false;
-            btn.textContent = 'บันทึกการตั้งค่า';
             if (!pinRes || !pinRes.ok) {
+              resetBtn();
               showToast((pinRes && pinRes.message) || 'เปลี่ยนรหัส PIN ไม่สำเร็จ', 'error');
               return;
             }
             sessionAdminPin = newPin;
-            showToast('เปลี่ยนรหัส PIN สำเร็จ (มีผลเหมือนกันทุกเครื่องทันที)', 'success');
+            showToast('บันทึกการตั้งค่าและเปลี่ยน PIN แล้ว (มีผลกับทุกเครื่องทันที)', 'success');
           } else {
-            showToast('บันทึกการตั้งค่าระบบเรียบร้อยแล้ว', 'success');
+            showToast('บันทึกการตั้งค่าที่ระบบกลางแล้ว (มีผลกับทุกเครื่องทันที)', 'success');
           }
-
+          resetBtn();
           saveState();
           renderGpsStatus();
           renderDeviceStatus();
@@ -3224,6 +3328,12 @@
             switchTab('scanner');
             updateAdminUi();
             showToast('ออกจากโหมดผู้ดูแลแล้ว', 'info');
+            employees = session ? [{ ...session.profile }] : [];
+            logs = [];
+            outings = [];
+            renderAll();
+            fetchFromGoogleSheet(true);
+            if (!session) openLoginModal();
           } else {
             adminPinInput.value = '';
             adminModal.classList.remove('hidden');
@@ -3248,6 +3358,8 @@
           }
           sessionAdminPin = pinVal;
           isAdminUnlocked = true;
+          closeLoginModal();
+          loadAdminData(true);
           closeAdminModal();
           updateAdminUi();
           showToast('เข้าสู่ระบบผู้ดูแลเรียบร้อยแล้ว', 'success');
@@ -3287,74 +3399,50 @@
           renderLogsSection();
         });
 
-        document.getElementById('btn-clear-local-logs').addEventListener('click', () => {
-          openConfirmModal('ล้างประวัติในเครื่องนี้', 'ต้องการล้างประวัติที่แคชไว้ในเครื่องนี้หรือไม่? (ข้อมูลใน Google Sheets จะไม่ถูกลบ)', () => {
-            logs = [];
-            saveState();
-            renderAll();
-            showToast('ล้างประวัติในเครื่องเรียบร้อยแล้ว', 'info');
-          });
-        });
+        document.getElementById('btn-clear-local-logs').addEventListener('click', () => loadAdminData(false));
 
         document.getElementById('btn-export-logs-csv').addEventListener('click', exportLogsCsv);
 
         document.getElementById('logs-table-body').addEventListener('click', (e) => {
-          const viewBtn = e.target.closest('.view-photo-btn');
+          const viewBtn = e.target.closest('.view-photo-url-btn');
           if (viewBtn) {
-            const log = logs.find((item) => item.logId === viewBtn.dataset.viewPhoto);
-            if (log && log.photo) {
-              document.getElementById('photo-preview-title').textContent = `ภาพยืนยันตัวตน — ${log.empId} (${formatThaiDate(log.date)})`;
-              document.getElementById('photo-preview-img').src = log.photo;
-              document.getElementById('photo-preview-modal').classList.remove('hidden');
-            }
+            showAdminPhoto(viewBtn.dataset.photoUrl, `ภาพยืนยันตัวตน — ${viewBtn.dataset.photoTitle}`);
             return;
           }
           const delBtn = e.target.closest('.delete-log-btn');
           if (!delBtn) return;
-          const logId = delBtn.dataset.deleteLog;
-          openConfirmModal('ลบรายการลงเวลา', 'ต้องการลบรายการลงเวลานี้ใช่หรือไม่?', () => {
-            logs = logs.filter((l) => l.logId !== logId);
-            saveState();
-            renderAll();
-            showToast('ลบรายการลงเวลาแล้ว', 'info');
+          const date = delBtn.dataset.logDate;
+          const empId = delBtn.dataset.logEmp;
+          openConfirmModal('ลบรายการลงเวลา', `ต้องการลบรายการของ ${empId} วันที่ ${formatThaiDate(date)} ออกจาก Google Sheets ใช่หรือไม่? (ระบบเก็บประวัติการลบไว้ในชีต “บันทึกการแก้ไข”)`, async () => {
+            const r = await api({ type: 'admin_delete_log', pin: sessionAdminPin, date, empId });
+            if (r.ok) {
+              showToast('ลบรายการลงเวลาแล้ว', 'info');
+              loadAdminData(true);
+            } else {
+              showToast(r.message || 'ลบไม่สำเร็จ', 'error');
+            }
           });
         });
 
         // Employee Form
-        document.getElementById('emp-form').addEventListener('submit', (e) => {
+        document.getElementById('emp-form').addEventListener('submit', async (e) => {
           e.preventDefault();
           const origId = document.getElementById('emp-edit-original-id').value.trim();
           const newId = document.getElementById('emp-id-input').value.trim().toUpperCase();
           const newName = document.getElementById('emp-name-input').value.trim();
           const newDept = document.getElementById('emp-dept-input').value.trim();
-
           if (!newId || !newName || !newDept) {
             showToast('กรุณากรอกข้อมูลพนักงานให้ครบถ้วน', 'warning');
             return;
           }
-
-          if (origId) {
-            if (newId !== origId && employees.some((emp) => emp.id.toUpperCase() === newId)) {
-              showToast(`รหัสพนักงาน ${newId} มีอยู่ในระบบแล้ว`, 'error');
-              return;
-            }
-            employees = employees.map((emp) => emp.id === origId ? { ...emp, id: newId, name: newName, dept: newDept } : emp);
-            if (newId !== origId) {
-              logs = logs.map((l) => l.empId === origId ? { ...l, empId: newId } : l);
-            }
-            showToast(`อัปเดตข้อมูล ${newName} (${newId}) เรียบร้อยแล้ว`, 'success');
-          } else {
-            if (employees.some((emp) => emp.id.toUpperCase() === newId)) {
-              showToast(`รหัสพนักงาน ${newId} ซ้ำกับที่มีอยู่`, 'error');
-              return;
-            }
-            employees.push({ id: newId, name: newName, dept: newDept, deviceId: '' });
-            showToast(`เพิ่มพนักงาน ${newName} (${newId}) เรียบร้อยแล้ว`, 'success');
+          const r = await api({ type: 'admin_save_employee', pin: sessionAdminPin, origId, id: newId, name: newName, dept: newDept });
+          if (!r.ok) {
+            showToast(r.message || 'บันทึกไม่สำเร็จ', 'error');
+            return;
           }
-
+          showToast(origId ? `อัปเดตข้อมูล ${newName} (${newId}) แล้ว` : `เพิ่มพนักงาน ${newName} (${newId}) แล้ว ให้พนักงานเข้าสู่ระบบและตั้งรหัสผ่านบนมือถือของตัวเอง`, 'success');
           resetEmpForm();
-          saveState();
-          renderAll();
+          loadAdminData(true);
         });
 
         document.getElementById('btn-cancel-emp-edit').addEventListener('click', resetEmpForm);
@@ -3375,19 +3463,33 @@
             return;
           }
 
+          const resetBtn = e.target.closest('.reset-emp-btn');
+          if (resetBtn) {
+            const empId = resetBtn.dataset.resetEmp;
+            const emp = employees.find((item) => item.id === empId);
+            openConfirmModal(
+              'รีเซ็ตเครื่อง/รหัสผ่าน',
+              `ล้างการผูกมือถือและรหัสผ่านของ ${emp ? emp.name : empId} ใช่หรือไม่? พนักงานจะต้องเข้าสู่ระบบบนมือถือของตัวเองและตั้งรหัสผ่านใหม่ (ควรให้ทำทันทีต่อหน้าผู้ดูแล)`,
+              async () => {
+                const r = await api({ type: 'admin_reset_device', pin: sessionAdminPin, empId });
+                showToast(r.message || (r.ok ? 'รีเซ็ตแล้ว' : 'รีเซ็ตไม่สำเร็จ'), r.ok ? 'success' : 'error');
+                if (r.ok) loadAdminData(true);
+              }
+            );
+            return;
+          }
+
           const delBtn = e.target.closest('.delete-emp-btn');
           if (delBtn) {
             const empId = delBtn.dataset.deleteEmp;
             const emp = employees.find((item) => item.id === empId);
             openConfirmModal(
               'ลบรายชื่อพนักงาน',
-              `ต้องการลบ ${emp ? emp.name : empId} (${empId}) ออกจากระบบใช่หรือไม่?`,
-              () => {
-                employees = employees.filter((item) => item.id !== empId);
-                logs = logs.filter((l) => l.empId !== empId);
-                saveState();
-                renderAll();
-                showToast(`ลบพนักงาน ${empId} ออกจากระบบแล้ว`, 'info');
+              `ต้องการลบ ${emp ? emp.name : empId} (${empId}) ออกจากรายชื่อใช่หรือไม่? (ประวัติลงเวลาเดิมยังอยู่ในชีต)`,
+              async () => {
+                const r = await api({ type: 'admin_delete_employee', pin: sessionAdminPin, empId });
+                showToast(r.ok ? `ลบพนักงาน ${empId} แล้ว` : (r.message || 'ลบไม่สำเร็จ'), r.ok ? 'info' : 'error');
+                if (r.ok) loadAdminData(true);
               }
             );
           }
@@ -3421,6 +3523,7 @@
       setInterval(updateClock, 1000);
       renderAll();
       refreshGps(true);
+      if (!session) openLoginModal();
       fetchFromGoogleSheet(true);
     })();
   </script>
