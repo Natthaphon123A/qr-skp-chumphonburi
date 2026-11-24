@@ -910,6 +910,11 @@
       const WORK_START_MIN = 8 * 60 + 30;  // 08:30
       const WORK_END_MIN = 16 * 60 + 30;   // 16:30
       const MIN_CHECKOUT_GAP_MINS = 30;    // เว้นอย่างน้อย 30 นาทีหลังเข้างาน กันเผลอสแกนเบิ้ลตอนเช้า
+      const MIN_OUTING_RETURN_MINS = 2;    // เว้นอย่างน้อย 2 นาทีหลังแจ้งออก กันสแกนกลับเบิ้ล
+      const SYS_OPEN_MIN = 5 * 60 + 30;    // เปิดระบบลงเวลา 05:30 น.
+      const SYS_CLOSE_MIN = 22 * 60;       // ปิดระบบลงเวลา 22:00 น. (กันมือบอนสแกนกลางดึก)
+      const OUTING_START_MIN = 8 * 60;     // แจ้งออกนอกสำนักงานได้ตั้งแต่ 08:00 น.
+      const OUTING_END_MIN = 16 * 60 + 30; // แจ้งออกนอกสำนักงานได้ไม่เกิน 16:30 น.
       const GPS_MAX_AGE_MS = 5 * 60 * 1000; // รีเฟรช GPS หากพิกัดเก่าเกิน 5 นาที
       const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCmZYUrdZ00cakhoo_uTEQ4OvpXM8D09pZ53Af21Mj6HQIOBUYNYYBXCFcvNtsKV6NFg/exec';
       // พิกัดสหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด (Plus Code: 7P758CX6+PV)
@@ -1415,7 +1420,25 @@
 
         const todayStr = getLocalDateStr();
         const existing = logs.find((l) => l.empId === emp.id && l.date === todayStr);
-        const nowMins = timeToMinutes(getLocalTimeStr());
+        const nowObj = new Date();
+        const nowMins = timeToMinutes(getLocalTimeStr(nowObj));
+        const isWeekend = nowObj.getDay() === 0 || nowObj.getDay() === 6;
+
+        // Guard 1: Operating hours (05:30 - 22:00)
+        if (!isAdminUnlocked && nowMins !== null && (nowMins < SYS_OPEN_MIN || nowMins > SYS_CLOSE_MIN)) {
+          playBeep(true);
+          showScanFeedback({
+            title: 'อยู่นอกเวลาทำการของระบบ',
+            meta: 'ระบบเปิดให้สแกนลงเวลาเฉพาะช่วง 05:30 – 22:00 น. เท่านั้น',
+            time: `${getLocalTimeStr()} น.`,
+            typeLabel: 'นอกเวลาทำการ',
+            badge: 'ระบบปิดรับสแกน',
+            tone: 'error',
+            photo: ''
+          });
+          showToast('ระบบเปิดให้สแกนเฉพาะช่วง 05:30 – 22:00 น. เท่านั้น', 'error');
+          return;
+        }
 
         // Enforce strict Auto mode for non-admins
         let actionType = isAdminUnlocked ? forcedType : 'auto';
@@ -1457,11 +1480,26 @@
           }
         }
 
-        if (gpsConfig.selfieEnforced) {
-          openSelfieModal({ emp, actionType, gpsCheck });
-        } else {
-          finalizeAttendance({ emp, actionType, gpsCheck }, '');
+        const proceedScan = () => {
+          if (gpsConfig.selfieEnforced) {
+            openSelfieModal({ emp, actionType, gpsCheck });
+          } else {
+            finalizeAttendance({ emp, actionType, gpsCheck }, '');
+          }
+        };
+
+        // Guard 2: Warn before accidental early check-out on weekdays before 16:30
+        if (actionType === 'out' && !isWeekend && nowMins !== null && nowMins < WORK_END_MIN) {
+          if (cameraRunning) stopCamera();
+          openConfirmModal(
+            'ยืนยันการลงเวลาเลิกงานก่อนกำหนด?',
+            `ขณะนี้เวลา ${getLocalTimeStr()} น. (ยังไม่ถึง 16:30 น.) หากยืนยันจะถือว่า “ออกก่อนเวลากำหนด” — หากท่านต้องการออกไปทำธุระหรือปฏิบัติงานระหว่างวัน กรุณากด “ยกเลิก” แล้วใช้แท็บ “ออกนอกสำนักงาน” แทน`,
+            proceedScan
+          );
+          return;
         }
+
+        proceedScan();
       }
 
       function stopSelfieStreamOnly() {
@@ -1653,6 +1691,15 @@
             tone: isEarly ? 'error' : 'info',
             photo: photoDataUrl
           });
+          // Auto-close any open mid-day outing when checking out for the day
+          const openOut = outings.find((o) => o.empId === emp.id && o.date === todayStr && !o.returnTime);
+          if (openOut) {
+            openOut.returnTime = timeStr;
+            const mOut = timeToMinutes(openOut.outTime);
+            const mRet = timeToMinutes(timeStr);
+            openOut.durationMins = (mOut !== null && mRet !== null && mRet >= mOut) ? (mRet - mOut) : 0;
+            openOut.status = 'กลับพร้อมเลิกงาน';
+          }
           showToast(`${emp.name} ลงเวลาออกงาน ${timeStr} น. (${checkOutEval.label})`, isEarly ? 'warning' : 'success');
         }
 
@@ -1888,9 +1935,29 @@
 
         const action = forcedAction || outingAction;
         const todayStr = getLocalDateStr();
+        const nowMins = timeToMinutes(getLocalTimeStr());
+        const todayAtt = logs.find((l) => l.empId === emp.id && l.date === todayStr);
         const openOuting = outings.find((o) => o.empId === emp.id && o.date === todayStr && !o.returnTime);
 
         if (action === 'out') {
+          // Guard A: Must check-in for work first
+          if (!todayAtt || !todayAtt.checkIn) {
+            playBeep(true);
+            showToast(`${emp.name} ยังไม่ได้สแกนเข้างานวันนี้ กรุณาสแกนเข้างานก่อนแจ้งออกนอกสำนักงาน`, 'error');
+            return;
+          }
+          // Guard B: Cannot go out after already checking out for the day
+          if (todayAtt.checkOut) {
+            playBeep(true);
+            showToast(`${emp.name} ลงเวลาเลิกงานวันนี้ไปแล้วเมื่อ ${todayAtt.checkOut} น. ไม่สามารถแจ้งออกนอกพื้นที่ได้`, 'error');
+            return;
+          }
+          // Guard C: Exit only allowed during working hours (08:00 - 16:30)
+          if (!isAdminUnlocked && nowMins !== null && (nowMins < OUTING_START_MIN || nowMins > OUTING_END_MIN)) {
+            playBeep(true);
+            showToast('แจ้งออกนอกสำนักงานได้เฉพาะในเวลางาน (08:00 – 16:30 น.) เท่านั้น', 'error');
+            return;
+          }
           if (openOuting) {
             playBeep(true);
             showToast(`${emp.name} แจ้งออกไปแล้วเมื่อ ${openOuting.outTime} น. กรุณาสลับไปโหมด “สแกนกลับเข้าสำนักงาน”`, 'warning');
@@ -1898,9 +1965,10 @@
           }
           const category = document.getElementById('outing-category').value;
           const reason = (document.getElementById('outing-reason').value || '').trim();
-          if (!reason) {
+          // Guard D: Meaningful reason (>= 3 chars)
+          if (reason.length < 3) {
             playBeep(true);
-            showToast('กรุณาระบุสถานที่หรือเหตุผลโดยย่อก่อนแจ้งออกนอกสำนักงาน', 'warning');
+            showToast('กรุณาระบุสถานที่หรือเหตุผลให้ชัดเจน (อย่างน้อย 3 ตัวอักษร)', 'warning');
             document.getElementById('outing-reason').focus();
             return;
           }
@@ -1911,6 +1979,13 @@
           if (!openOuting) {
             playBeep(true);
             showToast(`ไม่พบรายการแจ้งออกของ ${emp.name} ในวันนี้ (กรุณาแจ้งออกก่อนสแกนกลับ)`, 'warning');
+            return;
+          }
+          // Guard E: 2-min anti-double-scan cooldown on return
+          const mOut = timeToMinutes(openOuting.outTime);
+          if (mOut !== null && nowMins !== null && (nowMins - mOut) < MIN_OUTING_RETURN_MINS) {
+            playBeep(true);
+            showToast(`เพิ่งแจ้งออกไปเมื่อ ${openOuting.outTime} น. (กันสแกนกลับเบิ้ล: รออย่างน้อย ${MIN_OUTING_RETURN_MINS} นาที)`, 'warning');
             return;
           }
           const ctx = { kind: 'outing', emp, outingAction: 'return', category: openOuting.category, reason: openOuting.reason, gpsCheck };
@@ -2001,10 +2076,17 @@
           showToast(gpsCheck.reason, 'error');
           return;
         }
-        if (outingAction === 'out' && !(document.getElementById('outing-reason').value || '').trim()) {
-          showToast('กรุณาระบุสถานที่หรือเหตุผลโดยย่อก่อนเปิดกล้องสแกน', 'warning');
-          document.getElementById('outing-reason').focus();
-          return;
+        const nowM = timeToMinutes(getLocalTimeStr());
+        if (outingAction === 'out') {
+          if (!isAdminUnlocked && nowM !== null && (nowM < OUTING_START_MIN || nowM > OUTING_END_MIN)) {
+            showToast('แจ้งออกนอกสำนักงานได้เฉพาะในเวลางาน (08:00 – 16:30 น.) เท่านั้น', 'error');
+            return;
+          }
+          if ((document.getElementById('outing-reason').value || '').trim().length < 3) {
+            showToast('กรุณาระบุสถานที่หรือเหตุผลให้ชัดเจน (อย่างน้อย 3 ตัวอักษร) ก่อนเปิดกล้อง', 'warning');
+            document.getElementById('outing-reason').focus();
+            return;
+          }
         }
         if (cameraRunning) stopCamera();
         if (typeof Html5Qrcode === 'undefined') {
