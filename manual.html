@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>คู่มือการใช้งานระบบลงเวลาทำงานอัจฉริยะ — สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด</title>
+  <title>คู่มือลงเวลาทำงาน — สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -164,14 +164,399 @@
         box-shadow: none !important;
       }
     }
+  /* ===== v2: ลูกเล่นและอนิเมชันเพิ่มเติม ===== */
+html {
+  scroll-behavior: smooth;
+}
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, #10b981, #fbbf24, #34d399);
+  z-index: 60;
+  pointer-events: none;
+}
+.text-shine {
+  background: linear-gradient(
+    90deg,
+    #6ee7b7 0%,
+    #fde68a 30%,
+    #6ee7b7 60%,
+    #a7f3d0 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmerLine 6s linear infinite;
+}
+/* กรอบสแกนเรืองแสง (เหมือนหน้าแอป) */
+.scan-frame {
+  position: relative;
+}
+.scan-frame::before,
+.scan-frame::after,
+.scan-frame > .sf-c1,
+.scan-frame > .sf-c2 {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: #10b981;
+  border-style: solid;
+  border-width: 0;
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.7));
+  animation: cornerGlow 2.4s ease-in-out infinite;
+}
+.scan-frame::before {
+  top: -4px;
+  left: -4px;
+  border-top-width: 4px;
+  border-left-width: 4px;
+  border-top-left-radius: 12px;
+}
+.scan-frame::after {
+  top: -4px;
+  right: -4px;
+  border-top-width: 4px;
+  border-right-width: 4px;
+  border-top-right-radius: 12px;
+}
+.scan-frame > .sf-c1 {
+  bottom: -4px;
+  left: -4px;
+  border-bottom-width: 4px;
+  border-left-width: 4px;
+  border-bottom-left-radius: 12px;
+}
+.scan-frame > .sf-c2 {
+  bottom: -4px;
+  right: -4px;
+  border-bottom-width: 4px;
+  border-right-width: 4px;
+  border-bottom-right-radius: 12px;
+}
+@keyframes cornerGlow {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+.scan-frame .sim-laser {
+  left: 6%;
+  right: 6%;
+}
+/* เลื่อนแล้วค่อยๆ ปรากฏ */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px) scale(0.985);
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--d, 0s);
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: none;
+}
+/* ปุ่มมีแสงวิ่งผ่าน */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 40%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  transform: skewX(-20deg);
+  z-index: -1;
+  transition: left 0.7s ease;
+}
+.btn-shine:hover::after {
+  left: 120%;
+}
+.btn-pulse {
+  animation: softPulse 2.6s ease-in-out infinite;
+}
+@keyframes softPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(251, 191, 36, 0);
+  }
+}
+/* เรดาร์ GPS */
+.radar-sweep {
+  transform-origin: 100px 100px;
+  animation: radarSpin 4s linear infinite;
+}
+@keyframes radarSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.radar-dot {
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.radar-acc {
+  transition:
+    r 0.45s ease,
+    fill 0.3s ease,
+    stroke 0.3s ease;
+}
+.verdict {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+.verdict.bump {
+  animation: popCheck 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+input[type="range"].slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  outline: none;
+}
+input[type="range"].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #047857;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.45);
+  cursor: pointer;
+}
+input[type="range"].slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #047857;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.45);
+  cursor: pointer;
+}
+input[type="range"].slider:focus-visible {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4);
+}
+/* แถบแดงในแอป (จำลอง) */
+.banner-drop {
+  animation: bannerDrop 3.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes bannerDrop {
+  0% {
+    transform: translateY(-110%);
+  }
+  18%,
+  82% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-110%);
+  }
+}
+.hop {
+  animation: hop 3.6s ease-in-out infinite;
+}
+@keyframes hop {
+  0%,
+  35% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  55% {
+    transform: translateX(26px);
+    opacity: 0.2;
+  }
+  56% {
+    transform: translateX(-26px);
+    opacity: 0.2;
+  }
+  75%,
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.tap-ring {
+  animation: tapRing 1.8s ease-out infinite;
+}
+@keyframes tapRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.85);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba(255, 255, 255, 0);
+  }
+}
+/* ลำดับขั้นตอนแก้สิทธิ์ */
+.chain-step {
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    border-color 0.35s ease,
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.35s ease;
+}
+.chain-step.lit {
+  background: #047857;
+  color: #fff;
+  border-color: #047857;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 18px -8px rgba(4, 120, 87, 0.6);
+}
+.chain-step.done {
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+  color: #065f46;
+}
+.chain-arrow {
+  color: #94a3b8;
+}
+.aa-key {
+  animation: softPulseGreen 1.8s ease-in-out infinite;
+}
+@keyframes softPulseGreen {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+}
+.os-btn[aria-selected="true"] {
+  background: #047857;
+  color: #fff;
+  box-shadow: 0 6px 14px -6px rgba(4, 120, 87, 0.55);
+}
+.jump-chip {
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+.jump-chip:hover {
+  transform: translateY(-2px);
+}
+#to-top {
+  opacity: 0;
+  transform: translateY(16px) scale(0.9);
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#to-top.show {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.tilt {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.float-y {
+  animation: floatY 4.5s ease-in-out infinite;
+}
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+:focus-visible {
+  outline: 3px solid rgba(16, 185, 129, 0.55);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .banner-drop {
+    transform: none !important;
+  }
+  .gps-ring,
+  .gps-ring-2 {
+    display: none;
+  }
+}
+@media print {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  #scroll-progress,
+  #to-top {
+    display: none !important;
+  }
+  .role-panel.hidden {
+    display: block !important;
+  }
+  #panel-badges {
+    display: none !important;
+  }
+  body.print-badges-only #panel-badges {
+    display: block !important;
+  }
+}
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
+  <div id="scroll-progress" aria-hidden="true"></div>
+
   <!-- Toast -->
   <div id="toast-box" class="fixed bottom-4 right-4 z-50 pointer-events-none no-print"></div>
 
-  <!-- Executive Animated Hero -->
+  <!-- ส่วนหัว -->
   <header class="hero-bg text-white shadow-xl">
     <div class="orb-1"></div>
     <div class="orb-2"></div>
@@ -179,34 +564,40 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         <div class="lg:col-span-8 space-y-4 animate-in">
           <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full glass-card text-xs font-semibold text-amber-300">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-            คู่มือการใช้งานอย่างเป็นทางการ • สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด
+            <span class="relative flex w-2 h-2"><span class="absolute inset-0 rounded-full bg-emerald-400 gps-ring"></span><span class="relative w-2 h-2 rounded-full bg-emerald-400"></span></span>
+            คู่มือใช้งาน • สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด
           </div>
           <h1 class="text-2xl sm:text-4xl font-bold leading-tight tracking-tight">
-            ระบบลงเวลาทำงานอัจฉริยะ<br />
-            <span class="text-emerald-300">QR Code • GPS • ออกนอกสำนักงาน • KPI โบนัส</span>
+            ลงเวลาทำงานด้วยมือถือ<br />
+            <span class="text-shine">สแกนบัตร • เช็กตำแหน่ง • ถ่ายรูป แค่นี้จบ</span>
           </h1>
           <p class="text-sm sm:text-base text-emerald-100/90 max-w-2xl leading-relaxed">
-            เอกสารคู่มือฉบับสมบูรณ์สำหรับเจ้าหน้าที่และผู้ดูแลระบบ อธิบายขั้นตอนการลงเวลาเข้า–ออกงานประจำวัน การบันทึกออกนอกสำนักงานระหว่างวัน เกณฑ์ประเมิน KPI โบนัส และชุดบัตรประจำตัว QR Code พร้อมสั่งพิมพ์
+            คู่มือนี้เขียนให้อ่านง่าย ทำตามได้ทีละขั้น ตั้งแต่วิธีสแกนเข้า–ออกงาน การแจ้งออกนอกสำนักงาน ไปจนถึงวิธีแก้เวลากล้องไม่เปิดหรือ GPS ไม่ขึ้นครับ
           </p>
 
-          <!-- Quick Action Buttons -->
           <div class="flex flex-wrap items-center gap-2.5 pt-2 no-print">
-            <button type="button" id="btn-copy-link" class="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-emerald-950 text-sm font-bold shadow-md transition-all">
-              คัดลอกลิงก์เข้าสู่ระบบ
+            <a href="https://natthaphon123a.github.io/qr-skp-chumphonburi/" target="_blank" rel="noopener" class="btn-shine btn-pulse px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-emerald-950 text-sm font-bold shadow-md transition-all">
+              เปิดแอปลงเวลา
+            </a>
+            <button type="button" id="btn-copy-link" class="btn-shine px-4 py-2.5 rounded-xl glass-card hover:bg-white/20 text-white text-sm font-semibold transition-all">
+              คัดลอกลิงก์
             </button>
-            <button type="button" id="btn-print-manual" class="px-4 py-2.5 rounded-xl glass-card hover:bg-white/20 text-white text-sm font-semibold transition-all">
-              พิมพ์คู่มือ / บันทึก PDF
+            <button type="button" id="btn-print-manual" class="btn-shine px-4 py-2.5 rounded-xl glass-card hover:bg-white/20 text-white text-sm font-semibold transition-all">
+              พิมพ์ / บันทึกเป็น PDF
             </button>
           </div>
         </div>
 
-        <!-- Live Scannable App Entry QR -->
+        <!-- QR เข้าแอป -->
         <div class="lg:col-span-4 flex justify-center lg:justify-end animate-in">
-          <div class="bg-white text-slate-900 rounded-3xl p-5 shadow-2xl border border-emerald-200/40 max-w-xs w-full text-center space-y-3 hover-lift">
-            <div class="text-xs font-bold text-emerald-800 uppercase tracking-wide">สแกนเพื่อเปิดเว็บแอปลงเวลา</div>
-            <div class="mx-auto w-40 h-40 p-2 rounded-2xl border-2 border-emerald-100 bg-white flex items-center justify-center">
-              <img id="app-entry-qr" src="" alt="QR Code ลิงก์เข้าเว็บแอป" class="w-full h-full block" />
+          <div class="float-y bg-white text-slate-900 rounded-3xl p-5 shadow-2xl border border-emerald-200/40 max-w-xs w-full text-center space-y-3">
+            <div class="text-xs font-bold text-emerald-800">เอากล้องมือถือส่องตรงนี้ เพื่อเปิดแอป</div>
+            <div class="scan-frame mx-auto w-40 h-40">
+              <span class="sf-c1"></span><span class="sf-c2"></span>
+              <div class="relative w-full h-full p-2 rounded-2xl bg-white overflow-hidden">
+                <img id="app-entry-qr" src="" alt="QR Code ลิงก์เข้าเว็บแอป" class="w-full h-full block" />
+                <div class="sim-laser"></div>
+              </div>
             </div>
             <div class="text-[11px] font-num text-slate-500 break-all bg-slate-50 rounded-xl px-2.5 py-1.5 border border-slate-100">
               https://natthaphon123a.github.io/qr-skp-chumphonburi/
@@ -215,19 +606,19 @@
         </div>
       </div>
 
-      <!-- Main Section Tabs -->
-      <div class="mt-8 flex flex-wrap items-center gap-2 border-t border-white/15 pt-5 no-print">
+      <!-- แท็บหลัก -->
+      <div class="mt-8 flex flex-wrap items-center gap-2 border-t border-white/15 pt-5 no-print" role="tablist">
         <button type="button" data-role="employee" class="role-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-emerald-950 shadow-md transition-all">
-          1. คู่มือพนักงาน
-        </button>
-        <button type="button" data-role="admin" class="role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-100 hover:bg-white/10 transition-all">
-          2. คู่มือผู้ดูแลระบบ (Admin)
+          1. สำหรับพนักงาน
         </button>
         <button type="button" data-role="faq" class="role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-100 hover:bg-white/10 transition-all">
-          3. คำถามที่พบบ่อย (FAQ)
+          2. ถาม–ตอบ / แก้ปัญหา
+        </button>
+        <button type="button" data-role="admin" class="role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-100 hover:bg-white/10 transition-all">
+          3. สำหรับผู้ดูแล (Admin)
         </button>
         <button type="button" data-role="badges" class="role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-amber-300 border border-amber-300/40 hover:bg-white/10 transition-all">
-          4. รวมบัตร QR พนักงาน (17 คน)
+          4. บัตร QR พนักงาน (17 คน)
         </button>
       </div>
     </div>
@@ -236,326 +627,477 @@
 
   <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
 
-    <!-- ==================== PANEL 1: EMPLOYEE HANDBOOK ==================== -->
+    <!-- ==================== 1. พนักงาน ==================== -->
     <section id="panel-employee" class="role-panel space-y-10 animate-in">
 
-      <!-- Dual-Mode Animated Interactive Guide -->
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+      <!-- ทางลัด -->
+      <nav class="no-print -mx-4 px-4 overflow-x-auto no-scrollbar" aria-label="ไปยังหัวข้อ">
+        <div class="flex gap-2 w-max">
+          <a href="#sec-howto" class="jump-chip px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-emerald-700 hover:text-white">① วิธีสแกน</a>
+          <a href="#sec-check" class="jump-chip px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-emerald-700 hover:text-white">② เช็กก่อนสแกน</a>
+          <a href="#sec-inapp" class="jump-chip px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-emerald-700 hover:text-white">③ เปิดจาก LINE / Facebook</a>
+          <a href="#sec-fix" class="jump-chip px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-emerald-700 hover:text-white">④ กล้อง / GPS ไม่ทำงาน</a>
+          <a href="#sec-outing" class="jump-chip px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-emerald-700 hover:text-white">⑤ ออกนอกสำนักงาน</a>
+          <a href="#sec-kpi" class="jump-chip px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-emerald-700 hover:text-white">⑥ เวลาทำงาน & KPI</a>
+        </div>
+      </nav>
+
+      <!-- ① วิธีสแกน (จำลองหน้าจอ) -->
+      <div id="sec-howto" class="reveal scroll-mt-6 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Interactive Visual Guide</span>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">ขั้นตอนการใช้งานแบบภาพเคลื่อนไหว</h2>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">เลือกหัวข้อที่ต้องการดู แล้วคลิกแต่ละขั้นตอนหรือกดเล่นอัตโนมัติครับ</p>
+            <span class="text-xs font-bold text-emerald-700 tracking-wider">① ดูวิธีใช้แบบภาพเคลื่อนไหว</span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">สแกนลงเวลา ทำแค่ 4 ขั้น</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">แตะแต่ละขั้นเพื่อดูหน้าจอตัวอย่าง หรือกด “เล่นให้ดู” แล้วนั่งดูเฉยๆ ก็ได้ครับ</p>
           </div>
           <div class="flex flex-wrap items-center gap-2 no-print">
             <button type="button" data-flow="attendance" class="flow-mode-btn px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-sm transition-all">
-              เข้า–ออกงานประจำวัน
+              เข้า–ออกงานทุกวัน
             </button>
             <button type="button" data-flow="outing" class="flow-mode-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all">
-              ออกนอกสำนักงานระหว่างวัน
+              ออกนอกสำนักงาน
             </button>
-            <button type="button" id="btn-auto-play" class="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold transition-colors">
-              เล่นอัตโนมัติ
+            <button type="button" id="btn-auto-play" class="btn-shine px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold transition-colors">
+              ▶ เล่นให้ดู
             </button>
           </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          <!-- Left: Dynamic 4 Steps List -->
           <div id="sim-steps-container" class="lg:col-span-7 space-y-3"></div>
-
-          <!-- Right: Animated Phone Screen -->
           <div class="lg:col-span-5 flex justify-center">
             <div class="w-full max-w-[295px] rounded-[2.4rem] bg-slate-900 p-3 shadow-2xl border-4 border-slate-800">
               <div class="w-20 h-4 bg-slate-950 rounded-full mx-auto mb-2.5"></div>
               <div id="phone-screen" class="bg-slate-50 rounded-[1.6rem] min-h-[385px] p-4 flex flex-col justify-between overflow-hidden relative"></div>
-              <div class="w-24 h-1 bg-slate-700 rounded-full mx-auto mt-3"></div>
+              <div class="h-1 bg-slate-700 rounded-full mx-auto mt-3 overflow-hidden w-24"><div id="sim-progress" class="h-full bg-emerald-400 transition-all duration-500" style="width:25%"></div></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Mid-day Outing Guide Highlight Box -->
-      <div class="bg-gradient-to-br from-teal-900 via-emerald-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-lg space-y-5">
+      <!-- ② เช็กก่อนสแกน -->
+      <div id="sec-check" class="scroll-mt-6 space-y-5">
+        <div class="reveal">
+          <span class="text-xs font-bold text-emerald-700 tracking-wider">② ก่อนกดสแกน เช็ก 3 อย่างนี้</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">ถ้าผ่านครบ 3 ข้อ สแกนได้แน่นอน</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="reveal hover-lift bg-white rounded-3xl border border-slate-200 p-5 space-y-2" style="--d:.05s">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg">📍</div>
+            <h3 class="font-bold text-slate-900">1. อยู่ใกล้สหกรณ์ ไม่เกิน <span class="font-num text-emerald-700">120 เมตร</span></h3>
+            <p class="text-sm text-slate-600 leading-relaxed">ประมาณระยะลานจอดรถรอบอาคาร ถ้ายืนอยู่ในสำนักงานหรือหน้าสหกรณ์ ผ่านแน่นอนครับ</p>
+          </div>
+          <div class="reveal hover-lift bg-white rounded-3xl border border-slate-200 p-5 space-y-2" style="--d:.15s">
+            <div class="w-11 h-11 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-lg">🛰️</div>
+            <h3 class="font-bold text-slate-900">2. GPS แม่นพอ คลาดเคลื่อนไม่เกิน <span class="font-num text-sky-700">±100 ม.</span></h3>
+            <p class="text-sm text-slate-600 leading-relaxed">ในตึกสัญญาณ GPS จะอ่อน ถ้าขึ้นว่าไม่แม่นยำ ให้เดินไปใกล้หน้าต่างหรือที่โล่ง รอสัก 10–20 วินาที แล้วกด <strong>อัปเดต GPS</strong></p>
+          </div>
+          <div class="reveal hover-lift bg-white rounded-3xl border border-slate-200 p-5 space-y-2" style="--d:.25s">
+            <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">🌐</div>
+            <h3 class="font-bold text-slate-900">3. เปิดใน Safari หรือ Chrome</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">iPhone ใช้ <strong>Safari</strong> / Android ใช้ <strong>Chrome</strong> อย่าเปิดค้างในแอป LINE หรือ Facebook เพราะแอปพวกนี้มักไม่ให้ใช้กล้องกับ GPS</p>
+          </div>
+        </div>
+
+        <!-- ลองเล่น: เครื่องจำลองระยะ GPS -->
+        <div class="reveal bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-900 text-white rounded-3xl p-6 sm:p-8 shadow-lg">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div class="lg:col-span-5 flex justify-center">
+              <svg viewBox="0 0 200 200" class="w-60 h-60 sm:w-64 sm:h-64" role="img" aria-label="แผนภาพรัศมี 120 เมตรรอบสหกรณ์">
+                <defs>
+                  <radialGradient id="sweepGrad" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 100) scale(95)">
+                    <stop offset="0" stop-color="#34d399" stop-opacity=".45" />
+                    <stop offset="1" stop-color="#34d399" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <circle cx="100" cy="100" r="95" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.12)" />
+                <circle cx="100" cy="100" r="68" fill="rgba(16,185,129,.14)" stroke="#34d399" stroke-width="2" stroke-dasharray="5 4" />
+                <circle cx="100" cy="100" r="34" fill="none" stroke="rgba(255,255,255,.1)" />
+                <path class="radar-sweep" d="M100 100 L100 5 A95 95 0 0 1 167 33 Z" fill="url(#sweepGrad)" />
+                <text x="100" y="27" text-anchor="middle" font-size="9" fill="#6ee7b7" font-family="Inter,sans-serif">120 ม.</text>
+                <rect x="92" y="92" width="16" height="16" rx="4" fill="#fbbf24" />
+                <text x="100" y="121" text-anchor="middle" font-size="8" fill="#fde68a" font-family="Sarabun,sans-serif">สหกรณ์</text>
+                <g id="radar-me" class="radar-dot">
+                  <circle id="radar-acc" class="radar-acc" cx="0" cy="0" r="10" fill="rgba(56,189,248,.18)" stroke="rgba(56,189,248,.7)" stroke-width="1" />
+                  <circle cx="0" cy="0" r="5" fill="#38bdf8" stroke="#fff" stroke-width="2" />
+                </g>
+              </svg>
+            </div>
+            <div class="lg:col-span-7 space-y-4">
+              <div>
+                <span class="text-xs font-bold text-amber-300 tracking-wider">ลองเล่นดู</span>
+                <h3 class="text-lg sm:text-xl font-bold">เลื่อนดูว่า “ตอนไหนสแกนได้ ตอนไหนไม่ได้”</h3>
+                <p class="text-xs sm:text-sm text-emerald-100/80 mt-0.5">จุดสีฟ้าคือตัวเรา วงจางๆ รอบจุดคือความคลาดเคลื่อนของ GPS</p>
+              </div>
+              <label class="block space-y-1.5">
+                <span class="flex justify-between text-sm font-semibold"><span>ระยะห่างจากสหกรณ์</span><span class="font-num text-amber-300"><span id="sim-dist-val">30</span> ม.</span></span>
+                <input id="sim-dist" type="range" min="0" max="250" step="5" value="30" class="slider" />
+              </label>
+              <label class="block space-y-1.5">
+                <span class="flex justify-between text-sm font-semibold"><span>ความแม่นยำ GPS</span><span class="font-num text-amber-300">±<span id="sim-acc-val">15</span> ม.</span></span>
+                <input id="sim-acc" type="range" min="5" max="200" step="5" value="15" class="slider" />
+              </label>
+              <div id="sim-verdict" class="verdict rounded-2xl border p-4 text-sm font-semibold bg-emerald-500/15 border-emerald-300/50 text-emerald-100" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ เปิดจาก LINE / Facebook -->
+      <div id="sec-inapp" class="scroll-mt-6 space-y-5">
+        <div class="reveal">
+          <span class="text-xs font-bold text-emerald-700 tracking-wider">③ กดลิงก์มาจากแชต</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">เปิดลิงก์จาก LINE หรือ Facebook ต้องทำยังไง</h2>
+          <p class="text-sm text-slate-600 mt-1">แอปแชตจะเปิดเว็บใน “หน้าต่างของแอปเอง” ซึ่งมักใช้กล้องกับ GPS ไม่ได้ ระบบเลยช่วยพาออกไปเปิดในเบราว์เซอร์ปกติให้ครับ</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- LINE -->
+          <div class="reveal hover-lift bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 flex gap-5 items-center" style="--d:.05s">
+            <div class="shrink-0 w-28 rounded-[1.4rem] bg-slate-900 p-1.5 shadow-lg">
+              <div class="rounded-[1.1rem] bg-slate-50 h-44 flex flex-col items-center justify-center gap-2 overflow-hidden">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-9 h-9 rounded-xl bg-[#06c755] text-white text-[10px] font-extrabold flex items-center justify-center">LINE</span>
+                  <span class="hop text-emerald-600 font-bold">➜</span>
+                  <span class="w-9 h-9 rounded-xl bg-sky-500 text-white text-[9px] font-extrabold flex items-center justify-center leading-tight text-center">Safari<br>Chrome</span>
+                </div>
+                <div class="text-[10px] text-slate-500 text-center px-2">เด้งไปเปิดให้เอง</div>
+              </div>
+            </div>
+            <div class="space-y-1.5">
+              <div class="inline-flex px-2.5 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold">LINE • ไม่ต้องทำอะไร</div>
+              <h3 class="font-bold text-slate-900">กดลิงก์ใน LINE ได้เลย</h3>
+              <p class="text-sm text-slate-600 leading-relaxed">ระบบจะสั่งให้ LINE เปิดหน้าเดิมใน <strong>Safari</strong> (iPhone) หรือ <strong>Chrome</strong> (Android) ให้อัตโนมัติ ถ้าเห็นหน้าจอกระพริบแล้วเปลี่ยนแอป ถือว่าปกติครับ</p>
+            </div>
+          </div>
+          <!-- Facebook / IG -->
+          <div class="reveal hover-lift bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 flex gap-5 items-center" style="--d:.15s">
+            <div class="shrink-0 w-28 rounded-[1.4rem] bg-slate-900 p-1.5 shadow-lg">
+              <div class="relative rounded-[1.1rem] bg-slate-50 h-44 overflow-hidden">
+                <div class="banner-drop absolute inset-x-0 top-0 bg-red-700 text-white p-1.5 text-[8px] leading-snug shadow">
+                  <b>เปิดผ่านแอป Facebook</b> สแกนไม่ได้
+                  <div class="flex gap-1 mt-1">
+                    <span class="bg-white text-red-700 rounded px-1 font-bold">เปิดใน Chrome</span>
+                    <span class="tap-ring bg-white text-red-700 rounded px-1 font-bold">คัดลอกลิงก์</span>
+                  </div>
+                </div>
+                <div class="absolute inset-x-2 bottom-3 space-y-1.5">
+                  <div class="h-2 rounded bg-slate-200"></div>
+                  <div class="h-2 rounded bg-slate-200 w-3/4"></div>
+                  <div class="h-6 rounded-lg bg-emerald-200"></div>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-1.5">
+              <div class="inline-flex px-2.5 py-0.5 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold">Facebook / Messenger / Instagram</div>
+              <h3 class="font-bold text-slate-900">เจอแถบสีแดงด้านบน</h3>
+              <ol class="text-sm text-slate-600 leading-relaxed list-decimal list-inside space-y-0.5">
+                <li>กดปุ่ม <strong>คัดลอกลิงก์</strong> บนแถบแดง</li>
+                <li>เปิด Safari หรือ Chrome แล้ว <strong>วางลิงก์</strong> ในช่องที่อยู่เว็บ</li>
+                <li>มือถือ Android กดปุ่ม <strong>เปิดใน Chrome</strong> ได้เลย ง่ายกว่า</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        <div class="reveal rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
+          💡 <strong>ทางที่ง่ายที่สุด:</strong> เปิดแอปใน Safari/Chrome ครั้งเดียว แล้วกด “เพิ่มไปยังหน้าจอโฮม” (ดูวิธีในหัวข้อ ⑥) วันต่อไปแตะไอคอนบนหน้าจอได้เลย ไม่ต้องหาลิงก์ในแชตอีก
+        </div>
+      </div>
+
+      <!-- ④ แก้ปัญหากล้อง / GPS -->
+      <div id="sec-fix" class="reveal scroll-mt-6 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-5">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold text-emerald-700 tracking-wider">④ กล้องไม่เปิด / ตำแหน่งไม่ขึ้น</span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">เผลอกด “ไม่อนุญาต” ไปแล้ว แก้แบบนี้</h2>
+            <p class="text-sm text-slate-600 mt-1">ถ้าขึ้นข้อความ “ไม่ได้รับสิทธิ์กล้อง” หรือ “ไม่ได้รับสิทธิ์ตำแหน่ง” ให้ทำตามลำดับด้านล่าง แล้ว <strong>โหลดหน้าเว็บใหม่</strong> หนึ่งครั้ง</p>
+          </div>
+          <div class="flex gap-1.5 bg-slate-100 p-1 rounded-xl self-start no-print" role="tablist" aria-label="เลือกรุ่นมือถือ">
+            <button type="button" class="os-btn px-4 py-2 rounded-lg text-sm font-bold text-slate-700 transition-all" data-os="ios" aria-selected="true">iPhone</button>
+            <button type="button" class="os-btn px-4 py-2 rounded-lg text-sm font-bold text-slate-700 transition-all" data-os="android" aria-selected="false">Android</button>
+          </div>
+        </div>
+
+        <!-- iPhone -->
+        <div data-os-panel="ios" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="rounded-2xl border border-slate-200 p-5 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">📷</span>
+              <h3 class="font-bold text-slate-900">เปิดสิทธิ์กล้อง / ตำแหน่ง (ใน Safari)</h3>
+            </div>
+            <div class="rounded-xl bg-slate-100 px-3 py-2 flex items-center gap-2 text-sm">
+              <span class="aa-key px-2 py-0.5 rounded-md bg-white border border-emerald-400 font-bold text-emerald-700">aA</span>
+              <span class="text-slate-500 truncate font-num text-xs">natthaphon123a.github.io</span>
+            </div>
+            <div class="chain flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">แตะ “aA” ข้างช่องที่อยู่เว็บ</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">การตั้งค่าเว็บไซต์</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">กล้อง / ตำแหน่ง</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">อนุญาต</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">โหลดหน้าใหม่</span>
+            </div>
+            <p class="text-xs text-slate-500">ช่องที่อยู่เว็บอยู่ด้านล่างหรือด้านบนของจอ แล้วแต่รุ่น iOS</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 p-5 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center">⚙️</span>
+              <h3 class="font-bold text-slate-900">ถ้ายังไม่ได้: เปิดตำแหน่งในแอป “การตั้งค่า”</h3>
+            </div>
+            <div class="chain flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">การตั้งค่า</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">ความเป็นส่วนตัวและความปลอดภัย</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">บริการหาตำแหน่ง (เปิด)</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">เว็บไซต์ Safari</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">ขณะใช้แอป + เปิด “ตำแหน่งที่แม่นยำ”</span>
+            </div>
+            <p class="text-xs text-slate-500">กล้องก็ตั้งได้ที่ การตั้งค่า › Safari › กล้อง › อนุญาต</p>
+          </div>
+        </div>
+
+        <!-- Android -->
+        <div data-os-panel="android" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="rounded-2xl border border-slate-200 p-5 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">📷</span>
+              <h3 class="font-bold text-slate-900">เปิดสิทธิ์กล้อง / ตำแหน่ง (ใน Chrome)</h3>
+            </div>
+            <div class="rounded-xl bg-slate-100 px-3 py-2 flex items-center gap-2 text-sm">
+              <span class="aa-key px-2 py-0.5 rounded-md bg-white border border-emerald-400 font-bold text-emerald-700">🔒</span>
+              <span class="text-slate-500 truncate font-num text-xs">natthaphon123a.github.io</span>
+            </div>
+            <div class="chain flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">แตะรูปแม่กุญแจ / ไอคอนหน้าลิงก์</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">สิทธิ์</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">กล้อง / ตำแหน่ง</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">อนุญาต</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">โหลดหน้าใหม่</span>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 p-5 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-sky-100 flex items-center justify-center">🛰️</span>
+              <h3 class="font-bold text-slate-900">ยังไม่ขึ้นตำแหน่ง: เปิด GPS ของเครื่อง</h3>
+            </div>
+            <div class="chain flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">ลากแถบด้านบนจอลงมา</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">แตะเปิด “ตำแหน่ง”</span><span class="chain-arrow">›</span>
+              <span class="chain-step px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-semibold">กลับมาที่เว็บ กด “อัปเดต GPS”</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4"><strong class="text-slate-900">กล้องเปิดไม่ขึ้น ขึ้นจอดำ?</strong><br><span class="text-slate-600">ปิดแอปอื่นที่ใช้กล้องอยู่ เช่น กล้องถ่ายรูป วิดีโอคอล LINE แล้วกดเปิดกล้องอีกครั้ง</span></div>
+          <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4"><strong class="text-slate-900">ทำครบแล้วยังไม่ได้?</strong><br><span class="text-slate-600">ปิดแท็บเว็บทิ้ง เปิดลิงก์ใหม่ใน Safari/Chrome แล้วกด “อนุญาต” ตอนที่เครื่องถาม ถ้ายังไม่ได้ แจ้งผู้ดูแลระบบครับ</span></div>
+        </div>
+      </div>
+
+      <!-- ⑤ ออกนอกสำนักงาน -->
+      <div id="sec-outing" class="reveal scroll-mt-6 bg-gradient-to-br from-teal-900 via-emerald-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-lg space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">Out-of-Office Protocol</span>
-            <h2 class="text-xl font-bold mt-0.5">หลักปฏิบัติการบันทึก “ออกนอกสำนักงานระหว่างวัน”</h2>
+            <span class="text-xs font-bold text-amber-300 tracking-wider">⑤ ออกไปข้างนอกระหว่างวัน</span>
+            <h2 class="text-xl font-bold mt-0.5">ออกนอกสำนักงาน ต้องแจ้งในแอปทุกครั้ง</h2>
           </div>
           <span class="self-start sm:self-auto px-3 py-1 rounded-full glass-card text-xs font-semibold text-emerald-200">
-            ช่วงเวลาแจ้งออก: 08:00 – 16:30 น.
+            แจ้งออกได้ช่วง 08:00 – 16:30 น.
           </span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div class="glass-card rounded-2xl p-5 space-y-2 hover-lift">
-            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-sky-400/20 border border-sky-300/40 text-sky-200 text-xs font-bold">
-              ประเภทที่ 1 • ปฏิบัติงานสหกรณ์
-            </div>
-            <h3 class="font-bold text-base text-white">งานภาคสนาม / ติดต่อราชการ / ธนาคาร</h3>
-            <p class="text-xs sm:text-sm text-emerald-100/85 leading-relaxed">
-              ใช้เมื่อออกไปปฏิบัติภารกิจในนามสหกรณ์ เช่น ลงพื้นที่ติดตามหนี้สมาชิก ติดต่อธนาคาร ส่งเอกสาร หรือติดต่อตลาด ระบบจะบันทึกเป็นสถิติงานนอกพื้นที่ <strong>โดยไม่หักคะแนน KPI</strong> ครับ
-            </p>
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-sky-400/20 border border-sky-300/40 text-sky-200 text-xs font-bold">แบบที่ 1 • ไปทำงานให้สหกรณ์</div>
+            <h3 class="font-bold text-base text-white">ลงพื้นที่ / ไปธนาคาร / ติดต่อราชการ</h3>
+            <p class="text-xs sm:text-sm text-emerald-100/85 leading-relaxed">เช่น ไปตามหนี้สมาชิก ไปส่งเอกสาร ไปธนาคาร ระบบเก็บไว้เป็นสถิติงานนอกพื้นที่ <strong>ไม่หักคะแนน KPI</strong> ครับ</p>
           </div>
           <div class="glass-card rounded-2xl p-5 space-y-2 hover-lift">
-            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-rose-400/20 border border-rose-300/40 text-rose-200 text-xs font-bold">
-              ประเภทที่ 2 • ธุระ / กิจส่วนตัว
-            </div>
-            <h3 class="font-bold text-base text-white">ออกไปทำธุระส่วนตัวในเวลางาน</h3>
-            <p class="text-xs sm:text-sm text-emerald-100/85 leading-relaxed">
-              ใช้เมื่อมีความจำเป็นต้องออกไปทำธุระส่วนตัวระหว่างวัน ระบบจะจับเวลาตั้งแต่ <strong>เวลาออก → เวลากลับ</strong> และสรุปยอดรวมเป็นจำนวนครั้งและนาทีแยกไว้ในรายงานเพื่อความโปร่งใสครับ
-            </p>
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-rose-400/20 border border-rose-300/40 text-rose-200 text-xs font-bold">แบบที่ 2 • ธุระส่วนตัว</div>
+            <h3 class="font-bold text-base text-white">ออกไปทำธุระของตัวเองในเวลางาน</h3>
+            <p class="text-xs sm:text-sm text-emerald-100/85 leading-relaxed">ระบบจับเวลาตั้งแต่ <strong>ตอนออก → ตอนกลับ</strong> แล้วสรุปว่าออกไปกี่ครั้ง รวมกี่นาที ไว้ในรายงาน เพื่อความโปร่งใสครับ</p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-emerald-100/90 pt-1">
           <div class="bg-white/5 border border-white/10 rounded-xl p-3">
-            <strong class="text-amber-300 block mb-0.5">1. ต้องเข้างานก่อนแจ้งออก</strong>
-            ระบบอนุญาตให้แจ้งออกนอกสำนักงานเฉพาะผู้ที่สแกนเข้างานประจำวันแล้วเท่านั้น
+            <strong class="text-amber-300 block mb-0.5">1. สแกนเข้างานก่อน</strong>
+            ต้องสแกนเข้างานของวันนั้นแล้ว ถึงจะแจ้งออกนอกสำนักงานได้
           </div>
           <div class="bg-white/5 border border-white/10 rounded-xl p-3">
-            <strong class="text-amber-300 block mb-0.5">2. สแกนกลับเมื่อถึงสหกรณ์</strong>
-            กลับมาถึงแล้วกด “สแกนกลับเข้าสำนักงาน” เพื่อหยุดจับเวลา (กลับหลัง 16:30 น. ก็สแกนปิดรอบได้)
+            <strong class="text-amber-300 block mb-0.5">2. กลับมาแล้วสแกนกลับ</strong>
+            ถึงสหกรณ์แล้วกด “สแกนกลับเข้าสำนักงาน” เพื่อหยุดนับเวลา (กลับหลัง 16:30 น. ก็สแกนได้)
           </div>
           <div class="bg-white/5 border border-white/10 rounded-xl p-3">
-            <strong class="text-amber-300 block mb-0.5">3. ปิดรอบอัตโนมัติเมื่อเลิกงาน</strong>
-            หากลืมสแกนกลับแล้วกดสแกนเลิกงานตอนเย็น ระบบจะปิดรอบออกนอกพื้นที่ให้โดยอัตโนมัติ
+            <strong class="text-amber-300 block mb-0.5">3. ลืมสแกนกลับ ไม่เป็นไร</strong>
+            ตอนเย็นสแกนออกงานตามปกติ ระบบจะปิดรอบออกนอกพื้นที่ให้เอง
           </div>
         </div>
       </div>
 
-      <!-- Work Hours & Bonus KPI Rules -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-5 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
-          <h2 class="text-lg font-bold text-slate-900">เกณฑ์เวลาทำงานและคะแนน KPI</h2>
+      <!-- ⑥ เวลาทำงาน & KPI -->
+      <div id="sec-kpi" class="scroll-mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="reveal lg:col-span-5 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div>
+            <span class="text-xs font-bold text-emerald-700 tracking-wider">⑥ เวลาทำงาน</span>
+            <h2 class="text-lg font-bold text-slate-900">มาสาย / กลับก่อน หักกี่คะแนน</h2>
+          </div>
           <div class="space-y-2.5 text-sm">
-            <div class="flex items-center justify-between p-3 rounded-2xl bg-emerald-50 border border-emerald-200">
-              <span class="font-semibold text-emerald-900">เข้างานตรงเวลา</span>
-              <span class="font-bold font-num text-emerald-700">≤ 08:30 น. (ไม่หัก)</span>
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-emerald-50 border border-emerald-200 hover-lift">
+              <span class="font-semibold text-emerald-900">มาตรงเวลา</span>
+              <span class="font-bold font-num text-emerald-700">ถึง 08:30 น. (ไม่หัก)</span>
             </div>
-            <div class="flex items-center justify-between p-3 rounded-2xl bg-amber-50 border border-amber-200">
-              <span class="font-semibold text-amber-900">เข้าสาย</span>
-              <span class="font-bold font-num text-amber-700">ตั้งแต่ 08:31 น. (-3 คะแนน)</span>
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-amber-50 border border-amber-200 hover-lift">
+              <span class="font-semibold text-amber-900">มาสาย</span>
+              <span class="font-bold font-num text-amber-700">08:31 น. ขึ้นไป (−3)</span>
             </div>
-            <div class="flex items-center justify-between p-3 rounded-2xl bg-rose-50 border border-rose-200">
-              <span class="font-semibold text-rose-900">ออกก่อนเวลากำหนด</span>
-              <span class="font-bold font-num text-rose-700">ก่อน 16:30 น. (-4 คะแนน)</span>
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-rose-50 border border-rose-200 hover-lift">
+              <span class="font-semibold text-rose-900">กลับก่อนเวลา</span>
+              <span class="font-bold font-num text-rose-700">ก่อน 16:30 น. (−4)</span>
             </div>
-            <div class="flex items-center justify-between p-3 rounded-2xl bg-sky-50 border border-sky-200">
-              <span class="font-semibold text-sky-900">มาทำงานวันเสาร์–อาทิตย์</span>
-              <span class="font-bold text-sky-700">วันหยุด / OT (ไม่หัก)</span>
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-sky-50 border border-sky-200 hover-lift">
+              <span class="font-semibold text-sky-900">มาทำงานเสาร์–อาทิตย์</span>
+              <span class="font-bold text-sky-700">นับเป็นวันหยุด/OT (ไม่หัก)</span>
             </div>
           </div>
-          <p class="text-xs text-slate-500 leading-relaxed">
-            เจ้าหน้าที่ทุกคนสามารถตรวจสอบคะแนน กราฟ สถิติงานนอกพื้นที่ และเกรดโบนัสของตนเองได้ตลอดเวลาที่แท็บ <strong>KPI &amp; กราฟโบนัส</strong> ครับ
-          </p>
+          <p class="text-xs text-slate-500 leading-relaxed">อยากรู้คะแนนตัวเอง เปิดแท็บ <strong>KPI &amp; กราฟโบนัส</strong> ในแอปได้ตลอดเวลาครับ</p>
         </div>
 
-        <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
-          <h2 class="text-lg font-bold text-slate-900">เกณฑ์ระดับเกรด KPI ประกอบการพิจารณาโบนัส (เต็ม 100 คะแนน)</h2>
+        <div class="reveal lg:col-span-7 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4" style="--d:.1s">
+          <h2 class="text-lg font-bold text-slate-900">เกรด KPI ใช้ประกอบการพิจารณาโบนัส (เต็ม 100)</h2>
           <div class="space-y-3.5">
             <div>
-              <div class="flex justify-between text-xs font-bold mb-1">
-                <span class="text-emerald-800">เกรด A • ดีเยี่ยม (โบนัสเต็มเกณฑ์)</span>
-                <span class="font-num text-emerald-700">95 – 100 คะแนน</span>
-              </div>
-              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                <div class="kpi-bar bg-emerald-600 h-3 rounded-full" data-width="100%" style="width: 0%"></div>
-              </div>
+              <div class="flex justify-between text-xs font-bold mb-1"><span class="text-emerald-800">เกรด A • ดีเยี่ยม (โบนัสเต็ม)</span><span class="font-num text-emerald-700">95 – 100</span></div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden"><div class="kpi-bar bg-emerald-600 h-3 rounded-full" data-width="100%" style="width: 0%"></div></div>
             </div>
             <div>
-              <div class="flex justify-between text-xs font-bold mb-1">
-                <span class="text-sky-800">เกรด B • ดี (ผ่านเกณฑ์มาตรฐาน)</span>
-                <span class="font-num text-sky-700">85 – 94 คะแนน</span>
-              </div>
-              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                <div class="kpi-bar bg-sky-600 h-3 rounded-full" data-width="88%" style="width: 0%"></div>
-              </div>
+              <div class="flex justify-between text-xs font-bold mb-1"><span class="text-sky-800">เกรด B • ดี (ผ่านมาตรฐาน)</span><span class="font-num text-sky-700">85 – 94</span></div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden"><div class="kpi-bar bg-sky-600 h-3 rounded-full" data-width="88%" style="width: 0%"></div></div>
             </div>
             <div>
-              <div class="flex justify-between text-xs font-bold mb-1">
-                <span class="text-amber-800">เกรด C • ปานกลาง (ควรพัฒนา)</span>
-                <span class="font-num text-amber-700">70 – 84 คะแนน</span>
-              </div>
-              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                <div class="kpi-bar bg-amber-500 h-3 rounded-full" data-width="74%" style="width: 0%"></div>
-              </div>
+              <div class="flex justify-between text-xs font-bold mb-1"><span class="text-amber-800">เกรด C • พอใช้ (ควรปรับ)</span><span class="font-num text-amber-700">70 – 84</span></div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden"><div class="kpi-bar bg-amber-500 h-3 rounded-full" data-width="74%" style="width: 0%"></div></div>
             </div>
             <div>
-              <div class="flex justify-between text-xs font-bold mb-1">
-                <span class="text-rose-800">เกรด D • ต้องปรับปรุงวินัยเวลา</span>
-                <span class="font-num text-rose-700">ต่ำกว่า 70 คะแนน</span>
-              </div>
-              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                <div class="kpi-bar bg-rose-600 h-3 rounded-full" data-width="52%" style="width: 0%"></div>
-              </div>
+              <div class="flex justify-between text-xs font-bold mb-1"><span class="text-rose-800">เกรด D • ต้องปรับเรื่องเวลา</span><span class="font-num text-rose-700">ต่ำกว่า 70</span></div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden"><div class="kpi-bar bg-rose-600 h-3 rounded-full" data-width="52%" style="width: 0%"></div></div>
             </div>
           </div>
 
-          <!-- Home Screen Pin Guide -->
           <div class="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div>
-              <div class="font-bold text-slate-900 mb-1">เพิ่มเป็นไอคอนแอปบน Android (Chrome)</div>
-              <p class="text-slate-600">เปิดลิงก์ใน Chrome → แตะจุด 3 จุดมุมขวาบน → เลือก <strong>เพิ่มลงในหน้าจอหลัก</strong></p>
+              <div class="font-bold text-slate-900 mb-1">📲 ทำไอคอนแอปบน Android (Chrome)</div>
+              <p class="text-slate-600">เปิดลิงก์ใน Chrome › แตะ ⋮ มุมขวาบน › <strong>เพิ่มลงในหน้าจอหลัก</strong></p>
             </div>
             <div>
-              <div class="font-bold text-slate-900 mb-1">เพิ่มเป็นไอคอนแอปบน iPhone (Safari)</div>
-              <p class="text-slate-600">เปิดลิงก์ใน Safari → แตะปุ่ม <strong>แชร์ (สี่เหลี่ยมลูกศรขึ้น)</strong> → เลือก <strong>เพิ่มไปยังหน้าจอโฮม</strong></p>
+              <div class="font-bold text-slate-900 mb-1">📲 ทำไอคอนแอปบน iPhone (Safari)</div>
+              <p class="text-slate-600">เปิดลิงก์ใน Safari › แตะปุ่ม <strong>แชร์</strong> (สี่เหลี่ยมมีลูกศรขึ้น) › <strong>เพิ่มไปยังหน้าจอโฮม</strong></p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Security & Compliance Rules -->
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-4">
-        <h2 class="text-lg font-bold text-slate-900">ข้อกำหนดและระบบป้องกันความผิดพลาดที่ควรทราบ</h2>
+      <!-- กติกาที่ควรรู้ -->
+      <div class="reveal bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-4">
+        <h2 class="text-lg font-bold text-slate-900">กติกาเล็กๆ ที่ควรรู้</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs sm:text-sm">
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift">
-            <div class="font-bold text-emerald-800">1. ล็อกสิทธิ์ 1 เครื่องต่อ 1 คน</div>
-            <p class="text-slate-600">โปรดใช้มือถือส่วนตัวและเปิดผ่านเบราว์เซอร์เดิมทุกวัน ห้ามใช้เครื่องเดียวกันสแกนแทนกัน</p>
+          <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.0s">
+            <div class="font-bold text-emerald-800">📱 1 คน 1 มือถือ</div>
+            <p class="text-slate-600">บัตรของเราจะผูกกับมือถือเครื่องแรกที่สแกน ใช้เครื่องเดิมและเบราว์เซอร์เดิมทุกวัน ห้ามสแกนแทนเพื่อน</p>
           </div>
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift">
-            <div class="font-bold text-emerald-800">2. เวลาจริงจากเซิร์ฟเวอร์กลาง</div>
-            <p class="text-slate-600">ใช้เวลาประเทศไทยจากเซิร์ฟเวอร์ Google โดยตรง เปิดรับสแกนเฉพาะเวลา <strong>05:30 – 22:00 น.</strong></p>
+          <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.06s">
+            <div class="font-bold text-emerald-800">⏰ ใช้นาฬิกาของระบบ</div>
+            <p class="text-slate-600">เวลาที่บันทึกมาจากเซิร์ฟเวอร์ Google ปรับนาฬิกามือถือก็ไม่มีผล สแกนได้ช่วง <strong>05:30 – 22:00 น.</strong></p>
           </div>
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift">
-            <div class="font-bold text-emerald-800">3. เตือนก่อนสแกนเลิกงานก่อนเวลา</div>
-            <p class="text-slate-600">หากเผลอสแกนออกงานก่อน 16:30 น. ระบบจะเด้งแจ้งเตือนถามย้ำเพื่อป้องกันการกดผิดแท็บ</p>
+          <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.12s">
+            <div class="font-bold text-emerald-800">⚠️ กดออกงานเร็ว ระบบถามย้ำ</div>
+            <p class="text-slate-600">ถ้าสแกนออกงานก่อน 16:30 น. จะมีหน้าต่างถามยืนยันก่อน กันกดผิด</p>
           </div>
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift">
-            <div class="font-bold text-emerald-800">4. กันสแกนเบิ้ลอัตโนมัติ</div>
-            <p class="text-slate-600">หลังเข้างานต้องเว้นอย่างน้อย 30 นาทีจึงจะลงออกงานได้ และหลังแจ้งออกนอกพื้นที่ต้องเว้น 2 นาทีจึงจะสแกนกลับได้</p>
+          <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.18s">
+            <div class="font-bold text-emerald-800">🔁 กันสแกนซ้ำ</div>
+            <p class="text-slate-600">เข้างานแล้วต้องรอ 30 นาทีถึงจะสแกนออกงานได้ แจ้งออกนอกสำนักงานแล้วรอ 2 นาทีถึงจะสแกนกลับได้</p>
           </div>
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift">
-            <div class="font-bold text-emerald-800">5. ตรวจสอบพิกัด GPS ทุก 5 นาที</div>
-            <p class="text-slate-600">หากเปิดหน้าเว็บค้างไว้เกิน 5 นาที กรุณากดปุ่ม <strong>อัปเดต GPS</strong> ก่อนสแกนเพื่อยืนยันตำแหน่งปัจจุบัน</p>
+          <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.24s">
+            <div class="font-bold text-emerald-800">🛰️ GPS อัปเดตเอง</div>
+            <p class="text-slate-600">ระบบเช็กตำแหน่งให้เบื้องหลังตอนเปิดกล้อง ถ้าเปิดหน้าทิ้งไว้นานเกิน 5 นาทีแล้วขึ้นเตือน กด <strong>อัปเดต GPS</strong> หนึ่งครั้ง</p>
           </div>
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift">
-            <div class="font-bold text-emerald-800">6. ภาพถ่ายยืนยันตัวตนทุกครั้ง</div>
-            <p class="text-slate-600">รองรับทั้งกล้องหน้าและกล้องหลัง ภาพถ่ายจะถูกจัดเก็บใน Google Drive อย่างเป็นระบบ</p>
+          <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.3s">
+            <div class="font-bold text-emerald-800">🤳 ถ่ายรูปทุกครั้ง</div>
+            <p class="text-slate-600">ใช้กล้องหน้าหรือหลังก็ได้ รูปเก็บไว้ใน Google Drive ของสหกรณ์</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== PANEL 2: ADMIN HANDBOOK ==================== -->
+    <!-- ==================== 3. ผู้ดูแล ==================== -->
     <section id="panel-admin" class="role-panel hidden space-y-6 animate-in">
       <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
         <div>
-          <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Administrator Operations Manual</span>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">คู่มือการบริหารจัดการระบบสำหรับผู้ดูแล (Admin)</h2>
-          <p class="text-sm text-slate-600 mt-1">เข้าสู่โหมดผู้ดูแลโดยกดปุ่มสีเหลือง <strong>“เข้าสู่ระบบผู้ดูแล”</strong> มุมขวาบนของเว็บแอปแล้วกรอกรหัส PIN (ตรวจสอบผ่านเซิร์ฟเวอร์กลาง ใช้รหัสเดียวกันทุกเครื่อง)</p>
+          <span class="text-xs font-bold text-amber-600 tracking-wider">สำหรับผู้ดูแลระบบ</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">งานที่ผู้ดูแลต้องรู้</h2>
+          <p class="text-sm text-slate-600 mt-1">เข้าโหมดผู้ดูแลได้ที่ปุ่มสีเหลือง <strong>“เข้าสู่ระบบผู้ดูแล”</strong> มุมขวาบนของแอป แล้วใส่รหัส PIN (รหัสเดียวกันทุกเครื่อง เพราะเช็กที่เซิร์ฟเวอร์)</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="hover-lift rounded-2xl border border-slate-200 p-5 space-y-2">
-            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold">1. โครงสร้างฐานข้อมูล 4 แท็บ (Google Sheets)</div>
-            <h3 class="text-base font-bold text-slate-900">ศูนย์กลางข้อมูลและการคำนวณอัตโนมัติ</h3>
+          <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2">
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold">1. ข้อมูลเก็บที่ไหน</div>
+            <h3 class="text-base font-bold text-slate-900">Google Sheets มี 4 แท็บ</h3>
             <ul class="text-xs sm:text-sm text-slate-600 space-y-1 list-disc list-inside leading-relaxed">
-              <li><strong>รายชื่อพนักงาน:</strong> เก็บรหัส <span class="font-num">SKP-001–SKP-017</span>, ชื่อ, แผนก และรหัสเครื่องที่ผูก</li>
-              <li><strong>ประวัติลงเวลา:</strong> เก็บเวลาเข้า–ออกประจำวัน พิกัด ระยะห่าง และลิงก์รูปถ่าย</li>
-              <li><strong>บันทึกออกนอกพื้นที่:</strong> แยกเก็บงานสหกรณ์ / ธุระส่วนตัว พร้อมเวลากลับและนาทีรวม</li>
-              <li><strong>สรุป_KPI_โบนัส:</strong> คำนวณคะแนน เกรด A–D และยอดออกนอกพื้นที่ครบทั้ง 17 คน</li>
+              <li><strong>รายชื่อพนักงาน:</strong> รหัส <span class="font-num">SKP-001–SKP-017</span> ชื่อ แผนก และรหัสเครื่องที่ผูกไว้</li>
+              <li><strong>ประวัติลงเวลา:</strong> เวลาเข้า–ออกแต่ละวัน พิกัด ระยะห่าง และลิงก์รูป</li>
+              <li><strong>บันทึกออกนอกพื้นที่:</strong> แยกงานสหกรณ์ / ธุระส่วนตัว พร้อมเวลากลับและนาทีรวม</li>
+              <li><strong>สรุป_KPI_โบนัส:</strong> คะแนน เกรด A–D และยอดออกนอกพื้นที่ ครบ 17 คน</li>
             </ul>
           </div>
 
-          <div class="hover-lift rounded-2xl border border-slate-200 p-5 space-y-2">
-            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-sky-100 text-sky-800 text-xs font-bold">2. การเปลี่ยนรหัส PIN และตั้งค่าระบบ</div>
-            <h3 class="text-base font-bold text-slate-900">ซิงก์รหัสผ่านเหมือนกันทุกอุปกรณ์ทันที</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              กดปุ่ม <strong>ตั้งค่าระบบ (ผู้ดูแล)</strong> เพื่อเปลี่ยนรหัส PIN ใหม่บนเซิร์ฟเวอร์กลาง ปรับระยะรัศมี GPS (ค่าเริ่มต้น 120 เมตร) หรือเปิด/ปิดเงื่อนไข GPS, ล็อกเครื่อง และถ่ายภาพยืนยันได้ตามนโยบายสหกรณ์ครับ
-            </p>
+          <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2" style="--d:.08s">
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-sky-100 text-sky-800 text-xs font-bold">2. เปลี่ยน PIN / ตั้งค่า</div>
+            <h3 class="text-base font-bold text-slate-900">เปลี่ยนครั้งเดียว ใช้ได้ทุกเครื่อง</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">กด <strong>ตั้งค่าระบบ (ผู้ดูแล)</strong> เพื่อเปลี่ยน PIN ปรับรัศมี GPS (ค่าเริ่มต้น 120 เมตร) หรือเปิด/ปิด การเช็ก GPS การล็อกเครื่อง และการถ่ายรูป ตามที่สหกรณ์กำหนด</p>
+            <p class="text-xs text-slate-500 leading-relaxed">ฝั่งเซิร์ฟเวอร์ (Apps Script › Script properties) ตั้งได้อีก 3 ค่า: <span class="font-num">GEO_ENFORCED</span> เปิด/ปิดการตรวจพิกัดซ้ำ, <span class="font-num">GEO_RADIUS_M</span> รัศมี, <span class="font-num">GEO_MAX_ACCURACY_M</span> ความคลาดเคลื่อนสูงสุด (ค่าเริ่มต้น 100)</p>
           </div>
 
-          <div class="hover-lift rounded-2xl border border-slate-200 p-5 space-y-2">
-            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold">3. การปลดล็อกสิทธิ์เครื่องมือถือ</div>
-            <h3 class="text-base font-bold text-slate-900">กรณีพนักงานเปลี่ยนเครื่องหรือล้างเบราว์เซอร์</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              เปิดแท็บ <strong>รายชื่อพนักงาน</strong> ใน Google Sheets แล้วลบข้อความในคอลัมน์ <strong>E (รหัสเครื่องที่ผูก)</strong> ของพนักงานคนนั้นให้ว่างไว้ พนักงานสามารถใช้บัตร QR ใบเดิมสแกนเพื่อผูกสิทธิ์กับเครื่องใหม่ได้ทันทีครับ
-            </p>
+          <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2" style="--d:.16s">
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold">3. พนักงานเปลี่ยนมือถือ</div>
+            <h3 class="text-base font-bold text-slate-900">ปลดล็อกเครื่อง ให้ผูกเครื่องใหม่</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">เปิดแท็บ <strong>รายชื่อพนักงาน</strong> ใน Google Sheets แล้วลบค่าในคอลัมน์ <strong>E (รหัสเครื่องที่ผูก)</strong> ของคนนั้นให้ว่าง พนักงานใช้บัตรใบเดิมสแกนจากเครื่องใหม่ได้ทันที</p>
           </div>
 
-          <div class="hover-lift rounded-2xl border border-slate-200 p-5 space-y-2">
-            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold">4. การตรวจสอบรูปและการจัดการแถวข้อมูล</div>
-            <h3 class="text-base font-bold text-slate-900">คลังภาพ Google Drive และการลบรายการ</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              ภาพยืนยันตัวตนทั้งหมดเก็บในโฟลเดอร์ <strong>ภาพยืนยันลงเวลา_สกป_ชุมพลบุรี</strong> และเชื่อมลิงก์ไว้ในคอลัมน์ K หากต้องการลบรายการใด ให้คลิกขวาที่เลขแถวใน Sheets แล้วเลือก <strong>ลบแถว (Delete row)</strong> หน้าเว็บทุกเครื่องจะอัปเดตตามอัตโนมัติครับ
-            </p>
+          <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2" style="--d:.24s">
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold">4. ดูรูป / ลบรายการ</div>
+            <h3 class="text-base font-bold text-slate-900">รูปอยู่ใน Google Drive</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">รูปทั้งหมดอยู่ในโฟลเดอร์ <strong>ภาพยืนยันลงเวลา_สกป_ชุมพลบุรี</strong> และมีลิงก์ในคอลัมน์ K ถ้าต้องการลบรายการ คลิกขวาที่เลขแถวใน Sheets › <strong>ลบแถว</strong> ทุกเครื่องจะเห็นข้อมูลใหม่เอง</p>
+          </div>
+
+          <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2 md:col-span-2" style="--d:.3s">
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-bold">5. ลำดับการอัปเดตระบบ</div>
+            <h3 class="text-base font-bold text-slate-900">อัปเดตหน้าเว็บก่อน แล้วค่อยอัปเดต Apps Script</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">อัปโหลด <strong>index.html</strong> ขึ้น GitHub ก่อน รอ 1–2 นาทีให้หน้าเว็บเปลี่ยน แล้วค่อย Deploy Apps Script เวอร์ชันใหม่ ถ้าสลับลำดับ มือถือที่ยังเปิดหน้าเก่าค้างอยู่อาจสแกนไม่ผ่าน ให้พนักงานโหลดหน้าใหม่หนึ่งครั้ง</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== PANEL 3: FAQ ==================== -->
+    <!-- ==================== 2. ถาม–ตอบ ==================== -->
     <section id="panel-faq" class="role-panel hidden space-y-4 animate-in">
       <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-4">
-        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">คำถามที่พบบ่อย (FAQ)</h2>
-        <div id="faq-list" class="divide-y divide-slate-200">
-          <div class="faq-item open py-4">
-            <button type="button" class="faq-toggle w-full flex items-center justify-between text-left gap-3">
-              <span class="text-sm sm:text-base font-bold text-slate-900">ต้องเปิดไฟล์ Google Sheets หรือเปิดคอมพิวเตอร์ทิ้งไว้ไหม พนักงานถึงจะสแกนได้?</span>
-              <svg class="faq-chevron w-5 h-5 text-slate-400 transition-transform shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
-            </button>
-            <div class="faq-content">
-              <p class="text-sm text-slate-600 pt-2.5 leading-relaxed">ไม่ต้องเปิดทิ้งไว้ครับ ระบบทำงานบนเซิร์ฟเวอร์ออนไลน์ตลอด 24 ชั่วโมง แม้ปิดคอมพิวเตอร์หรือปิดไฟล์ไปแล้ว พนักงานยังสแกนผ่านมือถือได้ตามปกติและข้อมูลจะบันทึกเก็บไว้ให้ทั้งหมดครับ</p>
-            </div>
-          </div>
-
-          <div class="faq-item py-4">
-            <button type="button" class="faq-toggle w-full flex items-center justify-between text-left gap-3">
-              <span class="text-sm sm:text-base font-bold text-slate-900">ออกไปทำธุระหรือลงพื้นที่ระหว่างวัน ต้องสแกนแท็บไหน จะโดนหักคะแนนออกก่อนเวลาไหม?</span>
-              <svg class="faq-chevron w-5 h-5 text-slate-400 transition-transform shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
-            </button>
-            <div class="faq-content">
-              <p class="text-sm text-slate-600 pt-2.5 leading-relaxed">ให้ใช้แท็บ <strong>ออกนอกสำนักงาน</strong> เท่านั้นครับ (อย่าสแกนที่แท็บสแกนลงเวลาหลัก) ระบบจะแยกเก็บลงแท็บ <em>บันทึกออกนอกพื้นที่</em> ไม่ทับเวลาเข้า–ออกงานและไม่โดนหักคะแนนออกก่อนเวลาครับ</p>
-            </div>
-          </div>
-
-          <div class="faq-item py-4">
-            <button type="button" class="faq-toggle w-full flex items-center justify-between text-left gap-3">
-              <span class="text-sm sm:text-base font-bold text-slate-900">สแกนไม่ติดหรืออินเทอร์เน็ตสะดุด จะเสียสิทธิ์การสแกนเช้า–เย็นไหม?</span>
-              <svg class="faq-chevron w-5 h-5 text-slate-400 transition-transform shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
-            </button>
-            <div class="faq-content">
-              <p class="text-sm text-slate-600 pt-2.5 leading-relaxed">ไม่เสียสิทธิ์ครับ ระบบนับเฉพาะรายการที่ส่งเข้า Google Sheets สำเร็จและแสดงแถบสีเขียว <strong>บันทึกสำเร็จ</strong> เท่านั้น หากมีปัญหาสามารถลองสแกนใหม่ได้ทันทีครับ</p>
-            </div>
-          </div>
-
-          <div class="faq-item py-4">
-            <button type="button" class="faq-toggle w-full flex items-center justify-between text-left gap-3">
-              <span class="text-sm sm:text-base font-bold text-slate-900">เปลี่ยนไปเปิดคนละเบราว์เซอร์ หรือเปลี่ยนมือถือใหม่แล้วสแกนไม่ผ่าน ต้องทำอย่างไร?</span>
-              <svg class="faq-chevron w-5 h-5 text-slate-400 transition-transform shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
-            </button>
-            <div class="faq-content">
-              <p class="text-sm text-slate-600 pt-2.5 leading-relaxed">หากเปิดผิดเบราว์เซอร์ให้สลับกลับไปใช้เบราว์เซอร์เดิม (แนะนำให้ปักหมุดไว้ที่หน้าจอหลัก) แต่หากเปลี่ยนมือถือใหม่ ให้แจ้งผู้ดูแลลบค่าในช่อง <strong>รหัสเครื่องที่ผูก</strong> ใน Google Sheets แล้วใช้บัตร QR ใบเดิมสแกนผูกเครื่องใหม่ได้เลยครับ</p>
-            </div>
-          </div>
-
-          <div class="faq-item py-4">
-            <button type="button" class="faq-toggle w-full flex items-center justify-between text-left gap-3">
-              <span class="text-sm sm:text-base font-bold text-slate-900">มาปฏิบัติงานวันเสาร์หรือวันอาทิตย์ จะโดนหักคะแนนสายหรือออกก่อนเวลาไหม?</span>
-              <svg class="faq-chevron w-5 h-5 text-slate-400 transition-transform shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
-            </button>
-            <div class="faq-content">
-              <p class="text-sm text-slate-600 pt-2.5 leading-relaxed">ไม่โดนหักคะแนนครับ ระบบตรวจสอบวันหยุดเสาร์–อาทิตย์อัตโนมัติและบันทึกสถานะเป็น <strong>วันหยุด / OT</strong> โดยไม่หักคะแนน KPI ครับ</p>
-            </div>
-          </div>
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900">ถาม–ตอบ / แก้ปัญหาที่เจอบ่อย</h2>
+          <p class="text-sm text-slate-500 mt-0.5">แตะที่คำถามเพื่อดูคำตอบครับ</p>
         </div>
+        <div id="faq-list" class="divide-y divide-slate-200"></div>
       </div>
     </section>
 
-    <!-- ==================== PANEL 4: ALL 17 EMPLOYEE QR BADGES ==================== -->
+    <!-- ==================== 4. บัตร QR ==================== -->
     <section id="panel-badges" class="role-panel hidden space-y-6 animate-in">
       <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-5 no-print">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Employee QR Directory</span>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">รวมบัตร QR Code พนักงานทั้งหมด (<span id="badge-visible-count" class="font-num">17</span> คน)</h2>
-            <p class="text-xs sm:text-sm text-slate-600 mt-1">รหัสพนักงาน <strong>SKP-001 ถึง SKP-017</strong> — สั่งพิมพ์เป็นแผ่นตาราง 2 คอลัมน์พร้อมตัดแจก หรือดาวน์โหลดรายบุคคลได้ทันทีครับ</p>
+            <span class="text-xs font-bold text-emerald-700 tracking-wider">บัตรประจำตัวพนักงาน</span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">บัตร QR พนักงานทั้งหมด (<span id="badge-visible-count" class="font-num">17</span> คน)</h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">รหัส <strong>SKP-001 ถึง SKP-017</strong> พิมพ์ทีเดียวทั้งหมดเป็นตาราง 2 คอลัมน์แล้วตัดแจก หรือดาวน์โหลดทีละคนก็ได้</p>
           </div>
           <div class="flex flex-wrap items-center gap-2 shrink-0">
-            <button type="button" id="btn-print-all-badges" class="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold shadow-md shadow-emerald-700/20 transition-all">
-              พิมพ์บัตร QR พนักงานทั้งหมด
+            <button type="button" id="btn-print-all-badges" class="btn-shine px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold shadow-md shadow-emerald-700/20 transition-all">
+              พิมพ์บัตรทั้งหมด
             </button>
           </div>
         </div>
@@ -566,20 +1108,21 @@
             <input type="text" id="badge-search-input" placeholder="พิมพ์ชื่อ หรือ SKP-001" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
           </div>
           <div>
-            <label for="badge-dept-filter" class="block text-xs font-semibold text-slate-700 mb-1">กรองตามแผนก / ฝ่าย</label>
+            <label for="badge-dept-filter" class="block text-xs font-semibold text-slate-700 mb-1">เลือกแผนก</label>
             <select id="badge-dept-filter" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
           </div>
         </div>
       </div>
 
-      <!-- Printable 2-Column Employee QR Cards Grid -->
       <div id="manual-badges-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
   </main>
 
+  <button type="button" id="to-top" class="no-print fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-emerald-700 text-white shadow-xl shadow-emerald-900/30 flex items-center justify-center text-lg font-bold" aria-label="กลับขึ้นด้านบน">↑</button>
+
   <footer class="bg-white border-t border-slate-200 py-5 text-center text-xs text-slate-500">
-    สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด • คู่มือการใช้งานระบบลงเวลาทำงานอัจฉริยะ (Smart Attendance System)
+    สหกรณ์การเกษตรปฏิรูปที่ดินชุมพลบุรี จำกัด • คู่มือระบบลงเวลาทำงาน • ปรับปรุงล่าสุด 24 พ.ย. 2569
   </footer>
 
   <script>
@@ -594,38 +1137,38 @@
       const FLOW_STEPS = {
         attendance: [
           {
-            title: 'เปิดเว็บแอปและตรวจสอบพิกัด GPS',
-            desc: 'เปิดลิงก์เมื่ออยู่ในรัศมี <strong>120 เมตร</strong> ของสำนักงาน แถบสถานะจะแสดงสีเขียว <em>“อยู่ในพื้นที่สหกรณ์ — พร้อมลงเวลา”</em>'
+            title: 'เปิดแอป แล้วดูแถบสีเขียว',
+            desc: 'เปิดลิงก์ใน <strong>Safari</strong> หรือ <strong>Chrome</strong> ตอนอยู่ที่สหกรณ์ (ไม่เกิน 120 เมตร) ครั้งแรกเครื่องจะถามขอใช้ตำแหน่ง ให้กด <strong>อนุญาต</strong>'
           },
           {
-            title: 'กด “เปิดกล้องสแกน QR” ส่องบัตรประจำตัว',
-            desc: 'ส่องกล้องไปที่บัตรประจำตัวของท่าน (เช่น <span class="font-num font-semibold">SKP-001</span>) ระบบจะยืนยันรหัสพนักงานและสิทธิ์เครื่องอัตโนมัติ'
+            title: 'กด “เปิดกล้องสแกน QR” แล้วส่องบัตร',
+            desc: 'กล้องเปิดทันที ไม่ต้องรอ GPS ระหว่างที่ส่องบัตร ระบบเช็กตำแหน่งให้เองเบื้องหลัง ให้ QR บนบัตรอยู่ในกรอบสีเขียว'
           },
           {
-            title: 'ถ่ายภาพยืนยันตัวตน (กล้องหน้าหรือกล้องหลัง)',
-            desc: 'หน้าต่างกล้องจะเปิดขึ้นอัตโนมัติ สามารถกดปุ่ม <strong>สลับกล้องหน้า/หลัง</strong> ได้ จัดภาพให้ชัดเจนแล้วกดยืนยัน'
+            title: 'ถ่ายรูปยืนยันตัวเอง',
+            desc: 'กล้องถ่ายรูปเปิดขึ้นเอง ใช้กล้องหน้าหรือหลังก็ได้ กด <strong>สลับกล้อง</strong> ได้ จัดหน้าให้ชัดแล้วกดถ่าย'
           },
           {
-            title: 'บันทึกเวลาจริงเสร็จสมบูรณ์ (เข้า → ออก)',
-            desc: 'แสดงแถบสีเขียว <strong>บันทึกสำเร็จ</strong> พร้อมเวลาไทยจากเซิร์ฟเวอร์กลาง รอบเช้าลง <em>เข้างาน</em> รอบเย็นลง <em>ออกงาน</em> อัตโนมัติ'
+            title: 'ขึ้นแถบเขียว “บันทึกสำเร็จ” = เรียบร้อย',
+            desc: 'เช้าสแกนเป็น <em>เข้างาน</em> เย็นสแกนบัตรเดิมอีกครั้งเป็น <em>ออกงาน</em> ระบบรู้เอง ไม่ต้องเลือกอะไร'
           }
         ],
         outing: [
           {
-            title: 'เลือกแท็บ “ออกนอกสำนักงาน” และระบุภารกิจ',
-            desc: 'เลือกโหมด <strong>แจ้งออกนอกสำนักงาน</strong> ระบุประเภท (<em>ปฏิบัติงานสหกรณ์</em> หรือ <em>ธุระส่วนตัว</em>) และพิมพ์เหตุผลโดยย่อ'
+            title: 'ไปที่แท็บ “ออกนอกสำนักงาน” แล้วบอกว่าไปไหน',
+            desc: 'เลือกว่าเป็น <em>งานสหกรณ์</em> หรือ <em>ธุระส่วนตัว</em> แล้วพิมพ์สั้นๆ ว่าไปทำอะไร เช่น “ไปธนาคาร”'
           },
           {
-            title: 'สแกนบัตร QR Code และถ่ายภาพยืนยันขาออก',
-            desc: 'กดเปิดกล้องสแกนบัตรประจำตัวและถ่ายภาพยืนยัน ระบบจะบันทึก <strong>เวลาออก</strong> พร้อมขึ้นสถานะสีส้ม <em>ยังไม่กลับสำนักงาน</em>'
+            title: 'สแกนบัตร + ถ่ายรูป ก่อนออก',
+            desc: 'ระบบจด <strong>เวลาออก</strong> ไว้ และขึ้นป้ายสีส้ม <em>ยังไม่กลับสำนักงาน</em>'
           },
           {
-            title: 'กลับมาถึงสหกรณ์แล้วเลือก “สแกนกลับเข้าสำนักงาน”',
-            desc: 'เมื่อกลับเข้าพื้นที่สหกรณ์ ให้สลับไปโหมด <strong>สแกนกลับเข้าสำนักงาน</strong> แล้วสแกนบัตรพร้อมถ่ายภาพยืนยัน (ไม่ต้องกรอกเหตุผลซ้ำ)'
+            title: 'กลับมาแล้ว กด “สแกนกลับเข้าสำนักงาน”',
+            desc: 'สแกนบัตรและถ่ายรูปอีกครั้งตอนถึงสหกรณ์ ไม่ต้องพิมพ์เหตุผลซ้ำ'
           },
           {
-            title: 'คำนวณระยะเวลาและสรุปลงตาราง KPI อัตโนมัติ',
-            desc: 'ระบบจับคู่เวลาออก–เวลากลับ คำนวณ <strong>จำนวนนาที</strong> อัตโนมัติ และแยกสถิติงานสหกรณ์กับธุระส่วนตัวไว้ชัดเจน'
+            title: 'ระบบนับนาทีให้เอง',
+            desc: 'คำนวณว่าออกไปกี่นาที แล้วแยกสถิติงานสหกรณ์กับธุระส่วนตัวให้อัตโนมัติ'
           }
         ]
       };
@@ -680,7 +1223,7 @@
         const attendanceViews = {
           1: `
             <div class="text-center space-y-2 animate-in">
-              <div class="text-[11px] font-bold text-emerald-800 bg-emerald-100 inline-block px-3 py-1 rounded-full">ขั้นตอนที่ 1 • ตรวจสอบ GPS</div>
+              <div class="text-[11px] font-bold text-emerald-800 bg-emerald-100 inline-block px-3 py-1 rounded-full">ขั้นที่ 1 • เช็กตำแหน่ง</div>
               <div class="relative w-28 h-28 mx-auto my-5 flex items-center justify-center">
                 <div class="absolute inset-0 rounded-full bg-emerald-400/35 gps-ring"></div>
                 <div class="absolute inset-0 rounded-full bg-emerald-300/30 gps-ring-2"></div>
@@ -689,17 +1232,18 @@
                 </div>
               </div>
               <div class="bg-emerald-50 border border-emerald-300 rounded-2xl p-3 text-left">
-                <div class="text-xs font-bold text-emerald-800">อยู่ในพื้นที่สหกรณ์ — พร้อมลงเวลา</div>
-                <div class="text-[11px] text-emerald-700 mt-0.5 font-num">ห่างจุดสหกรณ์ 7 ม. (รัศมี 120 ม.)</div>
+                <div class="text-xs font-bold text-emerald-800">อยู่ในพื้นที่สหกรณ์ พร้อมสแกน</div>
+                <div class="text-[11px] text-emerald-700 mt-0.5 font-num">ห่างสหกรณ์ 7 ม. • แม่นยำ ±12 ม.</div>
               </div>
             </div>
-            <div class="text-[11px] text-slate-400 text-center">กด “อนุญาตตำแหน่ง” เมื่อเปิดใช้งานครั้งแรก</div>
+            <div class="text-[11px] text-slate-400 text-center">ครั้งแรกให้กด “อนุญาต” ตำแหน่ง</div>
           `,
           2: `
             <div class="text-center space-y-2 animate-in">
-              <div class="text-[11px] font-bold text-emerald-800 bg-emerald-100 inline-block px-3 py-1 rounded-full">ขั้นตอนที่ 2 • สแกนบัตร QR</div>
+              <div class="text-[11px] font-bold text-emerald-800 bg-emerald-100 inline-block px-3 py-1 rounded-full">ขั้นที่ 2 • สแกนบัตร</div>
               <div class="relative bg-slate-900 rounded-2xl h-44 flex items-center justify-center overflow-hidden my-3 border border-slate-700">
-                <div class="w-24 h-24 rounded-xl bg-white p-2 flex items-center justify-center shadow">
+                <span class="absolute top-2 left-2 text-[9px] font-bold text-emerald-300 bg-black/40 px-1.5 py-0.5 rounded">● GPS อัปเดตเบื้องหลัง</span>
+                <div class="scan-frame"><span class="sf-c1"></span><span class="sf-c2"></span><div class="w-24 h-24 rounded-xl bg-white p-2 flex items-center justify-center shadow">
                   <div class="w-full h-full grid grid-cols-4 gap-1">
                     <span class="bg-slate-900 rounded-xs col-span-2 row-span-2"></span>
                     <span class="bg-slate-900 rounded-xs"></span>
@@ -713,25 +1257,25 @@
                     <span class="bg-slate-300 rounded-xs"></span>
                     <span class="bg-slate-900 rounded-xs"></span>
                   </div>
-                </div>
+                </div></div>
                 <div class="sim-laser"></div>
               </div>
-              <div class="text-xs font-bold text-slate-800">อ่านรหัสสำเร็จ: <span class="text-emerald-700 font-num">SKP-001</span></div>
+              <div class="text-xs font-bold text-slate-800">อ่านบัตรได้แล้ว: <span class="text-emerald-700 font-num">SKP-001</span></div>
             </div>
-            <div class="text-[11px] text-slate-400 text-center">ตรวจสิทธิ์ 1 เครื่อง/1 คน อัตโนมัติ</div>
+            <div class="text-[11px] text-slate-400 text-center">กล้องเปิดทันที ไม่ต้องรอ GPS</div>
           `,
           3: `
             <div class="text-center space-y-2 animate-in">
-              <div class="text-[11px] font-bold text-emerald-800 bg-emerald-100 inline-block px-3 py-1 rounded-full">ขั้นตอนที่ 3 • ถ่ายภาพยืนยัน</div>
+              <div class="text-[11px] font-bold text-emerald-800 bg-emerald-100 inline-block px-3 py-1 rounded-full">ขั้นที่ 3 • ถ่ายรูป</div>
               <div class="relative bg-slate-800 rounded-2xl h-44 flex items-center justify-center overflow-hidden my-3">
                 <div class="w-24 h-32 rounded-full border-2 border-dashed border-emerald-400 flex items-center justify-center">
                   <svg class="w-12 h-12 text-emerald-300/85" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                 </div>
-                <span class="absolute top-2 right-2 bg-white/90 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-md">สลับกล้องหน้า/หลัง</span>
+                <span class="absolute top-2 right-2 bg-white/90 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-md">สลับกล้อง</span>
               </div>
-              <div class="py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold shadow">ถ่ายภาพและยืนยันลงเวลา</div>
+              <div class="py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold shadow">ถ่ายรูปและบันทึก</div>
             </div>
-            <div class="text-[11px] text-slate-400 text-center">จัดเก็บภาพใน Google Drive อัตโนมัติ</div>
+            <div class="text-[11px] text-slate-400 text-center">รูปเก็บใน Google Drive ให้เอง</div>
           `,
           4: `
             <div class="text-center space-y-3 animate-in my-auto">
@@ -742,10 +1286,10 @@
               <div class="text-2xl font-extrabold font-num text-slate-900">08:22 น.</div>
               <div class="bg-white border border-slate-200 rounded-2xl p-3 text-left text-xs space-y-1 shadow-xs">
                 <div class="font-bold text-slate-900">นายจิรพันธ์ โสมสุข (SKP-001)</div>
-                <div class="text-slate-500">ฝ่ายสินเชื่อ • บันทึกเข้าฐานข้อมูลแล้ว</div>
+                <div class="text-slate-500">ฝ่ายสินเชื่อ • บันทึกสำเร็จ</div>
               </div>
             </div>
-            <div class="text-[11px] text-emerald-700 font-semibold text-center">ตอนเย็นสแกนซ้ำเพื่อลงออกงานอัตโนมัติ</div>
+            <div class="text-[11px] text-emerald-700 font-semibold text-center">ตอนเย็นสแกนบัตรเดิม = ออกงาน</div>
           `
         };
 
@@ -753,25 +1297,25 @@
           1: `
             <div class="space-y-3 animate-in">
               <div class="text-center">
-                <div class="text-[11px] font-bold text-teal-800 bg-teal-100 inline-block px-3 py-1 rounded-full">ขาออก • ระบุประเภทและภารกิจ</div>
+                <div class="text-[11px] font-bold text-teal-800 bg-teal-100 inline-block px-3 py-1 rounded-full">ขาออก • บอกว่าไปไหน</div>
               </div>
               <div class="bg-white rounded-2xl border border-slate-200 p-3 space-y-2.5 text-left text-xs shadow-xs">
                 <div>
-                  <div class="text-[10px] font-bold text-slate-500 mb-1">ประเภทการออกนอกพื้นที่</div>
-                  <div class="px-2.5 py-1.5 rounded-lg bg-sky-50 border border-sky-200 font-bold text-sky-800">ปฏิบัติงานสหกรณ์ (ไม่หัก KPI)</div>
+                  <div class="text-[10px] font-bold text-slate-500 mb-1">ไปทำอะไร</div>
+                  <div class="px-2.5 py-1.5 rounded-lg bg-sky-50 border border-sky-200 font-bold text-sky-800">งานสหกรณ์ (ไม่หัก KPI)</div>
                 </div>
                 <div>
-                  <div class="text-[10px] font-bold text-slate-500 mb-1">สถานที่ / เหตุผลโดยย่อ</div>
-                  <div class="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800">ลงพื้นที่ติดตามหนี้สมาชิก</div>
+                  <div class="text-[10px] font-bold text-slate-500 mb-1">รายละเอียดสั้นๆ</div>
+                  <div class="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800">ไปธนาคาร ส่งเอกสาร</div>
                 </div>
               </div>
               <div class="py-2 rounded-xl bg-teal-700 text-white text-xs font-bold text-center shadow">เปิดกล้องสแกน QR</div>
             </div>
-            <div class="text-[11px] text-slate-400 text-center">แจ้งออกได้ช่วง 08:00 – 16:30 น.</div>
+            <div class="text-[11px] text-slate-400 text-center">แจ้งออกได้ 08:00 – 16:30 น.</div>
           `,
           2: `
             <div class="text-center space-y-2.5 animate-in">
-              <div class="text-[11px] font-bold text-teal-800 bg-teal-100 inline-block px-3 py-1 rounded-full">ขาออก • สแกน QR + ถ่ายภาพ</div>
+              <div class="text-[11px] font-bold text-teal-800 bg-teal-100 inline-block px-3 py-1 rounded-full">ขาออก • สแกน + ถ่ายรูป</div>
               <div class="relative bg-slate-900 rounded-2xl h-36 flex items-center justify-center overflow-hidden border border-slate-700">
                 <div class="text-xs font-bold text-emerald-300 font-num">SKP-001 • 10:15 น.</div>
                 <div class="sim-laser"></div>
@@ -781,14 +1325,14 @@
                   <span class="font-bold text-slate-900">นายจิรพันธ์ โสมสุข</span>
                   <span class="px-2 py-0.5 rounded-md bg-amber-200 text-amber-900 text-[10px] font-bold">ยังไม่กลับสำนักงาน</span>
                 </div>
-                <div class="text-slate-600 text-[11px]">ออก 10:15 น. • ปฏิบัติงานสหกรณ์</div>
+                <div class="text-slate-600 text-[11px]">ออก 10:15 น. • งานสหกรณ์</div>
               </div>
             </div>
-            <div class="text-[11px] text-slate-400 text-center">บันทึกแยกแท็บ ไม่ทับเวลาเข้า–ออกงาน</div>
+            <div class="text-[11px] text-slate-400 text-center">เก็บแยก ไม่ทับเวลาเข้า–ออกงาน</div>
           `,
           3: `
             <div class="text-center space-y-3 animate-in my-auto">
-              <div class="text-[11px] font-bold text-teal-800 bg-teal-100 inline-block px-3 py-1 rounded-full">ขากลับ • สแกนกลับเข้าสำนักงาน</div>
+              <div class="text-[11px] font-bold text-teal-800 bg-teal-100 inline-block px-3 py-1 rounded-full">ขากลับ • สแกนกลับ</div>
               <div class="grid grid-cols-2 gap-1.5 bg-slate-200/70 p-1 rounded-xl text-[10px] font-bold">
                 <div class="py-1.5 rounded-lg text-slate-500">1. แจ้งออก</div>
                 <div class="py-1.5 rounded-lg bg-teal-700 text-white shadow">2. สแกนกลับ</div>
@@ -797,9 +1341,9 @@
                 <div class="w-16 h-20 rounded-full border-2 border-dashed border-emerald-400"></div>
                 <div class="sim-laser"></div>
               </div>
-              <div class="text-xs font-semibold text-slate-700">สแกนบัตร + ถ่ายภาพยืนยันเมื่อถึงสหกรณ์</div>
+              <div class="text-xs font-semibold text-slate-700">ถึงสหกรณ์แล้ว สแกนบัตร + ถ่ายรูป</div>
             </div>
-            <div class="text-[11px] text-slate-400 text-center">ไม่ต้องพิมพ์เหตุผลซ้ำในขากลับ</div>
+            <div class="text-[11px] text-slate-400 text-center">ไม่ต้องพิมพ์เหตุผลซ้ำ</div>
           `,
           4: `
             <div class="text-center space-y-3 animate-in my-auto">
@@ -810,19 +1354,22 @@
               <div class="text-xl font-extrabold font-num text-slate-900">รวม 115 นาที</div>
               <div class="bg-white border border-slate-200 rounded-2xl p-3 text-left text-xs space-y-1">
                 <div class="font-bold text-slate-900">ออก 10:15 น. → กลับ 12:10 น.</div>
-                <div class="text-sky-700 font-semibold">ปฏิบัติงานสหกรณ์ (ไม่หัก KPI)</div>
+                <div class="text-sky-700 font-semibold">งานสหกรณ์ (ไม่หัก KPI)</div>
               </div>
             </div>
-            <div class="text-[11px] text-teal-700 font-semibold text-center">สรุปยอดเข้าตาราง KPI ให้อัตโนมัติ</div>
+            <div class="text-[11px] text-teal-700 font-semibold text-center">สรุปเข้าตาราง KPI ให้เอง</div>
           `
         };
 
         const viewSet = activeFlow === 'outing' ? outingViews : attendanceViews;
         screen.innerHTML = viewSet[step] || viewSet[1];
+        const prog = document.getElementById('sim-progress');
+        if (prog) prog.style.width = (step * 25) + '%';
       }
 
       // Animate KPI progress bars smoothly on load
       function animateKpiBars() {
+        if (!kpiSeen) return;
         setTimeout(() => {
           document.querySelectorAll('.kpi-bar').forEach((bar) => {
             bar.style.width = bar.dataset.width || '0%';
@@ -847,6 +1394,8 @@
               b.className = 'role-btn px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-100 hover:bg-white/10 transition-all';
             }
           });
+          const shown = document.getElementById(`panel-${target}`);
+          if (shown) { shown.classList.remove('animate-in'); void shown.offsetWidth; shown.classList.add('animate-in'); observeReveals(shown); }
           if (target === 'employee') animateKpiBars();
         });
       });
@@ -872,7 +1421,7 @@
         if (autoPlayTimer) {
           clearInterval(autoPlayTimer);
           autoPlayTimer = null;
-          document.getElementById('btn-auto-play').textContent = 'เล่นอัตโนมัติ';
+          document.getElementById('btn-auto-play').textContent = '▶ เล่นให้ดู';
         }
         renderPhoneSim(Number(btn.dataset.simStep));
       });
@@ -883,29 +1432,94 @@
         if (autoPlayTimer) {
           clearInterval(autoPlayTimer);
           autoPlayTimer = null;
-          btn.textContent = 'เล่นอัตโนมัติ';
+          btn.textContent = '▶ เล่นให้ดู';
           return;
         }
-        btn.textContent = 'หยุดเล่น';
+        btn.textContent = '■ หยุด';
         autoPlayTimer = setInterval(() => {
           const next = currentSimStep >= 4 ? 1 : currentSimStep + 1;
           renderPhoneSim(next);
         }, 2600);
       });
 
-      // FAQ Accordions
-      document.querySelectorAll('.faq-toggle').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const item = btn.closest('.faq-item');
-          if (item) item.classList.toggle('open');
-        });
-      });
+// ==================== ถาม–ตอบ ====================
+const FAQ_ITEMS = [
+  {
+    q: "อยู่ที่สหกรณ์แล้ว แต่แอปขึ้นว่า “อยู่นอกพื้นที่” หรือ “GPS ยังไม่แม่นยำ”",
+    a: "มักเกิดตอนอยู่ในตึก สัญญาณ GPS จะคลาดเคลื่อนมาก แอปจะยอมให้สแกนเมื่อคลาดเคลื่อนไม่เกิน <strong>±100 เมตร</strong> และอยู่ห่างสหกรณ์ไม่เกิน <strong>120 เมตร</strong> ให้เดินไปใกล้หน้าต่างหรือออกไปที่โล่ง รอ 10–20 วินาที แล้วกด <strong>อัปเดต GPS</strong> ถ้าใช้ iPhone ให้เช็กว่าเปิด “ตำแหน่งที่แม่นยำ” แล้ว (ดูหัวข้อ ④ ในหน้าพนักงาน)",
+  },
+  {
+    q: "กดลิงก์ใน LINE แล้วมันเด้งไปเปิดอีกแอป ผิดปกติไหม?",
+    a: "ปกติครับ ระบบตั้งใจให้เด้งออกไปเปิดใน <strong>Safari</strong> (iPhone) หรือ <strong>Chrome</strong> (Android) เพราะหน้าต่างเว็บใน LINE มักไม่ยอมให้ใช้กล้องและ GPS ใช้งานต่อในหน้าที่เด้งไปได้เลย",
+  },
+  {
+    q: "เปิดลิงก์จาก Facebook / Messenger / Instagram แล้วมีแถบสีแดงขึ้นด้านบน",
+    a: "แถบแดงบอกว่ากำลังเปิดอยู่ในแอป ซึ่งสแกนไม่ได้ ให้กดปุ่ม <strong>คัดลอกลิงก์</strong> บนแถบ แล้วเปิด Safari หรือ Chrome วางลิงก์ในช่องที่อยู่เว็บ ถ้าเป็น Android กดปุ่ม <strong>เปิดใน Chrome</strong> ได้เลย",
+  },
+  {
+    q: "กดเปิดกล้องแล้วขึ้นว่า “ไม่ได้รับสิทธิ์กล้อง” ทำยังไง?",
+    a: "แปลว่าเคยกด “ไม่อนุญาต” ไว้ <strong>iPhone:</strong> แตะ “aA” ข้างช่องที่อยู่เว็บ › การตั้งค่าเว็บไซต์ › กล้อง › อนุญาต แล้วโหลดหน้าใหม่ <strong>Android:</strong> แตะรูปแม่กุญแจข้างช่องที่อยู่เว็บ › สิทธิ์ › กล้อง › อนุญาต แล้วโหลดหน้าใหม่",
+  },
+  {
+    q: "ต้องรอ GPS ขึ้นก่อนไหม ถึงจะกดเปิดกล้องได้?",
+    a: "ไม่ต้องรอครับ กด <strong>เปิดกล้องสแกน QR</strong> ได้ทันที ระบบเช็กตำแหน่งให้เบื้องหลังระหว่างที่ส่องบัตรอยู่ ถ้าตอนบันทึกตำแหน่งยังไม่พร้อม แอปจะบอกให้กด <strong>อัปเดต GPS</strong>",
+  },
+  {
+    q: "ออกไปทำธุระหรือลงพื้นที่ระหว่างวัน ต้องสแกนที่ไหน? จะโดนหักว่ากลับก่อนไหม?",
+    a: "ใช้แท็บ <strong>ออกนอกสำนักงาน</strong> เท่านั้น อย่าสแกนที่หน้าลงเวลาหลัก ระบบจะเก็บแยกไว้ ไม่ทับเวลาเข้า–ออกงาน และไม่ถูกหักคะแนนกลับก่อนเวลา",
+  },
+  {
+    q: "ต้องเปิดคอมหรือเปิดไฟล์ Google Sheets ทิ้งไว้ไหม ถึงจะสแกนได้?",
+    a: "ไม่ต้องครับ ระบบทำงานบนเซิร์ฟเวอร์ออนไลน์ตลอด 24 ชั่วโมง ปิดคอมไปแล้วพนักงานก็ยังสแกนได้ตามปกติ",
+  },
+  {
+    q: "สแกนไม่ติด หรือเน็ตหลุด จะเสียสิทธิ์สแกนรอบนั้นไหม?",
+    a: "ไม่เสียสิทธิ์ครับ ระบบนับเฉพาะครั้งที่ขึ้นแถบเขียว <strong>บันทึกสำเร็จ</strong> เท่านั้น ถ้าไม่ขึ้นแถบเขียว สแกนใหม่ได้เลย",
+  },
+  {
+    q: "เปลี่ยนเบราว์เซอร์ หรือเปลี่ยนมือถือใหม่ แล้วสแกนไม่ผ่าน",
+    a: "ถ้าเผลอเปิดคนละเบราว์เซอร์ ให้กลับไปใช้ตัวเดิม (แนะนำให้ทำไอคอนไว้ที่หน้าจอโฮม) ถ้าเปลี่ยนมือถือใหม่ ให้แจ้งผู้ดูแลปลดล็อกเครื่องเก่าก่อน แล้วใช้บัตรใบเดิมสแกนจากเครื่องใหม่ได้เลย",
+  },
+  {
+    q: "มาทำงานวันเสาร์–อาทิตย์ จะโดนหักว่ามาสายหรือกลับก่อนไหม?",
+    a: "ไม่โดนหักครับ ระบบรู้เองว่าเป็นวันหยุด และบันทึกเป็น <strong>วันหยุด / OT</strong>",
+  },
+];
+
+function renderFaq() {
+  const list = document.getElementById("faq-list");
+  if (!list) return;
+  list.innerHTML = FAQ_ITEMS.map(
+    (item, i) => `
+          <div class="faq-item ${i === 0 ? "open" : ""} py-4">
+            <button type="button" class="faq-toggle w-full flex items-center justify-between text-left gap-3" aria-expanded="${i === 0}">
+              <span class="flex items-start gap-3">
+                <span class="w-7 h-7 shrink-0 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold font-num flex items-center justify-center">${i + 1}</span>
+                <span class="text-sm sm:text-base font-bold text-slate-900">${item.q}</span>
+              </span>
+              <svg class="faq-chevron w-5 h-5 text-slate-400 transition-transform duration-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+            </button>
+            <div class="faq-content">
+              <p class="text-sm text-slate-600 pt-2.5 pl-10 leading-relaxed">${item.a}</p>
+            </div>
+          </div>
+        `,
+  ).join("");
+  list.querySelectorAll(".faq-toggle").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const item = btn.closest(".faq-item");
+      if (!item) return;
+      const open = item.classList.toggle("open");
+      btn.setAttribute("aria-expanded", String(open));
+    });
+  });
+}
 
       // Copy Link
       document.getElementById('btn-copy-link').addEventListener('click', () => {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(APP_URL)
-            .then(() => showToast('คัดลอกลิงก์เข้าสู่ระบบเรียบร้อยแล้วครับ'))
+            .then(() => showToast('คัดลอกลิงก์แล้ว นำไปวางใน Safari หรือ Chrome ได้เลยครับ'))
             .catch(() => fallbackCopy(APP_URL));
         } else {
           fallbackCopy(APP_URL);
@@ -921,7 +1535,7 @@
         ta.select();
         try {
           document.execCommand('copy');
-          showToast('คัดลอกลิงก์เข้าสู่ระบบเรียบร้อยแล้วครับ');
+          showToast('คัดลอกลิงก์แล้ว นำไปวางใน Safari หรือ Chrome ได้เลยครับ');
         } catch (e) {
           showToast('ลิงก์: ' + text);
         }
@@ -1035,12 +1649,199 @@
         document.body.classList.remove('print-badges-only');
       });
 
+// ==================== ลูกเล่นเพิ่มเติม ====================
+const REDUCED_MOTION =
+  window.matchMedia &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let kpiSeen = false;
+let revealObserver = null;
+
+function observeReveals(root) {
+  const items = (root || document).querySelectorAll(".reveal:not(.in-view)");
+  if (REDUCED_MOTION || !("IntersectionObserver" in window)) {
+    items.forEach((el) => el.classList.add("in-view"));
+    return;
+  }
+  if (!revealObserver) {
+    revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((en) => {
+          if (en.isIntersecting) {
+            en.target.classList.add("in-view");
+            revealObserver.unobserve(en.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+    );
+  }
+  items.forEach((el) => revealObserver.observe(el));
+}
+
+function initKpiObserver() {
+  const target = document.getElementById("sec-kpi");
+  if (!target || REDUCED_MOTION || !("IntersectionObserver" in window)) {
+    kpiSeen = true;
+    animateKpiBars();
+    return;
+  }
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        kpiSeen = true;
+        animateKpiBars();
+        io.disconnect();
+      }
+    },
+    { threshold: 0.25 },
+  );
+  io.observe(target);
+}
+
+function initScrollUi() {
+  const bar = document.getElementById("scroll-progress");
+  const topBtn = document.getElementById("to-top");
+  let ticking = false;
+  function update() {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    const p = h > 0 ? Math.min(1, window.scrollY / h) : 0;
+    if (bar) bar.style.transform = `scaleX(${p})`;
+    if (topBtn) topBtn.classList.toggle("show", window.scrollY > 600);
+    ticking = false;
+  }
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    },
+    { passive: true },
+  );
+  update();
+  if (topBtn)
+    topBtn.addEventListener("click", () =>
+      window.scrollTo({ top: 0, behavior: REDUCED_MOTION ? "auto" : "smooth" }),
+    );
+}
+
+// เครื่องจำลองระยะ GPS (กติกาเดียวกับแอป: รัศมี 120 ม. / คลาดเคลื่อนไม่เกิน ±100 ม.)
+const SIM_RADIUS_M = 120;
+const SIM_MAX_ACC_M = 100;
+function initGpsSim() {
+  const dist = document.getElementById("sim-dist");
+  const acc = document.getElementById("sim-acc");
+  const me = document.getElementById("radar-me");
+  const accCircle = document.getElementById("radar-acc");
+  const verdict = document.getElementById("sim-verdict");
+  if (!dist || !acc || !me || !verdict) return;
+  const PX_PER_M = 68 / SIM_RADIUS_M; // วง 120 ม. = รัศมี 68px
+  const ANGLE = -0.6; // ทิศของจุดบนเรดาร์
+  let last = "";
+  function render() {
+    const d = Number(dist.value);
+    const a = Number(acc.value);
+    document.getElementById("sim-dist-val").textContent = d;
+    document.getElementById("sim-acc-val").textContent = a;
+    const r = Math.min(d * PX_PER_M, 90);
+    const x = 100 + r * Math.cos(ANGLE);
+    const y = 100 + r * Math.sin(ANGLE);
+    me.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+    if (accCircle)
+      accCircle.setAttribute(
+        "r",
+        Math.max(6, Math.min(a * PX_PER_M, 95)).toFixed(1),
+      );
+    let state, cls, html;
+    if (a > SIM_MAX_ACC_M) {
+      state = "acc";
+      cls =
+        "verdict rounded-2xl border p-4 text-sm font-semibold bg-amber-400/15 border-amber-300/60 text-amber-100";
+      html = `🟡 <strong>ยังสแกนไม่ได้: GPS ยังไม่แม่นยำ</strong> (±${a} ม. เกินที่กำหนด ±${SIM_MAX_ACC_M} ม.)<br><span class="font-normal">เดินไปใกล้หน้าต่างหรือที่โล่ง รอสักครู่ แล้วกด “อัปเดต GPS”</span>`;
+    } else if (d > SIM_RADIUS_M) {
+      state = "far";
+      cls =
+        "verdict rounded-2xl border p-4 text-sm font-semibold bg-rose-500/15 border-rose-300/60 text-rose-100";
+      html = `🔴 <strong>ยังสแกนไม่ได้: อยู่นอกพื้นที่</strong> (ห่าง ${d} ม. เกิน ${SIM_RADIUS_M} ม.)<br><span class="font-normal">เดินเข้ามาใกล้สหกรณ์อีก ${d - SIM_RADIUS_M} ม. แล้วลองใหม่</span>`;
+    } else {
+      state = "ok";
+      cls =
+        "verdict rounded-2xl border p-4 text-sm font-semibold bg-emerald-500/15 border-emerald-300/60 text-emerald-100";
+      html = `🟢 <strong>สแกนได้เลย!</strong> ห่างสหกรณ์ ${d} ม. • แม่นยำ ±${a} ม.<br><span class="font-normal">อยู่ในรัศมี ${SIM_RADIUS_M} ม. และ GPS แม่นพอแล้ว</span>`;
+    }
+    verdict.className = cls;
+    verdict.innerHTML = html;
+    if (state !== last && last && !REDUCED_MOTION) {
+      void verdict.offsetWidth;
+      verdict.classList.add("bump");
+    }
+    last = state;
+  }
+  dist.addEventListener("input", render);
+  acc.addEventListener("input", render);
+  render();
+}
+
+// สลับ iPhone / Android + ไฮไลต์ทีละขั้น
+function initOsTabs() {
+  const btns = document.querySelectorAll(".os-btn");
+  btns.forEach((b) =>
+    b.addEventListener("click", () => {
+      const os = b.dataset.os;
+      btns.forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+      document
+        .querySelectorAll("[data-os-panel]")
+        .forEach((p) => p.classList.toggle("hidden", p.dataset.osPanel !== os));
+    }),
+  );
+  if (/Android/i.test(navigator.userAgent || "")) {
+    const a = document.querySelector('.os-btn[data-os="android"]');
+    if (a) a.click();
+  }
+}
+
+function initChains() {
+  const chains = Array.from(document.querySelectorAll(".chain"));
+  if (REDUCED_MOTION) {
+    chains.forEach((c) =>
+      c.querySelectorAll(".chain-step").forEach((s) => s.classList.add("done")),
+    );
+    return;
+  }
+  const state = new Map(chains.map((c) => [c, -1]));
+  setInterval(() => {
+    chains.forEach((c) => {
+      if (c.offsetParent === null) return; // ซ่อนอยู่
+      const steps = c.querySelectorAll(".chain-step");
+      let i = state.get(c) + 1;
+      if (i > steps.length) i = 0; // ค้างที่ "ครบ" หนึ่งจังหวะ แล้วเริ่มใหม่
+      steps.forEach((s, k) => {
+        s.classList.toggle("lit", k === i);
+        s.classList.toggle("done", k < i);
+      });
+      state.set(c, i);
+    });
+  }, 1100);
+}
+
+function initExtras() {
+  observeReveals(document);
+  initKpiObserver();
+  initScrollUi();
+  initGpsSim();
+  initOsTabs();
+  initChains();
+}
+
       // Init
       renderAppQr();
       renderPhoneSim(1);
       animateKpiBars();
       initBadgeDeptFilter();
       renderManualBadges();
+      renderFaq();
+      initExtras();
     })();
   </script>
 </body>
