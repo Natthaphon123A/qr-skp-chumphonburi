@@ -633,6 +633,7 @@ input[type="range"].slider:focus-visible {
       <!-- ทางลัด -->
       <nav class="no-print -mx-4 px-4 overflow-x-auto no-scrollbar" aria-label="ไปยังหัวข้อ">
         <div class="flex gap-2 w-max">
+          <a href="#sec-login" class="jump-chip px-3.5 py-2 rounded-full bg-emerald-700 border border-emerald-700 text-xs font-bold text-white">⓪ เข้าสู่ระบบ</a>
           <a href="#sec-howto" class="jump-chip px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-emerald-700 hover:text-white">① วิธีสแกน</a>
           <a href="#sec-check" class="jump-chip px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-emerald-700 hover:text-white">② เช็กก่อนสแกน</a>
           <a href="#sec-inapp" class="jump-chip px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-emerald-700 hover:text-white">③ เปิดจาก LINE / Facebook</a>
@@ -641,6 +642,25 @@ input[type="range"].slider:focus-visible {
           <a href="#sec-kpi" class="jump-chip px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-emerald-700 hover:text-white">⑥ เวลาทำงาน & KPI</a>
         </div>
       </nav>
+
+      <!-- ⓪ เข้าสู่ระบบ (v3) -->
+      <div id="sec-login" class="reveal scroll-mt-6 bg-white rounded-3xl border-2 border-emerald-300 shadow-sm p-6 sm:p-8 space-y-4">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 tracking-wider">เริ่มต้นใช้งาน (ทำครั้งเดียว)</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">เข้าสู่ระบบด้วยรหัสพนักงานและรหัสผ่าน</h2>
+          <p class="text-sm text-slate-600 mt-1">ต้องเข้าสู่ระบบก่อนสแกน บัญชีจะผูกกับมือถือเครื่องที่เข้าสู่ระบบครั้งแรก</p>
+        </div>
+        <ol class="text-sm text-slate-700 space-y-2 list-decimal list-inside leading-relaxed">
+          <li>เปิดแอปใน <strong>Safari</strong> (iPhone) หรือ <strong>Chrome</strong> (Android) บนมือถือของตัวเอง</li>
+          <li>กรอก <strong>รหัสพนักงาน</strong> เช่น <span class="font-num">SKP-001</span></li>
+          <li><strong>ครั้งแรก:</strong> ตั้งรหัสผ่านใหม่ของตัวเองในช่องรหัสผ่าน อย่างน้อย 6 ตัว แล้วจำไว้ ห้ามบอกคนอื่น</li>
+          <li>ครั้งต่อไป ระบบจำการเข้าสู่ระบบไว้ ไม่ต้องกรอกทุกวัน</li>
+        </ol>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+          <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900"><strong>ลืมรหัสผ่าน หรือเปลี่ยนมือถือ:</strong> แจ้งผู้ดูแลให้กด “รีเซ็ตเครื่อง/รหัสผ่าน” แล้วเข้าสู่ระบบบนมือถือของตัวเองและตั้งรหัสใหม่</div>
+          <div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900"><strong>อย่าล้างประวัติเบราว์เซอร์ / อย่าใช้โหมดไม่ระบุตัวตน:</strong> มือถือจะกลายเป็น “เครื่องใหม่” และต้องให้ผู้ดูแลรีเซ็ต</div>
+        </div>
+      </div>
 
       <!-- ① วิธีสแกน (จำลองหน้าจอ) -->
       <div id="sec-howto" class="reveal scroll-mt-6 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
@@ -1000,11 +1020,11 @@ input[type="range"].slider:focus-visible {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs sm:text-sm">
           <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.0s">
             <div class="font-bold text-emerald-800">📱 1 คน 1 มือถือ</div>
-            <p class="text-slate-600">บัตรของเราจะผูกกับมือถือเครื่องแรกที่สแกน ใช้เครื่องเดิมและเบราว์เซอร์เดิมทุกวัน ห้ามสแกนแทนเพื่อน</p>
+            <p class="text-slate-600">บัญชีผูกกับมือถือเครื่องแรกที่เข้าสู่ระบบ สแกนได้เฉพาะบัตรของตัวเอง ใช้เครื่องเดิมและเบราว์เซอร์เดิมทุกวัน</p>
           </div>
           <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.06s">
             <div class="font-bold text-emerald-800">⏰ ใช้นาฬิกาของระบบ</div>
-            <p class="text-slate-600">เวลาที่บันทึกมาจากเซิร์ฟเวอร์ Google ปรับนาฬิกามือถือก็ไม่มีผล สแกนได้ช่วง <strong>05:30 – 22:00 น.</strong></p>
+            <p class="text-slate-600">เวลาที่บันทึกมาจากเซิร์ฟเวอร์ Google ปรับนาฬิกามือถือก็ไม่มีผล สแกนเข้างานได้ <strong>05:30 – 22:00 น.</strong> สแกนออกงานได้ถึง <strong>23:59 น.</strong></p>
           </div>
           <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.12s">
             <div class="font-bold text-emerald-800">⚠️ กดออกงานเร็ว ระบบถามย้ำ</div>
@@ -1020,7 +1040,11 @@ input[type="range"].slider:focus-visible {
           </div>
           <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.3s">
             <div class="font-bold text-emerald-800">🤳 ถ่ายรูปทุกครั้ง</div>
-            <p class="text-slate-600">ใช้กล้องหน้าหรือหลังก็ได้ รูปเก็บไว้ใน Google Drive ของสหกรณ์</p>
+            <p class="text-slate-600">ใช้กล้องหน้าหรือหลังก็ได้ รูปเก็บใน Google Drive ของสหกรณ์แบบไม่เปิดสาธารณะ เฉพาะผู้ดูแลเปิดดูได้</p>
+          </div>
+          <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.36s">
+            <div class="font-bold text-emerald-800">✅ รอให้ขึ้น “บันทึกแล้ว”</div>
+            <p class="text-slate-600">หลังถ่ายรูป ระบบจะขึ้น “กำลังบันทึก...” ให้รอจนขึ้น <strong>บันทึกแล้ว</strong> ถ้าขึ้นแถบแดง “ยังไม่ได้บันทึก” ให้กด <strong>ลองส่งใหม่</strong></p>
           </div>
         </div>
       </div>
@@ -1040,7 +1064,9 @@ input[type="range"].slider:focus-visible {
             <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold">1. ข้อมูลเก็บที่ไหน</div>
             <h3 class="text-base font-bold text-slate-900">Google Sheets มี 4 แท็บ</h3>
             <ul class="text-xs sm:text-sm text-slate-600 space-y-1 list-disc list-inside leading-relaxed">
-              <li><strong>รายชื่อพนักงาน:</strong> รหัส <span class="font-num">SKP-001–SKP-017</span> ชื่อ แผนก และรหัสเครื่องที่ผูกไว้</li>
+              <li><strong>รายชื่อพนักงาน:</strong> รหัส ชื่อ แผนก รหัสเครื่องที่ผูก และรหัสผ่านแบบเข้ารหัส (ห้ามแก้คอลัมน์ E–H เอง ให้ใช้ปุ่มรีเซ็ตในแอป)</li>
+              <li><strong>วันหยุด:</strong> ใส่วันหยุดนักขัตฤกษ์ในคอลัมน์ A รูปแบบ ค.ศ. เช่น <span class="font-num">2026-12-07</span> วันนั้นจะไม่นับสาย/ออกก่อน</li>
+              <li><strong>บันทึกการแก้ไข:</strong> ประวัติทุกครั้งที่ผู้ดูแลบันทึกแทน ลบ รีเซ็ต หรือเปลี่ยนตั้งค่า</li>
               <li><strong>ประวัติลงเวลา:</strong> เวลาเข้า–ออกแต่ละวัน พิกัด ระยะห่าง และลิงก์รูป</li>
               <li><strong>บันทึกออกนอกพื้นที่:</strong> แยกงานสหกรณ์ / ธุระส่วนตัว พร้อมเวลากลับและนาทีรวม</li>
               <li><strong>สรุป_KPI_โบนัส:</strong> คะแนน เกรด A–D และยอดออกนอกพื้นที่ ครบ 17 คน</li>
@@ -1050,26 +1076,26 @@ input[type="range"].slider:focus-visible {
           <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2" style="--d:.08s">
             <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-sky-100 text-sky-800 text-xs font-bold">2. เปลี่ยน PIN / ตั้งค่า</div>
             <h3 class="text-base font-bold text-slate-900">เปลี่ยนครั้งเดียว ใช้ได้ทุกเครื่อง</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">กด <strong>ตั้งค่าระบบ (ผู้ดูแล)</strong> เพื่อเปลี่ยน PIN ปรับรัศมี GPS (ค่าเริ่มต้น 120 เมตร) หรือเปิด/ปิด การเช็ก GPS การล็อกเครื่อง และการถ่ายรูป ตามที่สหกรณ์กำหนด</p>
-            <p class="text-xs text-slate-500 leading-relaxed">ฝั่งเซิร์ฟเวอร์ (Apps Script › Script properties) ตั้งได้อีก 3 ค่า: <span class="font-num">GEO_ENFORCED</span> เปิด/ปิดการตรวจพิกัดซ้ำ, <span class="font-num">GEO_RADIUS_M</span> รัศมี, <span class="font-num">GEO_MAX_ACCURACY_M</span> ความคลาดเคลื่อนสูงสุด (ค่าเริ่มต้น 100)</p>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">กด <strong>ตั้งค่าระบบ (ผู้ดูแล)</strong> เพื่อเปลี่ยน PIN (ตัวเลข 6 หลักขึ้นไป) ปรับพิกัดและรัศมี GPS หรือเปิด/ปิด การเช็ก GPS และการถ่ายรูป ค่าจะเก็บที่เซิร์ฟเวอร์และมีผลกับทุกเครื่องทันที</p>
+            <p class="text-xs text-slate-500 leading-relaxed">ใส่ PIN ผิด 5 ครั้ง ระบบล็อก 15 นาที เวลาเข้างาน/เลิกงาน/ช่วงสแกน เปลี่ยนได้ที่ Apps Script › Script properties (<span class="font-num">WORK_START</span>, <span class="font-num">WORK_END</span>, <span class="font-num">SCAN_OPEN</span>, <span class="font-num">SCAN_CLOSE</span>, <span class="font-num">CHECKOUT_CLOSE</span>)</p>
           </div>
 
           <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2" style="--d:.16s">
             <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold">3. พนักงานเปลี่ยนมือถือ</div>
-            <h3 class="text-base font-bold text-slate-900">ปลดล็อกเครื่อง ให้ผูกเครื่องใหม่</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">เปิดแท็บ <strong>รายชื่อพนักงาน</strong> ใน Google Sheets แล้วลบค่าในคอลัมน์ <strong>E (รหัสเครื่องที่ผูก)</strong> ของคนนั้นให้ว่าง พนักงานใช้บัตรใบเดิมสแกนจากเครื่องใหม่ได้ทันที</p>
+            <h3 class="text-base font-bold text-slate-900">กดรีเซ็ตในแอป ไม่ต้องแก้ชีต</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">แท็บ <strong>จัดการพนักงาน</strong> › การ์ดของพนักงาน › <strong>รีเซ็ตเครื่อง/รหัสผ่าน</strong> แล้วให้พนักงานเข้าสู่ระบบบนมือถือใหม่ต่อหน้าผู้ดูแลทันที (ใช้กรณีลืมรหัสผ่านด้วย)</p>
           </div>
 
           <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2" style="--d:.24s">
             <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold">4. ดูรูป / ลบรายการ</div>
-            <h3 class="text-base font-bold text-slate-900">รูปอยู่ใน Google Drive</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">รูปทั้งหมดอยู่ในโฟลเดอร์ <strong>ภาพยืนยันลงเวลา_สกป_ชุมพลบุรี</strong> และมีลิงก์ในคอลัมน์ K ถ้าต้องการลบรายการ คลิกขวาที่เลขแถวใน Sheets › <strong>ลบแถว</strong> ทุกเครื่องจะเห็นข้อมูลใหม่เอง</p>
+            <h3 class="text-base font-bold text-slate-900">ดูรูป บันทึกแทน และลบ ทำในแอป</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">แท็บประวัติลงเวลา กด <strong>รูปเข้า / รูปออก</strong> เพื่อดูภาพ (รูปไม่เปิดสาธารณะ) ถ้าพนักงานลืมสแกน ใช้ช่อง <strong>บันทึกแทน</strong> ในหน้าสแกน ระบบจะถามเวลา วันที่ และเหตุผล แล้วเก็บประวัติไว้ในชีต “บันทึกการแก้ไข”</p>
           </div>
 
           <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2 md:col-span-2" style="--d:.3s">
             <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-bold">5. ลำดับการอัปเดตระบบ</div>
-            <h3 class="text-base font-bold text-slate-900">อัปเดตหน้าเว็บก่อน แล้วค่อยอัปเดต Apps Script</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">อัปโหลด <strong>index.html</strong> ขึ้น GitHub ก่อน รอ 1–2 นาทีให้หน้าเว็บเปลี่ยน แล้วค่อย Deploy Apps Script เวอร์ชันใหม่ ถ้าสลับลำดับ มือถือที่ยังเปิดหน้าเก่าค้างอยู่อาจสแกนไม่ผ่าน ให้พนักงานโหลดหน้าใหม่หนึ่งครั้ง</p>
+            <h3 class="text-base font-bold text-slate-900">เวอร์ชัน 3: อัปเดตทั้งสองฝั่งในช่วงเย็น</h3>
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">หน้าเว็บใหม่กับ Apps Script ใหม่ต้องใช้คู่กัน ให้อัปเดตหลังเลิกงาน: ตั้ง <span class="font-num">ADMIN_PIN</span> ก่อน › Deploy Apps Script (แก้ deployment เดิม เลือก New version) › อัปโหลด index.html › นัดพนักงานเข้าสู่ระบบและตั้งรหัสผ่านพร้อมกันวันถัดไป</p>
           </div>
         </div>
       </div>
