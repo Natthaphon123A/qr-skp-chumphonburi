@@ -342,7 +342,7 @@
 
               <div>
                 <label for="manual-code-input" class="block text-xs font-semibold text-slate-700 mb-1">รหัสพนักงานของท่าน</label>
-                <input type="text" id="manual-code-input" placeholder="กรอกรหัส เช่น EMP-001" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                <input type="text" id="manual-code-input" placeholder="กรอกรหัส เช่น SKP-001" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
 
               <div class="grid grid-cols-2 gap-2.5 pt-1">
@@ -490,7 +490,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 flex-1">
             <div>
               <label for="log-search" class="block text-xs font-semibold text-slate-700 mb-1">ค้นหาชื่อ / รหัส</label>
-              <input type="text" id="log-search" placeholder="พิมพ์ชื่อ หรือ EMP-001" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              <input type="text" id="log-search" placeholder="พิมพ์ชื่อ หรือ SKP-001" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </div>
             <div>
               <label for="log-dept-filter" class="block text-xs font-semibold text-slate-700 mb-1">แผนก</label>
@@ -563,7 +563,7 @@
             <input type="hidden" id="emp-edit-original-id" value="" />
             <div>
               <label for="emp-id-input" class="block text-xs font-semibold text-slate-700 mb-1">รหัสพนักงาน</label>
-              <input type="text" id="emp-id-input" required placeholder="เช่น EMP-007 หรือ 1007" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              <input type="text" id="emp-id-input" required placeholder="เช่น SKP-018 หรือ 1018" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </div>
             <div>
               <label for="emp-name-input" class="block text-xs font-semibold text-slate-700 mb-1">ชื่อ–นามสกุล</label>
@@ -783,7 +783,7 @@
       'use strict';
 
       // ==================== CONSTANTS & RULES ====================
-      const STORAGE_KEY_EMP = 'skp_chumphonburi_employees_v3';
+      const STORAGE_KEY_EMP = 'skp_chumphonburi_employees_v4';
       const STORAGE_KEY_LOGS = 'skp_chumphonburi_logs_v3';
       const STORAGE_KEY_GPS = 'skp_chumphonburi_gps_v2';
       const STORAGE_KEY_DEVICE = 'skp_chumphonburi_device_v2';
@@ -799,23 +799,23 @@
       const DEFAULT_COOP_RADIUS_M = 120;
 
       const DEFAULT_EMPLOYEES = [
-        { id: 'EMP-001', name: 'นายจิรพันธ์ โสมสุข', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'EMP-002', name: 'นางสาวปวีณา ศาลางาม', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'EMP-003', name: 'นายรัฐธรรมนูญ อภัยรุณ', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'EMP-004', name: 'นายสุเมธ จันทร์เหลือง', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'EMP-005', name: 'นายสุทธญาณ์ ละดาดาษ', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'EMP-006', name: 'นายจักรพันธุ์ พรหมบุตร', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
-        { id: 'EMP-007', name: 'นายจักรกฤษ พรหมบุตร', dept: 'ฝ่ายการตลาด', deviceId: '' },
-        { id: 'EMP-008', name: 'นางสาวระเบียบ จันทร์หอม', dept: 'ฝ่ายการตลาด', deviceId: '' },
-        { id: 'EMP-009', name: 'นางสาวสุนิสา พลแสน', dept: 'ฝ่ายการตลาด', deviceId: '' },
-        { id: 'EMP-010', name: 'นางสาวสุมิตรา เเพงศรี', dept: 'ฝ่ายการเงิน', deviceId: '' },
-        { id: 'EMP-011', name: 'นางสาวกาญจนา คันโทเงิน', dept: 'ฝ่ายการเงิน', deviceId: '' },
-        { id: 'EMP-012', name: 'นางสาวอัมพร อินทร์สำราญ', dept: 'ฝ่ายบัญชี', deviceId: '' },
-        { id: 'EMP-013', name: 'นางสาวกิ่งกาญจน์ จันทร์เหลือง', dept: 'ฝ่ายธุรการ', deviceId: '' },
-        { id: 'EMP-014', name: 'จารุกิต น้อยยะ', dept: 'ฝ่ายธุรการ', deviceId: '' },
-        { id: 'EMP-015', name: 'นายณัฐพนธ์ โพธิ์ทอง', dept: 'ฝ่ายคอมพิวเตอร์', deviceId: '' },
-        { id: 'EMP-016', name: 'นายบุญรอด บุญคุ้ม', dept: 'ภารโรง', deviceId: '' },
-        { id: 'EMP-017', name: 'นางสาวสุภาพร วงพุธทะ', dept: 'เเม่บ้าน', deviceId: '' }
+        { id: 'SKP-001', name: 'นายจิรพันธ์ โสมสุข', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'SKP-002', name: 'นางสาวปวีณา ศาลางาม', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'SKP-003', name: 'นายรัฐธรรมนูญ อภัยรุณ', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'SKP-004', name: 'นายสุเมธ จันทร์เหลือง', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'SKP-005', name: 'นายสุทธญาณ์ ละดาดาษ', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'SKP-006', name: 'นายจักรพันธุ์ พรหมบุตร', dept: 'ฝ่ายสินเชื่อ', deviceId: '' },
+        { id: 'SKP-007', name: 'นายจักรกฤษ พรหมบุตร', dept: 'ฝ่ายการตลาด', deviceId: '' },
+        { id: 'SKP-008', name: 'นางสาวระเบียบ จันทร์หอม', dept: 'ฝ่ายการตลาด', deviceId: '' },
+        { id: 'SKP-009', name: 'นางสาวสุนิสา พลแสน', dept: 'ฝ่ายการตลาด', deviceId: '' },
+        { id: 'SKP-010', name: 'นางสาวสุมิตรา เเพงศรี', dept: 'ฝ่ายการเงิน', deviceId: '' },
+        { id: 'SKP-011', name: 'นางสาวกาญจนา คันโทเงิน', dept: 'ฝ่ายการเงิน', deviceId: '' },
+        { id: 'SKP-012', name: 'นางสาวอัมพร อินทร์สำราญ', dept: 'ฝ่ายบัญชี', deviceId: '' },
+        { id: 'SKP-013', name: 'นางสาวกิ่งกาญจน์ จันทร์เหลือง', dept: 'ฝ่ายธุรการ', deviceId: '' },
+        { id: 'SKP-014', name: 'จารุกิต น้อยยะ', dept: 'ฝ่ายธุรการ', deviceId: '' },
+        { id: 'SKP-015', name: 'นายณัฐพนธ์ โพธิ์ทอง', dept: 'ฝ่ายคอมพิวเตอร์', deviceId: '' },
+        { id: 'SKP-016', name: 'นายบุญรอด บุญคุ้ม', dept: 'ภารโรง', deviceId: '' },
+        { id: 'SKP-017', name: 'นางสาวสุภาพร วงพุธทะ', dept: 'เเม่บ้าน', deviceId: '' }
       ];
 
       // ==================== STATE ====================
@@ -1019,6 +1019,9 @@
           const rawDev = localStorage.getItem(STORAGE_KEY_DEVICE);
           if (rawDev) {
             deviceProfile = { ...deviceProfile, ...JSON.parse(rawDev) };
+            if (deviceProfile.boundEmpId && /^EMP-/i.test(deviceProfile.boundEmpId)) {
+              deviceProfile.boundEmpId = deviceProfile.boundEmpId.replace(/^EMP-/i, 'SKP-');
+            }
           }
           const rawEmp = localStorage.getItem(STORAGE_KEY_EMP);
           const rawLogs = localStorage.getItem(STORAGE_KEY_LOGS);
