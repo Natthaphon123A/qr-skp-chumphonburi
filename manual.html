@@ -1870,5 +1870,78 @@ function initExtras() {
       initExtras();
     })();
   </script>
+  <script>
+    // ==================== ออกจากเบราว์เซอร์ในแอป (LINE / Facebook) ====================
+    // ทำงานแบบเดียวกับหน้าลงเวลา (index.html) เพื่อให้ทั้งสองหน้าเปิดใน Chrome (Android) / Safari (iPhone) เหมือนกัน
+    (function () {
+      var UA = navigator.userAgent || '';
+      var IS_IOS = /iPhone|iPad|iPod/i.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      var IS_ANDROID = /Android/i.test(UA);
+      var APP = /\bLine\//i.test(UA) ? 'LINE'
+        : /FBAN|FBAV|FB_IAB|FBIOS/i.test(UA) ? 'Facebook'
+        : /Instagram/i.test(UA) ? 'Instagram'
+        : /TikTok|musical_ly|BytedanceWebview/i.test(UA) ? 'TikTok'
+        : (IS_ANDROID && /; wv\)/.test(UA)) ? 'แอปอื่น' : '';
+      if (!APP) return;
+      var cleanUrl;
+      try { var u0 = new URL(location.href); u0.searchParams.delete('openExternalBrowser'); u0.hash = ''; cleanUrl = u0.toString(); }
+      catch (e) { cleanUrl = String(location.href).split('#')[0]; }
+      // iPhone + LINE: ให้ LINE เปิดใน Safari เอง 1 ครั้ง
+      if (APP === 'LINE' && IS_IOS) {
+        try {
+          var u1 = new URL(location.href);
+          if (u1.searchParams.get('openExternalBrowser') !== '1') {
+            u1.searchParams.set('openExternalBrowser', '1');
+            location.replace(u1.toString());
+            return;
+          }
+        } catch (e) {}
+      }
+      try { if (sessionStorage.getItem('skp_manual_inapp_ok') === '1') return; } catch (e) {}
+      function intentUrl(url, pkg) {
+        var u = new URL(url);
+        return 'intent://' + u.host + u.pathname + u.search + '#Intent;scheme=https;' +
+          (pkg ? 'package=' + pkg + ';' : 'action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;') +
+          'S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+      }
+      var browser = IS_IOS ? 'Safari' : 'Chrome';
+      var btn = 'display:block;width:100%;box-sizing:border-box;text-align:center;padding:14px 16px;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none;border:0;margin-top:10px;';
+      var buttons = IS_ANDROID
+        ? '<a id="m-open-chrome" style="' + btn + 'background:#059669;color:#fff">เปิดใน Chrome</a><a id="m-open-other" style="' + btn + 'background:#e2e8f0;color:#0f172a">เปิดด้วยเบราว์เซอร์อื่น</a>'
+        : IS_IOS ? '<a id="m-open-safari" style="' + btn + 'background:#059669;color:#fff">เปิดใน Safari</a>' : '';
+      function show() {
+        var ov = document.createElement('div');
+        ov.id = 'manual-inapp-overlay';
+        ov.setAttribute('role', 'dialog');
+        ov.setAttribute('aria-modal', 'true');
+        ov.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.92);overflow-y:auto;padding:16px';
+        ov.innerHTML =
+          '<div style="max-width:420px;margin:24px auto;background:#fff;color:#0f172a;border-radius:16px;padding:20px;line-height:1.6;font-size:15px">' +
+            '<div style="font-size:18px;font-weight:800;margin-bottom:6px">กรุณาเปิดใน ' + browser + '</div>' +
+            '<div>ตอนนี้เปิดอยู่ในแอป ' + APP + ' เปิดคู่มือใน ' + browser + ' เพื่อให้ลิงก์ไปหน้าลงเวลาเปิดใน ' + browser + ' ตัวเดียวกับที่ใช้สแกนทุกวัน</div>' +
+            buttons +
+            '<button type="button" id="m-copy" style="' + btn + 'background:#e2e8f0;color:#0f172a">คัดลอกลิงก์</button>' +
+            '<div style="margin-top:16px;padding:12px;background:#f1f5f9;border-radius:12px;font-size:14px"><b>ถ้ากดปุ่มแล้วไม่ไป</b><br>' +
+              '1. แตะ <b>' + (IS_IOS ? '•••' : '⋮') + '</b> ที่มุมขวาบน (หรือขวาล่าง)<br>2. เลือก <b>“เปิดในเบราว์เซอร์อื่น”</b> หรือ <b>“เปิดใน ' + browser + '”</b></div>' +
+            '<button type="button" id="m-stay" style="display:block;margin:14px auto 0;background:none;border:0;color:#64748b;font-size:13px;text-decoration:underline">อ่านคู่มือต่อในแอปนี้</button>' +
+          '</div>';
+        document.body.appendChild(ov);
+        var c = document.getElementById('m-open-chrome'); if (c) c.href = intentUrl(cleanUrl, 'com.android.chrome');
+        var o = document.getElementById('m-open-other'); if (o) o.href = intentUrl(cleanUrl, '');
+        var sf = document.getElementById('m-open-safari'); if (sf) sf.href = 'x-safari-' + cleanUrl;
+        document.getElementById('m-copy').addEventListener('click', function () {
+          var fb = function () { window.prompt('กดค้างที่ลิงก์เพื่อคัดลอก แล้วไปวางใน ' + browser, cleanUrl); };
+          try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(cleanUrl).then(function () { alertCopied(); }).catch(fb); return; } } catch (e) {}
+          fb();
+        });
+        function alertCopied() { var b = document.getElementById('m-copy'); if (b) b.textContent = 'คัดลอกแล้ว ไปวางใน ' + browser; }
+        document.getElementById('m-stay').addEventListener('click', function () {
+          try { sessionStorage.setItem('skp_manual_inapp_ok', '1'); } catch (e) {}
+          ov.remove();
+        });
+      }
+      if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+    })();
+  </script>
 </body>
 </html>
