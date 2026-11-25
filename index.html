@@ -1516,9 +1516,32 @@
       }
       const IN_APP_BROWSER = detectInAppBrowser();
 
-      // เปิดจาก LINE: สั่งให้ LINE เปิดหน้าเดิมใน Safari/Chrome ทันที (LINE รองรับพารามิเตอร์ openExternalBrowser=1)
+      // ==================== ออกจากเบราว์เซอร์ในแอป (LINE / Facebook ฯลฯ) ====================
+      // ลิงก์หน้าเดิม ตัดพารามิเตอร์ของ LINE และ # ออก
+      function inAppCleanUrl() {
+        try {
+          const u = new URL(window.location.href);
+          u.searchParams.delete('openExternalBrowser');
+          u.hash = '';
+          return u.toString();
+        } catch (e) { return String(window.location.href).split('#')[0]; }
+      }
+      // Android: intent:// ให้ระบบเปิดลิงก์ด้วย Chrome (ถ้าไม่มี Chrome จะกลับมาที่ลิงก์ปกติ)
+      function androidIntentUrl(url, pkg) {
+        const u = new URL(url);
+        return 'intent://' + u.host + u.pathname + u.search + '#Intent;scheme=https;' +
+          (pkg ? 'package=' + pkg + ';' : 'action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;') +
+          'S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+      }
+      // iPhone (iOS 17 ขึ้นไป): x-safari-https:// สั่งเปิดใน Safari
+      function iosSafariUrl(url) {
+        return 'x-safari-' + url;
+      }
+
+      // iPhone + LINE: LINE รองรับ openExternalBrowser=1 ให้เปิดใน Safari เอง ลองครั้งเดียว
+      // Android + LINE: พารามิเตอร์นี้ขึ้นกล่อง "เปิดลิงก์" แต่ไม่ออกไป Chrome จึงใช้ปุ่ม intent:// แทน
       (function redirectOutOfLine() {
-        if (IN_APP_BROWSER !== 'LINE') return;
+        if (IN_APP_BROWSER !== 'LINE' || !IS_IOS) return;
         try {
           const u = new URL(window.location.href);
           if (u.searchParams.get('openExternalBrowser') === '1') return;
@@ -1529,34 +1552,80 @@
 
       function showInAppBrowserBanner() {
         if (!IN_APP_BROWSER) return;
-        const cleanUrl = (() => { try { const u = new URL(window.location.href); u.searchParams.delete('openExternalBrowser'); return u.toString(); } catch (e) { return window.location.href; } })();
-        const howTo = IS_IOS
-          ? 'แตะปุ่ม ••• หรือไอคอนแชร์ แล้วเลือก “เปิดใน Safari” (Open in Safari)'
-          : 'แตะปุ่ม ⋮ มุมขวาบน แล้วเลือก “เปิดในเบราว์เซอร์” หรือกดปุ่มด้านล่าง';
+        try { if (sessionStorage.getItem('skp_inapp_dismissed') === '1') { showInAppBrowserStrip(); return; } } catch (e) {}
+        const cleanUrl = inAppCleanUrl();
+        const appName = escapeHtml(IN_APP_BROWSER);
+        const menuIcon = IS_IOS ? '•••' : '⋮';
+        const browserName = IS_IOS ? 'Safari' : 'Chrome';
+        const btn = 'display:block;width:100%;box-sizing:border-box;text-align:center;padding:14px 16px;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none;border:0;margin-top:10px;';
+        let buttons = '';
+        if (IS_ANDROID) {
+          buttons += '<a id="inapp-open-chrome" style="' + btn + 'background:#059669;color:#fff">เปิดใน Chrome</a>';
+          buttons += '<a id="inapp-open-other" style="' + btn + 'background:#e2e8f0;color:#0f172a">เปิดด้วยเบราว์เซอร์อื่น</a>';
+        } else if (IS_IOS) {
+          buttons += '<a id="inapp-open-safari" style="' + btn + 'background:#059669;color:#fff">เปิดใน Safari</a>';
+        }
+        buttons += '<button type="button" id="inapp-copy-link" style="' + btn + 'background:#e2e8f0;color:#0f172a">คัดลอกลิงก์</button>';
+        const overlay = document.createElement('div');
+        overlay.id = 'inapp-browser-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.92);overflow-y:auto;padding:16px;font-family:inherit';
+        overlay.innerHTML =
+          '<div style="max-width:420px;margin:24px auto;background:#fff;color:#0f172a;border-radius:16px;padding:20px;line-height:1.6;font-size:15px">' +
+            '<div style="font-size:18px;font-weight:800;margin-bottom:6px">กรุณาเปิดใน ' + browserName + '</div>' +
+            '<div>ตอนนี้เปิดอยู่ในแอป ' + appName + ' ซึ่งขอสิทธิ์กล้องและ GPS ไม่ได้ จึงสแกนลงเวลาไม่ได้</div>' +
+            buttons +
+            '<div style="margin-top:16px;padding:12px;background:#f1f5f9;border-radius:12px;font-size:14px">' +
+              '<b>ถ้ากดปุ่มแล้วไม่ไป</b><br>' +
+              '1. แตะ <b>' + menuIcon + '</b> ที่มุมขวาบน (หรือขวาล่าง)<br>' +
+              '2. เลือก <b>“เปิดในเบราว์เซอร์อื่น”</b> หรือ <b>“เปิดใน ' + browserName + '”</b><br>' +
+              '3. หรือกด “คัดลอกลิงก์” แล้วไปวางในช่องที่อยู่เว็บของ ' + browserName +
+            '</div>' +
+            '<button type="button" id="inapp-dismiss" style="display:block;margin:14px auto 0;background:none;border:0;color:#64748b;font-size:13px;text-decoration:underline">ใช้ต่อในแอปนี้ (อาจสแกนไม่ได้)</button>' +
+          '</div>';
+        document.body.appendChild(overlay);
+
+        const chromeBtn = document.getElementById('inapp-open-chrome');
+        if (chromeBtn) chromeBtn.href = androidIntentUrl(cleanUrl, 'com.android.chrome');
+        const otherBtn = document.getElementById('inapp-open-other');
+        if (otherBtn) otherBtn.href = androidIntentUrl(cleanUrl, '');
+        const safariBtn = document.getElementById('inapp-open-safari');
+        if (safariBtn) safariBtn.href = iosSafariUrl(cleanUrl);
+
+        document.getElementById('inapp-copy-link').addEventListener('click', () => copyInAppLink(cleanUrl));
+        document.getElementById('inapp-dismiss').addEventListener('click', () => {
+          try { sessionStorage.setItem('skp_inapp_dismissed', '1'); } catch (e) {}
+          overlay.remove();
+          showInAppBrowserStrip();
+        });
+      }
+
+      // แถบแดงเล็กด้านบน หลังผู้ใช้เลือกใช้ต่อในแอป
+      function showInAppBrowserStrip() {
+        if (document.getElementById('inapp-browser-banner')) return;
         const bar = document.createElement('div');
         bar.id = 'inapp-browser-banner';
-        bar.style.cssText = 'position:sticky;top:0;z-index:9999;background:#b91c1c;color:#fff;padding:12px 16px;font-size:14px;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,.25)';
-        bar.innerHTML = '<div style="max-width:960px;margin:0 auto">' +
-          '<b>กำลังเปิดผ่านเบราว์เซอร์ในแอป ' + escapeHtml(IN_APP_BROWSER) + '</b> ซึ่งมักขอสิทธิ์กล้องและ GPS ไม่ครบ ทำให้สแกนไม่ได้<br>' +
-          escapeHtml(howTo) +
-          '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' +
-          (IS_ANDROID ? '<a id="inapp-open-chrome" style="background:#fff;color:#b91c1c;padding:6px 12px;border-radius:8px;font-weight:700;text-decoration:none">เปิดใน Chrome</a>' : '') +
-          '<button type="button" id="inapp-copy-link" style="background:#fff;color:#b91c1c;padding:6px 12px;border-radius:8px;font-weight:700">คัดลอกลิงก์</button>' +
-          '</div></div>';
+        bar.style.cssText = 'position:sticky;top:0;z-index:9999;background:#b91c1c;color:#fff;padding:10px 16px;font-size:14px;line-height:1.5;text-align:center';
+        bar.innerHTML = 'เปิดอยู่ในแอป ' + escapeHtml(IN_APP_BROWSER) + ' อาจใช้กล้อง/GPS ไม่ได้ <button type="button" id="inapp-strip-open" style="background:#fff;color:#b91c1c;border:0;border-radius:8px;padding:4px 10px;font-weight:700;margin-left:6px">วิธีเปิดใน ' + (IS_IOS ? 'Safari' : 'Chrome') + '</button>';
         document.body.prepend(bar);
-        const chromeBtn = document.getElementById('inapp-open-chrome');
-        if (chromeBtn) {
-          const u = new URL(cleanUrl);
-          chromeBtn.href = 'intent://' + u.host + u.pathname + u.search + '#Intent;scheme=https;package=com.android.chrome;end';
-        }
-        document.getElementById('inapp-copy-link').addEventListener('click', () => {
-          const done = () => showToast('คัดลอกลิงก์แล้ว นำไปวางใน Safari หรือ Chrome', 'success');
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(cleanUrl).then(done).catch(() => window.prompt('คัดลอกลิงก์นี้ไปเปิดใน Safari/Chrome', cleanUrl));
-          } else {
-            window.prompt('คัดลอกลิงก์นี้ไปเปิดใน Safari/Chrome', cleanUrl);
-          }
+        document.getElementById('inapp-strip-open').addEventListener('click', () => {
+          try { sessionStorage.removeItem('skp_inapp_dismissed'); } catch (e) {}
+          bar.remove();
+          showInAppBrowserBanner();
         });
+      }
+
+      function copyInAppLink(url) {
+        const done = () => showToast('คัดลอกลิงก์แล้ว นำไปวางใน ' + (IS_IOS ? 'Safari' : 'Chrome'), 'success');
+        const fallback = () => window.prompt('กดค้างที่ลิงก์เพื่อคัดลอก แล้วไปวางใน ' + (IS_IOS ? 'Safari' : 'Chrome'), url);
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(done).catch(fallback);
+            return;
+          }
+        } catch (e) {}
+        fallback();
       }
 
       // แปลงข้อผิดพลาดกล้องเป็นคำแนะนำภาษาไทยตามชนิดเครื่อง
