@@ -992,6 +992,7 @@
       <div>
         <h3 class="text-lg font-bold text-slate-900">เข้าสู่ระบบพนักงาน</h3>
         <p class="text-xs text-slate-600 mt-1">ต้องเข้าสู่ระบบก่อนสแกนลงเวลา บัญชีจะผูกกับมือถือเครื่องนี้เครื่องเดียว</p>
+        <p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2"><b>ใช้เบราว์เซอร์เดิมทุกครั้ง:</b> Android ใช้ <b>Chrome</b> / iPhone ใช้ <b>Safari</b> ถ้าสลับเบราว์เซอร์ ระบบจะถือว่าเป็นเครื่องใหม่</p>
       </div>
       <div>
         <label for="login-emp-id" class="block text-xs font-semibold text-slate-700 mb-1">รหัสพนักงาน</label>
@@ -1418,7 +1419,7 @@
         }
         btn.disabled = true;
         btn.textContent = 'กำลังตรวจสอบ...';
-        const r = await api({ type: 'login', empId, password: pw, deviceId: deviceProfile.deviceId });
+        const r = await api({ type: 'login', empId, password: pw, deviceId: deviceProfile.deviceId, browser: BROWSER_NAME + (IS_IOS ? ' iPhone' : IS_ANDROID ? ' Android' : '') });
         btn.disabled = false;
         btn.textContent = 'เข้าสู่ระบบ';
         if (!r.ok) {
@@ -1432,7 +1433,9 @@
         saveState();
         closeLoginModal();
         renderAll();
-        showToast(r.firstTime
+        if (r.movedDevice) {
+          showToast(`ย้ายการใช้งานมาที่ ${BROWSER_NAME} บนมือถือเครื่องนี้แล้ว เบราว์เซอร์/มือถือเดิมจะออกจากระบบ ต่อไปใช้ ${BROWSER_NAME} ทุกครั้ง`, 'warning');
+        } else showToast(r.firstTime
           ? `ตั้งรหัสผ่านและผูกมือถือเครื่องนี้กับ ${r.profile.name} เรียบร้อย กรุณาจำรหัสผ่านไว้`
           : `ยินดีต้อนรับ ${r.profile.name}`, 'success');
         fetchFromGoogleSheet(true);
@@ -1515,6 +1518,27 @@
         return '';
       }
       const IN_APP_BROWSER = detectInAppBrowser();
+      // เบราว์เซอร์หลักที่ให้ทุกคนใช้: Android = Chrome, iPhone = Safari
+      // ระบบจำมือถือผ่านข้อมูลในเบราว์เซอร์ ถ้าวันหนึ่งเปิด Chrome อีกวันเปิด Samsung Internet จะถือเป็นคนละเครื่อง
+      function detectBrowserName() {
+        if (/SamsungBrowser/i.test(UA)) return 'Samsung Internet';
+        if (/EdgA|EdgiOS/i.test(UA)) return 'Edge';
+        if (/OPR\/|OPiOS|OPX/i.test(UA)) return 'Opera';
+        if (/Firefox|FxiOS/i.test(UA)) return 'Firefox';
+        if (/MiuiBrowser|XiaoMi/i.test(UA)) return 'Mi Browser';
+        if (/HuaweiBrowser/i.test(UA)) return 'Huawei Browser';
+        if (/HeyTapBrowser|OppoBrowser/i.test(UA)) return 'OPPO Browser';
+        if (/VivoBrowser/i.test(UA)) return 'vivo Browser';
+        if (/UCBrowser/i.test(UA)) return 'UC Browser';
+        if (/CriOS/i.test(UA)) return 'Chrome';
+        if (/GSA\//i.test(UA)) return 'Google';
+        if (IS_IOS) return /Safari\//.test(UA) ? 'Safari' : 'เบราว์เซอร์อื่น';
+        if (/Chrome\/\d/.test(UA)) return 'Chrome';
+        return 'เบราว์เซอร์อื่น';
+      }
+      const BROWSER_NAME = IN_APP_BROWSER ? ('แอป ' + IN_APP_BROWSER) : detectBrowserName();
+      const RECOMMENDED_BROWSER = IS_IOS ? 'Safari' : 'Chrome';
+      const OTHER_BROWSER = (!IN_APP_BROWSER && (IS_IOS || IS_ANDROID) && BROWSER_NAME !== RECOMMENDED_BROWSER) ? BROWSER_NAME : '';
 
       // ==================== ออกจากเบราว์เซอร์ในแอป (LINE / Facebook ฯลฯ) ====================
       // ลิงก์หน้าเดิม ตัดพารามิเตอร์ของ LINE และ # ออก
@@ -1551,7 +1575,7 @@
       })();
 
       function showInAppBrowserBanner() {
-        if (!IN_APP_BROWSER) return;
+        if (!IN_APP_BROWSER) { showOtherBrowserNotice(); return; }
         try { if (sessionStorage.getItem('skp_inapp_dismissed') === '1') { showInAppBrowserStrip(); return; } } catch (e) {}
         const cleanUrl = inAppCleanUrl();
         const appName = escapeHtml(IN_APP_BROWSER);
@@ -1598,6 +1622,41 @@
           try { sessionStorage.setItem('skp_inapp_dismissed', '1'); } catch (e) {}
           overlay.remove();
           showInAppBrowserStrip();
+        });
+      }
+
+      // เปิดด้วยเบราว์เซอร์อื่นที่ไม่ใช่ Chrome (Android) / Safari (iPhone) เช่น Samsung Internet
+      function showOtherBrowserNotice() {
+        if (!OTHER_BROWSER) return;
+        try { if (localStorage.getItem('skp_other_browser_ok') === '1') return; } catch (e) {}
+        const cleanUrl = inAppCleanUrl();
+        const name = escapeHtml(OTHER_BROWSER);
+        const btn = 'display:block;width:100%;box-sizing:border-box;text-align:center;padding:14px 16px;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none;border:0;margin-top:10px;';
+        const overlay = document.createElement('div');
+        overlay.id = 'other-browser-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.92);overflow-y:auto;padding:16px;font-family:inherit';
+        overlay.innerHTML =
+          '<div style="max-width:420px;margin:24px auto;background:#fff;color:#0f172a;border-radius:16px;padding:20px;line-height:1.6;font-size:15px">' +
+            '<div style="font-size:18px;font-weight:800;margin-bottom:6px">แนะนำให้เปิดด้วย ' + RECOMMENDED_BROWSER + '</div>' +
+            '<div>ตอนนี้เปิดด้วย <b>' + name + '</b> ระบบจำมือถือของท่านผ่านเบราว์เซอร์ ถ้าวันหนึ่งใช้ ' + name + ' อีกวันใช้ ' + RECOMMENDED_BROWSER +
+            ' ระบบจะถือว่าเป็นคนละเครื่อง และต้องเข้าสู่ระบบใหม่</div>' +
+            (IS_ANDROID
+              ? '<a id="other-open-chrome" style="' + btn + 'background:#059669;color:#fff">เปิดใน Chrome</a>'
+              : '<a id="other-open-safari" style="' + btn + 'background:#059669;color:#fff">เปิดใน Safari</a>') +
+            '<button type="button" id="other-copy-link" style="' + btn + 'background:#e2e8f0;color:#0f172a">คัดลอกลิงก์</button>' +
+            '<button type="button" id="other-keep" style="' + btn + 'background:#fff;color:#334155;border:1px solid #cbd5e1">ใช้ ' + name + ' ต่อ (ต้องใช้ตัวนี้ทุกครั้ง)</button>' +
+          '</div>';
+        document.body.appendChild(overlay);
+        const c = document.getElementById('other-open-chrome');
+        if (c) c.href = androidIntentUrl(cleanUrl, 'com.android.chrome');
+        const sf = document.getElementById('other-open-safari');
+        if (sf) sf.href = iosSafariUrl(cleanUrl);
+        document.getElementById('other-copy-link').addEventListener('click', () => copyInAppLink(cleanUrl));
+        document.getElementById('other-keep').addEventListener('click', () => {
+          try { localStorage.setItem('skp_other_browser_ok', '1'); } catch (e) {}
+          overlay.remove();
         });
       }
 
