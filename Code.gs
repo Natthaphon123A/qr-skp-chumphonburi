@@ -156,6 +156,8 @@ function sheetWithHeaders(name, headers) {
     sh.appendRow(headers);
     return sh;
   }
+  // ชีตเก่าที่มีคอลัมน์ไม่พอ (เช่น ลบคอลัมน์ว่างทิ้ง) เพิ่มคอลัมน์ให้เอง กันระบบล่ม
+  if (sh.getMaxColumns() < headers.length) sh.insertColumnsAfter(sh.getMaxColumns(), headers.length - sh.getMaxColumns());
   const first = sh.getRange(1, 1, 1, headers.length).getValues()[0];
   headers.forEach((h, i) => {
     if (h && !first[i]) sh.getRange(1, i + 1).setValue(h);
@@ -166,7 +168,9 @@ function sheetWithHeaders(name, headers) {
 function readRows(sh, width) {
   const last = sh.getLastRow();
   if (last < 2) return [];
-  return sh.getRange(2, 1, last - 1, width).getValues();
+  // อ่านเท่าที่ชีตมีคอลัมน์ แล้วเติมช่องว่างให้ครบ (ชีตเก่าอาจมีคอลัมน์น้อยกว่า)
+  const w = Math.min(width, sh.getMaxColumns());
+  return sh.getRange(2, 1, last - 1, w).getValues().map((r) => (w < width ? r.concat(new Array(width - w).fill('')) : r));
 }
 
 // เขียนเป็นข้อความเสมอ กัน Google Sheets แปลงวันที่/เวลาเอง
