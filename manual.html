@@ -972,6 +972,14 @@ input[type="range"].slider:focus-visible {
               <span class="font-semibold text-rose-900">กลับก่อนเวลา</span>
               <span class="font-bold font-num text-rose-700">ก่อน 16:30 น. (−4)</span>
             </div>
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-violet-50 border border-violet-200 hover-lift">
+              <span class="font-semibold text-violet-900">ลาครึ่งวันเช้า</span>
+              <span class="font-bold font-num text-violet-700">เข้าไม่เกิน 13:00 น. (ไม่หัก)</span>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-violet-50 border border-violet-200 hover-lift">
+              <span class="font-semibold text-violet-900">ไปราชการช่วงเช้า / ลืมสแกนเข้า</span>
+              <span class="font-bold text-violet-700">ไม่หัก (ผู้ดูแลตรวจ)</span>
+            </div>
             <div class="flex items-center justify-between p-3 rounded-2xl bg-sky-50 border border-sky-200 hover-lift">
               <span class="font-semibold text-sky-900">มาทำงานเสาร์–อาทิตย์</span>
               <span class="font-bold text-sky-700">นับเป็นวันหยุด/OT (ไม่หัก)</span>
@@ -1026,6 +1034,17 @@ input[type="range"].slider:focus-visible {
             <div class="font-bold text-emerald-800">⏰ ใช้นาฬิกาของระบบ</div>
             <p class="text-slate-600">เวลาที่บันทึกมาจากเซิร์ฟเวอร์ Google ปรับนาฬิกามือถือก็ไม่มีผล สแกนเข้างานได้ <strong>05:30 – 22:00 น.</strong> สแกนออกงานได้ถึง <strong>23:59 น.</strong></p>
           </div>
+          <div class="reveal p-4 rounded-2xl bg-violet-50 border border-violet-200 space-y-1 hover-lift sm:col-span-2 lg:col-span-3" style="--d:.1s">
+            <div class="font-bold text-violet-900">🕘 สแกนครั้งแรกของวันหลัง 08:30 น. ระบบจะถามว่าเป็นกรณีไหน</div>
+            <ul class="text-slate-700 list-disc list-inside space-y-0.5">
+              <li><strong>ลืมสแกนเข้าตอนเช้า และตอนนี้กำลังจะกลับ</strong> ระบบบันทึกเป็น “เวลาออก” แล้วผู้ดูแลจะเติมเวลาเข้าให้ (ข้อนี้ขึ้นหลัง 12:00 น.)</li>
+              <li><strong>มาสาย</strong> นับสายตามปกติ</li>
+              <li><strong>ลาครึ่งวันเช้า</strong> ไม่นับสาย ถ้าเข้าไม่เกิน 13:00 น. อย่าลืมส่งใบลาตามปกติ</li>
+              <li><strong>ไปราชการ / ทำงานนอกสถานที่ช่วงเช้า</strong> ไม่นับสาย</li>
+              <li><strong>ลืมสแกนเข้าตอนเช้า แต่ยังทำงานอยู่</strong> บันทึกเวลานี้ไว้ก่อน แล้วแจ้งผู้ดูแลเวลาที่มาถึงจริง</li>
+            </ul>
+            <p class="text-slate-600">ข้อที่ไม่ใช่ “มาสาย” จะขึ้นป้าย <strong>รอตรวจ</strong> จนกว่าผู้ดูแลจะตรวจ ถ้าเลือกไม่ตรงความจริง ผู้ดูแลกด “ไม่อนุมัติ” แล้วระบบนับเป็นสาย</p>
+          </div>
           <div class="reveal p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 hover-lift" style="--d:.12s">
             <div class="font-bold text-emerald-800">⚠️ กดออกงานเร็ว ระบบถามย้ำ</div>
             <p class="text-slate-600">ถ้าสแกนออกงานก่อน 16:30 น. จะมีหน้าต่างถามยืนยันก่อน กันกดผิด</p>
@@ -1077,7 +1096,7 @@ input[type="range"].slider:focus-visible {
             <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-sky-100 text-sky-800 text-xs font-bold">2. เปลี่ยน PIN / ตั้งค่า</div>
             <h3 class="text-base font-bold text-slate-900">เปลี่ยนครั้งเดียว ใช้ได้ทุกเครื่อง</h3>
             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">กด <strong>ตั้งค่าระบบ (ผู้ดูแล)</strong> เพื่อเปลี่ยน PIN (ตัวเลข 6 หลักขึ้นไป) ปรับพิกัดและรัศมี GPS หรือเปิด/ปิด การเช็ก GPS และการถ่ายรูป ค่าจะเก็บที่เซิร์ฟเวอร์และมีผลกับทุกเครื่องทันที</p>
-            <p class="text-xs text-slate-500 leading-relaxed">ใส่ PIN ผิด 5 ครั้ง ระบบล็อก 15 นาที เวลาเข้างาน/เลิกงาน/ช่วงสแกน เปลี่ยนได้ที่ Apps Script › Script properties (<span class="font-num">WORK_START</span>, <span class="font-num">WORK_END</span>, <span class="font-num">SCAN_OPEN</span>, <span class="font-num">SCAN_CLOSE</span>, <span class="font-num">CHECKOUT_CLOSE</span>)</p>
+            <p class="text-xs text-slate-500 leading-relaxed">ใส่ PIN ผิด 5 ครั้ง ระบบล็อก 15 นาที เวลา <strong>เข้างาน / เริ่มงานบ่าย / เลิกงาน</strong> แก้ได้ในหน้าตั้งค่าระบบเลย (เริ่มงานบ่ายใช้กับลาครึ่งวันเช้า) ส่วนช่วงเปิดสแกนอื่นๆ อยู่ที่ Apps Script › Script properties (<span class="font-num">SCAN_OPEN</span>, <span class="font-num">SCAN_CLOSE</span>, <span class="font-num">CHECKOUT_CLOSE</span>)</p>
           </div>
 
           <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2" style="--d:.16s">
@@ -1092,8 +1111,21 @@ input[type="range"].slider:focus-visible {
             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">แท็บประวัติลงเวลา กด <strong>รูปเข้า / รูปออก</strong> เพื่อดูภาพ (รูปไม่เปิดสาธารณะ) ถ้าพนักงานลืมสแกน ใช้ช่อง <strong>บันทึกแทน</strong> ในหน้าสแกน ระบบจะถามเวลา วันที่ และเหตุผล แล้วเก็บประวัติไว้ในชีต “บันทึกการแก้ไข”</p>
           </div>
 
+          <div class="reveal hover-lift rounded-2xl border border-violet-200 bg-violet-50/40 p-5 space-y-2 md:col-span-2" style="--d:.28s">
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-violet-100 text-violet-800 text-xs font-bold">5. ตรวจรายการ “รอตรวจ” (ลาครึ่งวัน / ราชการ / ลืมสแกน)</div>
+            <h3 class="text-base font-bold text-slate-900">ตรวจสัปดาห์ละครั้ง ใช้เวลาไม่กี่นาที</h3>
+            <ol class="text-xs sm:text-sm text-slate-600 space-y-1 list-decimal list-inside leading-relaxed">
+              <li>แท็บ <strong>ประวัติลงเวลา</strong> › ช่องสถานะ เลือก <strong>รอผู้ดูแลตรวจ</strong></li>
+              <li>กดปุ่ม <strong>ตรวจ</strong> ท้ายแถว เทียบกับใบลา/หนังสือไปราชการ</li>
+              <li>กด <strong>อนุมัติตามที่แจ้ง</strong> หรือ <strong>ไม่อนุมัติ (นับเป็นเข้าสาย)</strong> ถ้าไม่อนุมัติหรือเปลี่ยนประเภท ต้องพิมพ์เหตุผลก่อน</li>
+              <li>กรณี <strong>ลืมสแกนเข้า</strong> ถ้ารู้เวลามาจริง ใช้ช่อง <strong>บันทึกแทน › บันทึกเข้า</strong> ในหน้าสแกน ระบบจะคิดสาย/ไม่สายจากเวลาที่ใส่</li>
+              <li>แถวเก่าที่สแกนตอนเย็นแล้วถูกนับว่า “เข้าสาย 500 นาที” กด <strong>แก้สถานะ</strong> › <strong>ย้ายเวลาเข้าไปเป็นเวลาออก</strong></li>
+            </ol>
+            <p class="text-xs text-slate-500">ทุกการตรวจเก็บไว้ในชีต “บันทึกการแก้ไข” หน้า KPI แสดงลา/ราชการ และลืมสแกน แยกจากช่องเข้าสาย</p>
+          </div>
+
           <div class="reveal hover-lift rounded-2xl border border-slate-200 p-5 space-y-2 md:col-span-2" style="--d:.3s">
-            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-bold">5. ลำดับการอัปเดตระบบ</div>
+            <div class="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-xs font-bold">6. ลำดับการอัปเดตระบบ</div>
             <h3 class="text-base font-bold text-slate-900">เวอร์ชัน 3: อัปเดตทั้งสองฝั่งในช่วงเย็น</h3>
             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">หน้าเว็บใหม่กับ Apps Script ใหม่ต้องใช้คู่กัน ให้อัปเดตหลังเลิกงาน: ตั้ง <span class="font-num">ADMIN_PIN</span> ก่อน › Deploy Apps Script (แก้ deployment เดิม เลือก New version) › อัปโหลด index.html › นัดพนักงานเข้าสู่ระบบและตั้งรหัสผ่านพร้อมกันวันถัดไป</p>
           </div>
@@ -1470,6 +1502,14 @@ input[type="range"].slider:focus-visible {
 
 // ==================== ถาม–ตอบ ====================
 const FAQ_ITEMS = [
+  {
+    q: "ลืมสแกนตอนเช้า มาสแกนตอนเย็น ระบบนับว่าสายหลายร้อยนาที ทำยังไง?",
+    a: "ตั้งแต่เวอร์ชันนี้ ถ้าสแกนครั้งแรกหลัง 08:30 น. ระบบจะถามก่อน ให้เลือก <strong>ลืมสแกนเข้าตอนเช้า และตอนนี้กำลังจะกลับ</strong> ระบบจะบันทึกเป็นเวลาออก ไม่นับสาย แล้วแจ้งผู้ดูแลเวลาที่มาถึงจริง ถ้าเป็นรายการเก่าก่อนอัปเดต ให้ผู้ดูแลกด <strong>แก้สถานะ › ย้ายเวลาเข้าไปเป็นเวลาออก</strong> ในแท็บประวัติลงเวลา",
+  },
+  {
+    q: "ลาครึ่งวันเช้า เข้างานตอนบ่าย ต้องสแกนยังไง?",
+    a: "สแกนบัตรตามปกติ แล้วเลือก <strong>ลาครึ่งวันเช้า</strong> ในหน้าต่างที่ขึ้นมา ถ้าเข้าไม่เกิน 13:00 น. ไม่นับสาย รายการจะขึ้น “รอตรวจ” จนผู้ดูแลเทียบกับใบลา อย่าลืมส่งใบลาตามระเบียบเดิม",
+  },
   {
     q: "อยู่ที่สหกรณ์แล้ว แต่แอปขึ้นว่า “อยู่นอกพื้นที่” หรือ “GPS ยังไม่แม่นยำ”",
     a: "มักเกิดตอนอยู่ในตึก สัญญาณ GPS จะคลาดเคลื่อนมาก แอปจะยอมให้สแกนเมื่อคลาดเคลื่อนไม่เกิน <strong>±100 เมตร</strong> และอยู่ห่างสหกรณ์ไม่เกิน <strong>120 เมตร</strong> ให้เดินไปใกล้หน้าต่างหรือออกไปที่โล่ง รอ 10–20 วินาที แล้วกด <strong>อัปเดต GPS</strong> ถ้าใช้ iPhone ให้เช็กว่าเปิด “ตำแหน่งที่แม่นยำ” แล้ว (ดูหัวข้อ ④ ในหน้าพนักงาน)",
