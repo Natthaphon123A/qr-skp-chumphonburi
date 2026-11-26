@@ -1167,6 +1167,8 @@
       let session = null;        // { token, profile:{id,name,dept} } ของพนักงานที่ login บนเครื่องนี้
       let holidays = [];
       let pendingRetry = null;   // รายการที่ส่งไม่สำเร็จ รอกดลองส่งใหม่
+      let serverSupportsReason = true; // false = Apps Script ยังเป็นรุ่นเก่า บันทึกเหตุผลเข้าหลังเวลาไม่ได้
+      const OLD_SERVER_MSG = 'ระบบกลาง (Apps Script) ยังเป็นรุ่นเก่า จึงบันทึกเหตุผลที่เข้าหลังเวลาไม่ได้ กรุณาแจ้งผู้ดูแลให้ Deploy Code.gs ตัวใหม่';
 
       let gpsConfig = {
         enforced: true,
@@ -1447,6 +1449,8 @@
         OUTING_START_MIN = hhmmToMin(c.outingStart, OUTING_START_MIN);
         OUTING_END_MIN = hhmmToMin(c.outingEnd, OUTING_END_MIN);
         gpsConfig.serverConfig = c;
+        // Apps Script รุ่นใหม่ (v4 ขึ้นไป) ส่ง afternoonStart มาด้วย ถ้าไม่มี แปลว่ายังไม่ได้ Deploy Code.gs ตัวใหม่
+        serverSupportsReason = c.afternoonStart !== undefined;
       }
 
       function minToHhmm(m) {
@@ -2052,7 +2056,10 @@
         };
 
         // สแกนครั้งแรกหลังเวลาเข้างาน: ถามเหตุผลก่อน (ลืมสแกนเช้า / ลาครึ่งวัน / ราชการ / มาสาย)
-        if (actionType === 'in' && !dayOff && nowMins !== null && nowMins > WORK_START_MIN) {
+        if (actionType === 'in' && !dayOff && nowMins !== null && nowMins > WORK_START_MIN && !serverSupportsReason) {
+          // ระบบกลางรุ่นเก่า: ถ้าให้เลือกเหตุผล เหตุผลจะหายไปเฉยๆ จึงบันทึกเป็นเวลาเข้าแบบเดิม และเตือนให้แจ้งผู้ดูแล
+          showToast(OLD_SERVER_MSG, 'warning');
+        } else if (actionType === 'in' && !dayOff && nowMins !== null && nowMins > WORK_START_MIN) {
           if (cameraRunning) stopCamera();
           openReasonModal(nowMins, proceedScan);
           return;
@@ -2344,7 +2351,10 @@
               openOut.status = 'กลับพร้อมเลิกงาน';
             }
           }
-          const bad = /สาย|ก่อนเวลา/.test(r.status || '');
+          // ส่งเหตุผลไปแต่ระบบกลางไม่ตอบกลับเรื่องเหตุผล = Apps Script รุ่นเก่า เหตุผลไม่ได้ถูกบันทึก
+          const reasonLost = Boolean(ctx.inReason) && r.inReason === undefined;
+          if (reasonLost) serverSupportsReason = false;
+          const bad = reasonLost || /สาย|ก่อนเวลา/.test(r.status || '');
           const gpsMetaSuffix = gpsCheck && gpsCheck.distanceMeters !== null ? ` • ห่างจุดสหกรณ์ ${gpsCheck.distanceMeters} ม.` : '';
           playBeep(bad);
           showScanFeedback({
@@ -2358,6 +2368,7 @@
           });
           setSyncBadge('ok', `บันทึกสำเร็จ (${r.time} น.)`);
           showToast(`บันทึกเวลา${r.action === 'in' ? 'เข้า' : 'ออก'}งาน ${r.time} น. เรียบร้อยแล้ว (${r.status})`, bad ? 'warning' : 'success');
+          if (reasonLost) showToast('บันทึกเวลาแล้ว แต่เหตุผลที่เลือกไม่ได้ถูกบันทึก: ' + OLD_SERVER_MSG, 'error');
           renderAll();
           return;
         }
@@ -2489,6 +2500,7 @@
           outings = r.outings || [];
           renderAll();
           setSyncBadge('ok', `ข้อมูลผู้ดูแล (${employees.length} คน)`);
+          if (!serverSupportsReason) showToast(OLD_SERVER_MSG, 'error');
           if (!silent) showToast(`โหลดข้อมูลจากระบบกลางแล้ว (พนักงาน ${employees.length} คน)`, 'success');
         } else {
           showToast((r && r.message) || 'โหลดข้อมูลผู้ดูแลไม่สำเร็จ', 'error');
