@@ -492,16 +492,16 @@ function inStatusText(mins, cfg, dayOff, reason, review) {
   if (review !== REVIEW.NO) {
     if (reason === REASON.HALFDAY) {
       const pm = parseMins(cfg.afternoonStart);
-      return (mins > pm ? 'ลาครึ่งวันเช้า แต่เข้าสาย (' + (mins - pm) + ' นาที)' : 'ลาครึ่งวันเช้า') + pending;
+      return (mins > pm ? 'ลาครึ่งวันเช้า แต่เข้าสาย (' + fmtMins(mins - pm) + ')' : 'ลาครึ่งวันเช้า') + pending;
     }
     if (reason === REASON.OFFICIAL) return 'ไปราชการ/งานนอกสถานที่ช่วงเช้า' + pending;
     if (reason === REASON.FORGOT) return 'ลืมสแกนเข้า (รอผู้ดูแลเติมเวลาจริง)' + pending;
   }
-  return 'เข้าสาย (' + (mins - start) + ' นาที)' + (review === REVIEW.NO ? ' (ไม่อนุมัติ ' + reason + ')' : '');
+  return 'เข้าสาย (' + fmtMins(mins - start) + ')' + (review === REVIEW.NO ? ' (ไม่อนุมัติ ' + reason + ')' : '');
 }
 function outStatusText(mins, cfg, dayOff) {
   if (dayOff) return 'วันหยุด / OT';
-  return mins < parseMins(cfg.workEnd) ? 'ออกก่อนเวลา (' + (parseMins(cfg.workEnd) - mins) + ' นาที)' : 'ปกติ';
+  return mins < parseMins(cfg.workEnd) ? 'ออกก่อนเวลา (' + fmtMins(parseMins(cfg.workEnd) - mins) + ')' : 'ปกติ';
 }
 
 // =====================================================================
@@ -646,9 +646,9 @@ function handleAdminRecord(d) {
     const tag = ' (ผู้ดูแลบันทึก)';
     let status;
     if (action === 'in') {
-      status = (dayOff ? 'วันหยุด / OT' : (mins > parseMins(cfg.workStart) ? 'เข้าสาย (' + (mins - parseMins(cfg.workStart)) + ' นาที)' : 'ตรงเวลา')) + tag;
+      status = (dayOff ? 'วันหยุด / OT' : (mins > parseMins(cfg.workStart) ? 'เข้าสาย (' + fmtMins(mins - parseMins(cfg.workStart)) + ')' : 'ตรงเวลา')) + tag;
     } else {
-      status = (dayOff ? 'วันหยุด / OT' : (mins < parseMins(cfg.workEnd) ? 'ออกก่อนเวลา (' + (parseMins(cfg.workEnd) - mins) + ' นาที)' : 'ปกติ')) + tag;
+      status = (dayOff ? 'วันหยุด / OT' : (mins < parseMins(cfg.workEnd) ? 'ออกก่อนเวลา (' + fmtMins(parseMins(cfg.workEnd) - mins) + ')' : 'ปกติ')) + tag;
     }
     const col = action === 'in' ? LOG.IN : LOG.OUT;
     const oldVal = found ? (action === 'in' ? found.checkIn : found.checkOut) : '';
@@ -970,6 +970,13 @@ function fmtTime(v) {
   const s = String(v || '').trim();
   const m = s.match(/^(\d{1,2}):(\d{2})/);
   return m ? ('0' + m[1]).slice(-2) + ':' + m[2] : s;
+}
+// 25 → "25 นาที", 503 → "8 ชม. 23 นาที", 120 → "2 ชม."
+function fmtMins(total) {
+  const n = Math.max(0, Math.round(Number(total) || 0));
+  if (n < 60) return n + ' นาที';
+  const h = Math.floor(n / 60), m = n % 60;
+  return m ? h + ' ชม. ' + m + ' นาที' : h + ' ชม.';
 }
 function parseMins(hhmm) {
   const m = String(hhmm || '').match(/^(\d{1,2}):(\d{2})/);

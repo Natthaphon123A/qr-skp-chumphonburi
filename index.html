@@ -1212,6 +1212,19 @@
         return `${pad2(dt.getHours())}:${pad2(dt.getMinutes())}`;
       }
 
+      // แสดงจำนวนนาทีให้อ่านง่าย: 25 → "25 นาที", 503 → "8 ชม. 23 นาที", 120 → "2 ชม."
+      function fmtMins(total) {
+        const n = Math.max(0, Math.round(Number(total) || 0));
+        if (n < 60) return `${n} นาที`;
+        const h = Math.floor(n / 60);
+        const m = n % 60;
+        return m ? `${h} ชม. ${m} นาที` : `${h} ชม.`;
+      }
+      // แปลงข้อความที่มี "xxx นาที" (เช่น สถานะจากชีตเก่า "เข้าสาย (503 นาที)") ให้เป็น ชม. + นาที
+      function humanizeMinsText(text) {
+        return String(text || '').replace(/(\d+) นาที/g, (_, n) => fmtMins(n));
+      }
+
       function timeToMinutes(hhmm) {
         if (!hhmm || typeof hhmm !== 'string' || !hhmm.includes(':')) return null;
         const parts = hhmm.split(':');
@@ -1239,13 +1252,13 @@
           if (reason === REASON_HALFDAY) {
             if (mins <= AFTERNOON_START_MIN) return { status: 'leave', lateMins: 0, pending, label: 'ลาครึ่งวันเช้า' + tag };
             const pmLate = mins - AFTERNOON_START_MIN;
-            return { status: 'late', lateMins: pmLate, pending, label: `ลาครึ่งวันเช้า + สาย (${pmLate} นาที)` + tag };
+            return { status: 'late', lateMins: pmLate, pending, label: `ลาครึ่งวันเช้า + สาย (${fmtMins(pmLate)})` + tag };
           }
           if (reason === REASON_OFFICIAL) return { status: 'leave', lateMins: 0, pending, label: 'ไปราชการช่วงเช้า' + tag };
           if (reason === REASON_FORGOT) return { status: 'forgot', lateMins: 0, pending, label: 'ลืมสแกนเข้า (รอเติมเวลาจริง)' + tag };
         }
         const lateMins = mins - WORK_START_MIN;
-        return { status: 'late', lateMins, pending: false, label: `เข้าสาย (${lateMins} นาที)` + (review === REVIEW_NO ? ' • ไม่อนุมัติ' : '') };
+        return { status: 'late', lateMins, pending: false, label: `เข้าสาย (${fmtMins(lateMins)})` + (review === REVIEW_NO ? ' • ไม่อนุมัติ' : '') };
       }
 
       function inBadgeClass(ev) {
@@ -1261,7 +1274,7 @@
         if (dayOff) return { status: 'normal', earlyMins: 0, label: 'วันหยุด / OT' };
         if (mins < WORK_END_MIN) {
           const earlyMins = WORK_END_MIN - mins;
-          return { status: 'early', earlyMins, label: `ออกก่อนเวลา (${earlyMins} นาที)` };
+          return { status: 'early', earlyMins, label: `ออกก่อนเวลา (${fmtMins(earlyMins)})` };
         }
         return { status: 'normal', earlyMins: 0, label: 'ปกติ' };
       }
@@ -2149,7 +2162,7 @@
         if (note === null) return;
         const r = await api({ type: 'admin_record', pin: sessionAdminPin, empId, action, time: timeIn.trim(), date: dateIn.trim(), note: note.trim() });
         if (r.ok) {
-          showToast(`บันทึกเวลา${label}ให้ ${emp.name} วันที่ ${formatThaiDate(r.date)} ${r.time} น. แล้ว (${r.status})`, 'success');
+          showToast(`บันทึกเวลา${label}ให้ ${emp.name} วันที่ ${formatThaiDate(r.date)} ${r.time} น. แล้ว (${humanizeMinsText(r.status)})`, 'success');
           loadAdminData(true);
         } else {
           showToast(r.message || 'บันทึกไม่สำเร็จ', 'error');
@@ -2362,12 +2375,12 @@
             meta: `รหัส ${emp.id} • ${emp.dept}${gpsMetaSuffix}`,
             time: `${r.time} น.`,
             typeLabel: r.action === 'in' ? 'ลงเวลาเข้างาน' : (r.forgotIn ? 'ลงเวลาออกงาน (ไม่มีเวลาเข้า รอผู้ดูแลตรวจ)' : 'ลงเวลาออกงาน'),
-            badge: `บันทึกแล้ว • ${r.action === 'in' ? evaluateCheckIn(r.time, r.dayOff, log).label : r.status}`,
+            badge: `บันทึกแล้ว • ${r.action === 'in' ? evaluateCheckIn(r.time, r.dayOff, log).label : humanizeMinsText(r.status)}`,
             tone: bad ? 'warning' : 'success',
             photo: photoDataUrl
           });
           setSyncBadge('ok', `บันทึกสำเร็จ (${r.time} น.)`);
-          showToast(`บันทึกเวลา${r.action === 'in' ? 'เข้า' : 'ออก'}งาน ${r.time} น. เรียบร้อยแล้ว (${r.status})`, bad ? 'warning' : 'success');
+          showToast(`บันทึกเวลา${r.action === 'in' ? 'เข้า' : 'ออก'}งาน ${r.time} น. เรียบร้อยแล้ว (${humanizeMinsText(r.status)})`, bad ? 'warning' : 'success');
           if (reasonLost) showToast('บันทึกเวลาแล้ว แต่เหตุผลที่เลือกไม่ได้ถูกบันทึก: ' + OLD_SERVER_MSG, 'error');
           renderAll();
           return;
@@ -2660,7 +2673,7 @@
               target.durationMins = r.durationMins;
               target.status = r.status;
             }
-            showToast(`บันทึกกลับเข้าสำนักงานเวลา ${r.time} น. แล้ว (ออกไป ${r.durationMins} นาที)`, 'success');
+            showToast(`บันทึกกลับเข้าสำนักงานเวลา ${r.time} น. แล้ว (ออกไป ${fmtMins(r.durationMins)})`, 'success');
           }
           playBeep(false);
           showResultBurst(true);
@@ -2756,7 +2769,7 @@
         if (elActive) elActive.textContent = activeCount;
         if (elCoop) elCoop.textContent = coopCount;
         if (elPers) elPers.textContent = personalList.length;
-        if (elPersMins) elPersMins.textContent = `ครั้ง (รวม ${personalMins} นาที)`;
+        if (elPersMins) elPersMins.textContent = `ครั้ง (รวม ${fmtMins(personalMins)})`;
 
         const feed = document.getElementById('outing-feed-list');
         if (!feed) return;
@@ -2773,7 +2786,7 @@
             ? '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-800">งานสหกรณ์</span>'
             : '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800">ธุระส่วนตัว</span>';
           const retBadge = o.returnTime
-            ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold font-num bg-emerald-100 text-emerald-800">กลับ ${escapeHtml(o.returnTime)} (${o.durationMins || 0} นาที)</span>`
+            ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold font-num bg-emerald-100 text-emerald-800">กลับ ${escapeHtml(o.returnTime)} (${fmtMins(o.durationMins)})</span>`
             : '<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800">ยังไม่กลับสำนักงาน</span>';
 
           return `
@@ -3061,7 +3074,7 @@
         document.getElementById('kpi-card-grade').textContent = count > 0 ? `เกรด ${avgGrade.grade} — ${avgGrade.label}` : 'ไม่มีข้อมูล';
         document.getElementById('kpi-card-ontime-pct').textContent = `${onTimePct}%`;
         document.getElementById('kpi-card-late-count').textContent = totalLate;
-        document.getElementById('kpi-card-late-mins').textContent = `รวม ${totalLateMins} นาที`;
+        document.getElementById('kpi-card-late-mins').textContent = `รวม ${fmtMins(totalLateMins)}`;
         document.getElementById('kpi-card-other').textContent = `ลา/ราชการ ${totalLeave} • ลืมสแกน ${totalForgot}` + (totalPending ? ` • รอตรวจ ${totalPending}` : '');
         document.getElementById('kpi-card-early-count').textContent = totalEarly;
         document.getElementById('kpi-card-days').textContent = totalDays;
@@ -3083,7 +3096,7 @@
               <td class="px-4 py-3 text-center font-num ${s.earlyCount > 0 ? 'text-rose-600 font-semibold' : 'text-slate-400'}">${s.earlyCount} ครั้ง</td>
               <td class="px-4 py-3 text-center font-num text-xs ${s.leaveCount + s.forgotCount > 0 ? 'text-violet-700 font-semibold' : 'text-slate-400'}">${s.leaveCount} • ${s.forgotCount}${s.pendingCount ? ` <span class="text-amber-600">(รอตรวจ ${s.pendingCount})</span>` : ''}</td>
               <td class="px-4 py-3 text-center font-num text-sky-700 text-xs font-semibold">${s.coopOutCount} ครั้ง</td>
-              <td class="px-4 py-3 text-center font-num text-xs ${s.personalOutCount > 0 ? 'text-rose-600 font-semibold' : 'text-slate-400'}">${s.personalOutCount} ครั้ง (${s.personalOutMins} น.)</td>
+              <td class="px-4 py-3 text-center font-num text-xs ${s.personalOutCount > 0 ? 'text-rose-600 font-semibold' : 'text-slate-400'}">${s.personalOutCount} ครั้ง (${fmtMins(s.personalOutMins)})</td>
               <td class="px-4 py-3 text-center font-num font-bold text-slate-900">${s.kpiScore}</td>
               <td class="px-4 py-3 text-center">
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${s.gradeInfo.badgeClass}">เกรด ${s.gradeInfo.grade}</span>
