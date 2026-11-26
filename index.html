@@ -358,6 +358,7 @@
             <span id="today-late" class="text-2xl sm:text-3xl font-extrabold text-amber-600 font-num">0</span>
             <span class="text-xs font-medium text-slate-400">คน</span>
           </div>
+          <div id="today-other" class="mt-0.5 text-[11px] text-violet-700"></div>
         </div>
         <div class="bg-white rounded-2xl border border-rose-100 p-4 shadow-sm hover:shadow-md transition-shadow">
           <div class="text-xs font-semibold text-rose-700">ออกก่อนเวลา (&lt; 16:30)</div>
@@ -644,6 +645,7 @@
           <div class="text-xs text-slate-500 font-medium">จำนวนครั้งเข้าสาย</div>
           <div id="kpi-card-late-count" class="mt-1 text-2xl font-extrabold text-amber-600 font-num">0</div>
           <div id="kpi-card-late-mins" class="mt-1 text-xs text-slate-500 font-num">รวม 0 นาที</div>
+          <div id="kpi-card-other" class="mt-0.5 text-[11px] text-violet-700 font-num">ไม่นับสาย: ลา/ราชการ 0 • ลืมสแกน 0</div>
         </div>
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div class="text-xs text-slate-500 font-medium">ออกก่อนเวลากำหนด</div>
@@ -697,6 +699,7 @@
                 <th class="px-4 py-3 font-semibold text-center">ตรงเวลา</th>
                 <th class="px-4 py-3 font-semibold text-center">เข้าสาย</th>
                 <th class="px-4 py-3 font-semibold text-center">ออกก่อนเวลา</th>
+                <th class="px-4 py-3 font-semibold text-center">ลา/ราชการ • ลืมสแกน</th>
                 <th class="px-4 py-3 font-semibold text-center">งานนอกพื้นที่</th>
                 <th class="px-4 py-3 font-semibold text-center">ธุระส่วนตัว</th>
                 <th class="px-4 py-3 font-semibold text-center">คะแนน KPI</th>
@@ -729,6 +732,8 @@
                 <option value="normal">ปกติ</option>
                 <option value="late">เข้าสาย (ตั้งแต่ 08:31)</option>
                 <option value="early">ออกก่อนเวลา (&lt; 16:30)</option>
+                <option value="leave">ลา/ราชการ/ลืมสแกน (ไม่นับสาย)</option>
+                <option value="pending">รอผู้ดูแลตรวจ</option>
               </select>
             </div>
             <div>
@@ -905,6 +910,48 @@
     </div>
   </div>
 
+  <!-- เลือกเหตุผลเมื่อสแกนครั้งแรกหลังเวลาเข้างาน -->
+  <div id="reason-modal" class="hidden fixed inset-0 z-50 bg-slate-900/55 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-3 max-h-[92vh] overflow-y-auto">
+      <h3 class="text-base font-bold text-slate-900">วันนี้ท่านยังไม่ได้ลงเวลาเข้า</h3>
+      <p id="reason-modal-message" class="text-sm text-slate-600">ขณะนี้เลยเวลาเข้างานแล้ว กรุณาเลือกข้อที่ตรงกับท่าน</p>
+      <div class="space-y-2">
+        <button type="button" data-reason="forgot_out" class="reason-btn w-full text-left px-4 py-3 rounded-2xl border text-sm font-semibold transition-colors border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-900">ลืมสแกนเข้าตอนเช้า และตอนนี้กำลังจะกลับ<span class="block text-[11px] font-normal text-sky-700">บันทึกเวลานี้เป็น “เวลาออก” ผู้ดูแลจะเติมเวลาเข้าให้</span></button>
+        <button type="button" data-reason="late" class="reason-btn w-full text-left px-4 py-3 rounded-2xl border text-sm font-semibold transition-colors border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900">มาสาย<span class="block text-[11px] font-normal text-amber-700">บันทึกเวลาเข้า นับเป็นเข้าสายตามปกติ</span></button>
+        <button type="button" data-reason="halfday" class="reason-btn w-full text-left px-4 py-3 rounded-2xl border text-sm font-semibold transition-colors border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-900">ลาครึ่งวันเช้า<span id="reason-halfday-hint" class="block text-[11px] font-normal text-emerald-700">ไม่นับสาย ถ้าเข้าไม่เกิน 13:00 น. (ผู้ดูแลตรวจกับใบลา)</span></button>
+        <button type="button" data-reason="official" class="reason-btn w-full text-left px-4 py-3 rounded-2xl border text-sm font-semibold transition-colors border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-900">ไปราชการ / ทำงานนอกสถานที่ช่วงเช้า<span class="block text-[11px] font-normal text-emerald-700">ไม่นับสาย (ผู้ดูแลตรวจ)</span></button>
+        <button type="button" data-reason="forgot_in" class="reason-btn w-full text-left px-4 py-3 rounded-2xl border text-sm font-semibold transition-colors border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-900">ลืมสแกนเข้าตอนเช้า แต่ยังทำงานอยู่<span class="block text-[11px] font-normal text-slate-600">บันทึกเวลานี้เป็นเวลาเข้าไว้ก่อน ผู้ดูแลจะแก้เป็นเวลาจริง</span></button>
+      </div>
+      <div class="flex justify-end pt-1">
+        <button type="button" id="reason-modal-cancel" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-100">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ผู้ดูแลตรวจ/แก้สถานะเข้างาน -->
+  <div id="review-modal" class="hidden fixed inset-0 z-50 bg-slate-900/55 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-3 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900">ตรวจ / แก้สถานะเข้างาน</h3>
+        <button type="button" id="review-modal-close" class="text-slate-400 hover:text-slate-700 text-sm font-bold px-2 py-1">✕</button>
+      </div>
+      <p id="review-modal-info" class="text-sm text-slate-700">--</p>
+      <div>
+        <label for="review-note" class="block text-xs font-semibold text-slate-700 mb-1">เหตุผล / อ้างอิง (จำเป็น ยกเว้นกดอนุมัติ)</label>
+        <input type="text" id="review-note" maxlength="200" placeholder="เช่น ใบลาเลขที่ 12/2569, หนังสือสั่งไปราชการ" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+      <div class="grid grid-cols-1 gap-2">
+        <button type="button" data-decision="approve" class="review-btn px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold">อนุมัติตามที่แจ้ง</button>
+        <button type="button" data-decision="reject" class="review-btn px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold">ไม่อนุมัติ (นับเป็นเข้าสาย)</button>
+        <button type="button" data-decision="halfday" class="review-btn px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-800 hover:bg-slate-100">เปลี่ยนเป็น ลาครึ่งวันเช้า</button>
+        <button type="button" data-decision="official" class="review-btn px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-800 hover:bg-slate-100">เปลี่ยนเป็น ไปราชการ/งานนอกสถานที่</button>
+        <button type="button" data-decision="late" class="review-btn px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-800 hover:bg-slate-100">เปลี่ยนเป็น มาสาย</button>
+        <button type="button" data-decision="to_out" class="review-btn px-4 py-2 rounded-xl border border-sky-300 bg-sky-50 text-sm font-semibold text-sky-900 hover:bg-sky-100">ย้ายเวลาเข้าไปเป็นเวลาออก (ลืมสแกนเข้าตอนเช้า)</button>
+      </div>
+      <p class="text-[11px] text-slate-500">ถ้ารู้เวลาเข้าจริง ให้ใช้ปุ่ม “บันทึกเข้า” ในหน้าสแกน (โหมดผู้ดูแล) ระบบจะคิดสายจากเวลาที่ใส่</p>
+    </div>
+  </div>
+
   <!-- Admin System & GPS Settings Modal -->
   <div id="gps-modal" class="hidden fixed inset-0 z-50 bg-slate-900/55 backdrop-blur-xs flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 max-h-[92vh] overflow-y-auto">
@@ -970,6 +1017,16 @@
             <label for="gps-new-pin" class="block text-xs font-semibold text-slate-700 mb-1">เปลี่ยน PIN ใหม่</label>
             <input type="password" id="gps-new-pin" inputmode="numeric" placeholder="เว้นว่างถ้าไม่เปลี่ยน" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-num focus:outline-none focus:ring-2 focus:ring-emerald-500" />
           </div>
+        </div>
+
+        <div class="space-y-1">
+          <span class="text-xs font-semibold text-slate-700">เวลาทำงาน</span>
+          <div class="grid grid-cols-3 gap-2">
+            <label class="text-[11px] text-slate-600">เข้างาน<input type="time" id="cfg-work-start" class="mt-0.5 w-full rounded-xl border border-slate-300 px-2 py-2 text-sm font-num" /></label>
+            <label class="text-[11px] text-slate-600">เริ่มงานบ่าย<input type="time" id="cfg-afternoon-start" class="mt-0.5 w-full rounded-xl border border-slate-300 px-2 py-2 text-sm font-num" /></label>
+            <label class="text-[11px] text-slate-600">เลิกงาน<input type="time" id="cfg-work-end" class="mt-0.5 w-full rounded-xl border border-slate-300 px-2 py-2 text-sm font-num" /></label>
+          </div>
+          <p class="text-[11px] text-slate-500">“เริ่มงานบ่าย” ใช้กับลาครึ่งวันเช้า: เข้าไม่เกินเวลานี้ไม่นับสาย</p>
         </div>
 
         <div>
@@ -1065,6 +1122,14 @@
 
       let WORK_START_MIN = 8 * 60 + 30;  // 08:30
       let WORK_END_MIN = 16 * 60 + 30;   // 16:30
+      let AFTERNOON_START_MIN = 13 * 60; // 13:00 เริ่มงานช่วงบ่าย (ลาครึ่งวันเช้า เข้าไม่เกินเวลานี้ไม่นับสาย)
+      // เหตุที่เข้าหลังเวลา (ต้องตรงกับ Code.gs)
+      const REASON_LATE = 'มาสาย';
+      const REASON_HALFDAY = 'ลาครึ่งวันเช้า';
+      const REASON_OFFICIAL = 'ไปราชการ/งานนอกสถานที่';
+      const REASON_FORGOT = 'ลืมสแกนเข้า';
+      const REVIEW_PENDING = 'รอตรวจ';
+      const REVIEW_NO = 'ไม่อนุมัติ';
       const MIN_CHECKOUT_GAP_MINS = 30;    // เว้นอย่างน้อย 30 นาทีหลังเข้างาน กันเผลอสแกนเบิ้ลตอนเช้า
       const MIN_OUTING_RETURN_MINS = 2;    // เว้นอย่างน้อย 2 นาทีหลังแจ้งออก กันสแกนกลับเบิ้ล
       let SYS_OPEN_MIN = 5 * 60 + 30;    // เปิดระบบลงเวลา 05:30 น.
@@ -1154,15 +1219,38 @@
         return h * 60 + m;
       }
 
-      function evaluateCheckIn(hhmm, dayOff) {
+      // สถานะเข้างาน: normal | late | leave (ลาครึ่งวันเช้า/ราชการ ไม่นับสาย) | forgot (ลืมสแกนเข้า) | none
+      // log = แถวประวัติ (ใช้ inReason / review ที่พนักงานเลือกและผู้ดูแลตรวจ)
+      function evaluateCheckIn(hhmm, dayOff, log) {
+        const reason = (log && log.inReason) || '';
+        const review = (log && log.review) || '';
+        const pending = review === REVIEW_PENDING;
+        const tag = pending ? ' • รอตรวจ' : '';
         const mins = timeToMinutes(hhmm);
-        if (mins === null) return { status: 'none', lateMins: 0, label: '-' };
-        if (dayOff) return { status: 'normal', lateMins: 0, label: 'วันหยุด / OT' };
-        if (mins > WORK_START_MIN) {
-          const lateMins = mins - WORK_START_MIN;
-          return { status: 'late', lateMins, label: `เข้าสาย (${lateMins} นาที)` };
+        if (mins === null) {
+          if (reason === REASON_FORGOT) return { status: 'forgot', lateMins: 0, pending, label: 'ไม่มีเวลาเข้า (ลืมสแกน)' + tag };
+          return { status: 'none', lateMins: 0, label: '-' };
         }
-        return { status: 'normal', lateMins: 0, label: 'ตรงเวลา' };
+        if (dayOff) return { status: 'normal', lateMins: 0, label: 'วันหยุด / OT' };
+        if (mins <= WORK_START_MIN) return { status: 'normal', lateMins: 0, label: 'ตรงเวลา' };
+        if (review !== REVIEW_NO) {
+          if (reason === REASON_HALFDAY) {
+            if (mins <= AFTERNOON_START_MIN) return { status: 'leave', lateMins: 0, pending, label: 'ลาครึ่งวันเช้า' + tag };
+            const pmLate = mins - AFTERNOON_START_MIN;
+            return { status: 'late', lateMins: pmLate, pending, label: `ลาครึ่งวันเช้า + สาย (${pmLate} นาที)` + tag };
+          }
+          if (reason === REASON_OFFICIAL) return { status: 'leave', lateMins: 0, pending, label: 'ไปราชการช่วงเช้า' + tag };
+          if (reason === REASON_FORGOT) return { status: 'forgot', lateMins: 0, pending, label: 'ลืมสแกนเข้า (รอเติมเวลาจริง)' + tag };
+        }
+        const lateMins = mins - WORK_START_MIN;
+        return { status: 'late', lateMins, pending: false, label: `เข้าสาย (${lateMins} นาที)` + (review === REVIEW_NO ? ' • ไม่อนุมัติ' : '') };
+      }
+
+      function inBadgeClass(ev) {
+        if (ev.status === 'late') return 'bg-amber-100 text-amber-800';
+        if (ev.status === 'leave') return 'bg-violet-100 text-violet-800';
+        if (ev.status === 'forgot') return 'bg-sky-100 text-sky-800';
+        return 'bg-emerald-100 text-emerald-800';
       }
 
       function evaluateCheckOut(hhmm, dayOff) {
@@ -1352,6 +1440,7 @@
         if (c.maxAccuracyM) gpsConfig.maxAccuracyM = Number(c.maxAccuracyM);
         WORK_START_MIN = hhmmToMin(c.workStart, WORK_START_MIN);
         WORK_END_MIN = hhmmToMin(c.workEnd, WORK_END_MIN);
+        AFTERNOON_START_MIN = hhmmToMin(c.afternoonStart, AFTERNOON_START_MIN);
         SYS_OPEN_MIN = hhmmToMin(c.scanOpen, SYS_OPEN_MIN);
         SYS_CLOSE_MIN = hhmmToMin(c.scanClose, SYS_CLOSE_MIN);
         CHECKOUT_CLOSE_MIN = hhmmToMin(c.checkoutClose, CHECKOUT_CLOSE_MIN);
@@ -1930,6 +2019,10 @@
           attendanceError(emp.name, `ลงเวลาครบแล้ววันนี้ (เข้า ${existing.checkIn} น. • ออก ${existing.checkOut} น.)`, 'บันทึกครบแล้ว', 'ลงเวลาวันนี้ครบแล้ว', 'info');
           return;
         }
+        if (existing && !existing.checkIn && existing.checkOut) {
+          attendanceError(emp.name, `วันนี้ลงเวลาออกแล้วเมื่อ ${existing.checkOut} น. (ไม่มีเวลาเข้า รอผู้ดูแลตรวจ)`, 'บันทึกแล้ว', 'รอผู้ดูแลตรวจ', 'info');
+          return;
+        }
 
         let actionType = 'in';
         if (existing && existing.checkIn) {
@@ -1949,13 +2042,21 @@
           return;
         }
 
-        const proceedScan = () => {
+        const proceedScan = (inReason) => {
+          const ctx = { emp, actionType: inReason === 'forgot_out' ? 'out' : actionType, gpsCheck, inReason: inReason || '' };
           if (gpsConfig.selfieEnforced) {
-            openSelfieModal({ emp, actionType, gpsCheck });
+            openSelfieModal(ctx);
           } else {
-            finalizeAttendance({ emp, actionType, gpsCheck }, '');
+            finalizeAttendance(ctx, '');
           }
         };
+
+        // สแกนครั้งแรกหลังเวลาเข้างาน: ถามเหตุผลก่อน (ลืมสแกนเช้า / ลาครึ่งวัน / ราชการ / มาสาย)
+        if (actionType === 'in' && !dayOff && nowMins !== null && nowMins > WORK_START_MIN) {
+          if (cameraRunning) stopCamera();
+          openReasonModal(nowMins, proceedScan);
+          return;
+        }
 
         // เตือนก่อนสแกนออกก่อนเวลา (วันทำงานปกติ)
         if (actionType === 'out' && !dayOff && nowMins !== null && nowMins < WORK_END_MIN) {
@@ -1963,12 +2064,52 @@
           openConfirmModal(
             'ยืนยันการลงเวลาเลิกงานก่อนกำหนด?',
             `ขณะนี้เวลา ${getLocalTimeStr()} น. (ยังไม่ถึง ${minToHhmm(WORK_END_MIN)} น.) หากยืนยันจะถือว่า “ออกก่อนเวลากำหนด” หากต้องการออกไปทำธุระหรือปฏิบัติงานระหว่างวัน กรุณากด “ยกเลิก” แล้วใช้แท็บ “ออกนอกสำนักงาน” แทน`,
-            proceedScan
+            () => proceedScan('')
           );
           return;
         }
 
-        proceedScan();
+        proceedScan('');
+      }
+
+      // หน้าต่างเลือกเหตุผล (ข้อ "กำลังจะกลับ" แสดงหลัง 12:00 น. และขึ้นเป็นข้อแรกหลังเวลาเลิกงาน)
+      let reasonModalCallback = null;
+      function openReasonModal(nowMins, onPick) {
+        reasonModalCallback = onPick;
+        const modal = document.getElementById('reason-modal');
+        const list = modal.querySelector('.space-y-2');
+        const outBtn = modal.querySelector('[data-reason="forgot_out"]');
+        outBtn.classList.toggle('hidden', nowMins < 12 * 60);
+        if (nowMins >= WORK_END_MIN - 30) list.prepend(outBtn);
+        else list.append(outBtn);
+        document.getElementById('reason-halfday-hint').textContent = `ไม่นับสาย ถ้าเข้าไม่เกิน ${minToHhmm(AFTERNOON_START_MIN)} น. (ผู้ดูแลตรวจกับใบลา)`;
+        document.getElementById('reason-modal-message').textContent = `ขณะนี้ ${minToHhmm(nowMins)} น. เลยเวลาเข้างาน ${minToHhmm(WORK_START_MIN)} น. แล้ว กรุณาเลือกข้อที่ตรงกับท่าน`;
+        modal.classList.remove('hidden');
+      }
+      function closeReasonModal() {
+        document.getElementById('reason-modal').classList.add('hidden');
+        reasonModalCallback = null;
+      }
+
+      let reviewTarget = null;
+      function openReviewModal(date, empId) {
+        const l = logs.find((x) => x.date === date && x.empId === empId);
+        if (!l) return;
+        reviewTarget = { date, empId };
+        const emp = employees.find((e) => e.id === empId) || { name: empId };
+        const ev = evaluateCheckIn(l.checkIn, l.dayOff, l);
+        document.getElementById('review-modal-info').textContent =
+          `${emp.name} (${empId}) วันที่ ${formatThaiDate(date)} • เข้า ${l.checkIn || '-'} • ออก ${l.checkOut || '-'} • สถานะ: ${ev.label}` + (l.note ? ` • หมายเหตุ: ${l.note}` : '');
+        document.getElementById('review-note').value = '';
+        const modal = document.getElementById('review-modal');
+        modal.querySelector('[data-decision="approve"]').classList.toggle('hidden', !l.inReason || l.inReason === REASON_LATE);
+        modal.querySelector('[data-decision="to_out"]').classList.toggle('hidden', !(l.checkIn && !l.checkOut));
+        ['halfday', 'official', 'late'].forEach((k) => modal.querySelector(`[data-decision="${k}"]`).classList.toggle('hidden', !l.checkIn));
+        modal.classList.remove('hidden');
+      }
+      function closeReviewModal() {
+        document.getElementById('review-modal').classList.add('hidden');
+        reviewTarget = null;
       }
 
       // ผู้ดูแลบันทึก/แก้เวลาแทนพนักงาน (เก็บเหตุผลและประวัติการแก้ไขไว้ในชีต)
@@ -2176,7 +2317,8 @@
           lat: currentGps ? currentGps.lat : '',
           lng: currentGps ? currentGps.lng : '',
           accuracy: currentGps ? Math.round(currentGps.accuracy || 0) : '',
-          photoBase64: photoDataUrl || ''
+          photoBase64: photoDataUrl || '',
+          inReason: ctx.inReason || ''
         });
         isSubmittingAttendance = false;
 
@@ -2185,6 +2327,10 @@
           if (!log) {
             log = { logId: `${r.date}_${emp.id}`, empId: emp.id, date: r.date, checkIn: '', checkOut: '', dayOff: Boolean(r.dayOff) };
             logs.push(log);
+          }
+          if (r.inReason !== undefined) {
+            log.inReason = r.inReason || '';
+            log.review = r.review || '';
           }
           if (r.action === 'in') {
             log.checkIn = r.time;
@@ -2205,8 +2351,8 @@
             title: emp.name,
             meta: `รหัส ${emp.id} • ${emp.dept}${gpsMetaSuffix}`,
             time: `${r.time} น.`,
-            typeLabel: r.action === 'in' ? 'ลงเวลาเข้างาน' : 'ลงเวลาออกงาน',
-            badge: `บันทึกแล้ว • ${r.status}`,
+            typeLabel: r.action === 'in' ? 'ลงเวลาเข้างาน' : (r.forgotIn ? 'ลงเวลาออกงาน (ไม่มีเวลาเข้า รอผู้ดูแลตรวจ)' : 'ลงเวลาออกงาน'),
+            badge: `บันทึกแล้ว • ${r.action === 'in' ? evaluateCheckIn(r.time, r.dayOff, log).label : r.status}`,
             tone: bad ? 'warning' : 'success',
             photo: photoDataUrl
           });
@@ -2229,6 +2375,13 @@
         setSyncBadge('err', 'ยังไม่ได้บันทึก');
         showToast(r.message || 'บันทึกไม่สำเร็จ', 'error');
         if (r.network || r.retry) showRetry(r.message, () => finalizeAttendance(ctx, photoDataUrl));
+        // นาฬิกามือถือไม่ตรงกับเซิร์ฟเวอร์: เซิร์ฟเวอร์ขอเหตุผล ให้เลือกแล้วส่งรูปเดิมอีกครั้ง
+        if (r.needReason) {
+          const nowMins = timeToMinutes(getLocalTimeStr(new Date()));
+          openReasonModal(Math.max(nowMins || 0, WORK_START_MIN + 1), (reason) => {
+            finalizeAttendance(Object.assign({}, ctx, { inReason: reason, actionType: reason === 'forgot_out' ? 'out' : 'in' }), photoDataUrl);
+          });
+        }
         if (r.done || r.duplicate) fetchFromGoogleSheet(true);
       }
 
@@ -2719,17 +2872,23 @@
           let lateCount = 0;
           let totalLateMins = 0;
           let earlyCount = 0;
+          let leaveCount = 0;
+          let forgotCount = 0;
+          let pendingCount = 0;
 
           empLogs.forEach((l) => {
-            if (l.checkIn) {
-              const evIn = evaluateCheckIn(l.checkIn, l.dayOff);
-              if (evIn.status === 'late') {
-                lateCount++;
-                totalLateMins += evIn.lateMins;
-              } else if (evIn.status === 'normal') {
-                onTimeCount++;
-              }
+            const evIn = evaluateCheckIn(l.checkIn, l.dayOff, l);
+            if (evIn.status === 'late') {
+              lateCount++;
+              totalLateMins += evIn.lateMins;
+            } else if (evIn.status === 'normal') {
+              onTimeCount++;
+            } else if (evIn.status === 'leave') {
+              leaveCount++;
+            } else if (evIn.status === 'forgot') {
+              forgotCount++;
             }
+            if (evIn.pending) pendingCount++;
             if (l.checkOut) {
               const evOut = evaluateCheckOut(l.checkOut, l.dayOff);
               if (evOut.status === 'early') earlyCount++;
@@ -2752,6 +2911,9 @@
             lateCount,
             totalLateMins,
             earlyCount,
+            leaveCount,
+            forgotCount,
+            pendingCount,
             coopOutCount,
             personalOutCount,
             personalOutMins,
@@ -2809,14 +2971,14 @@
         let onTime = 0;
         let late = 0;
         let early = 0;
+        let other = 0;
 
         todayLogs.forEach((l) => {
-          if (l.checkIn) {
-            checkedIn++;
-            const ev = evaluateCheckIn(l.checkIn, l.dayOff);
-            if (ev.status === 'late') late++;
-            else if (ev.status === 'normal') onTime++;
-          }
+          const ev = evaluateCheckIn(l.checkIn, l.dayOff, l);
+          if (l.checkIn || ev.status === 'forgot') checkedIn++;
+          if (ev.status === 'late') late++;
+          else if (ev.status === 'normal') onTime++;
+          else if (ev.status === 'leave' || ev.status === 'forgot') other++;
           if (l.checkOut && evaluateCheckOut(l.checkOut, l.dayOff).status === 'early') early++;
         });
 
@@ -2824,6 +2986,7 @@
         document.getElementById('today-total-emp').textContent = `/ ${employees.length} คน`;
         document.getElementById('today-ontime').textContent = onTime;
         document.getElementById('today-late').textContent = late;
+        document.getElementById('today-other').textContent = other ? `ลา/ราชการ/ลืมสแกน ${other} คน (ไม่นับสาย)` : '';
         document.getElementById('today-early').textContent = early;
 
         const feedEl = document.getElementById('today-feed-list');
@@ -2835,11 +2998,11 @@
         const empMap = Object.fromEntries(employees.map((e) => [e.id, e]));
         feedEl.innerHTML = [...todayLogs].reverse().map((l) => {
           const emp = empMap[l.empId] || { name: l.empId, dept: '-' };
-          const evIn = evaluateCheckIn(l.checkIn, l.dayOff);
+          const evIn = evaluateCheckIn(l.checkIn, l.dayOff, l);
           const evOut = evaluateCheckOut(l.checkOut, l.dayOff);
           const inBadge = l.checkIn
-            ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold font-num ${evIn.status === 'late' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">เข้า ${escapeHtml(l.checkIn)}</span>`
-            : '';
+            ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold font-num ${inBadgeClass(evIn)}">เข้า ${escapeHtml(l.checkIn)}${evIn.status === 'leave' || evIn.status === 'forgot' ? ' • ' + escapeHtml(evIn.label) : ''}</span>`
+            : (evIn.status === 'forgot' ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold ${inBadgeClass(evIn)}">${escapeHtml(evIn.label)}</span>` : '');
           const outBadge = l.checkOut
             ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold font-num ${evOut.status === 'early' ? 'bg-rose-100 text-rose-800' : 'bg-sky-100 text-sky-800'}">ออก ${escapeHtml(l.checkOut)}</span>`
             : '<span class="px-2 py-0.5 rounded-md text-[11px] bg-slate-100 text-slate-500">ยังไม่ลงออก</span>';
@@ -2874,6 +3037,9 @@
         const totalLate = filtered.reduce((acc, s) => acc + s.lateCount, 0);
         const totalLateMins = filtered.reduce((acc, s) => acc + s.totalLateMins, 0);
         const totalEarly = filtered.reduce((acc, s) => acc + s.earlyCount, 0);
+        const totalLeave = filtered.reduce((acc, s) => acc + s.leaveCount, 0);
+        const totalForgot = filtered.reduce((acc, s) => acc + s.forgotCount, 0);
+        const totalPending = filtered.reduce((acc, s) => acc + s.pendingCount, 0);
         const totalDays = filtered.reduce((acc, s) => acc + s.totalDays, 0);
         const checkInTotal = totalOnTime + totalLate;
         const onTimePct = checkInTotal > 0 ? Math.round((totalOnTime / checkInTotal) * 100) : 100;
@@ -2884,12 +3050,13 @@
         document.getElementById('kpi-card-ontime-pct').textContent = `${onTimePct}%`;
         document.getElementById('kpi-card-late-count').textContent = totalLate;
         document.getElementById('kpi-card-late-mins').textContent = `รวม ${totalLateMins} นาที`;
+        document.getElementById('kpi-card-other').textContent = `ลา/ราชการ ${totalLeave} • ลืมสแกน ${totalForgot}` + (totalPending ? ` • รอตรวจ ${totalPending}` : '');
         document.getElementById('kpi-card-early-count').textContent = totalEarly;
         document.getElementById('kpi-card-days').textContent = totalDays;
 
         const tbody = document.getElementById('kpi-table-body');
         if (!filtered.length) {
-          tbody.innerHTML = '<tr><td colspan="11" class="px-4 py-8 text-center text-slate-400">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="12" class="px-4 py-8 text-center text-slate-400">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
         } else {
           tbody.innerHTML = filtered.map((s) => `
             <tr class="hover:bg-slate-50 transition-colors">
@@ -2902,6 +3069,7 @@
               <td class="px-4 py-3 text-center font-num text-emerald-700 font-semibold">${s.onTimeCount} (${s.onTimePct}%)</td>
               <td class="px-4 py-3 text-center font-num ${s.lateCount > 0 ? 'text-amber-600 font-semibold' : 'text-slate-400'}">${s.lateCount} ครั้ง</td>
               <td class="px-4 py-3 text-center font-num ${s.earlyCount > 0 ? 'text-rose-600 font-semibold' : 'text-slate-400'}">${s.earlyCount} ครั้ง</td>
+              <td class="px-4 py-3 text-center font-num text-xs ${s.leaveCount + s.forgotCount > 0 ? 'text-violet-700 font-semibold' : 'text-slate-400'}">${s.leaveCount} • ${s.forgotCount}${s.pendingCount ? ` <span class="text-amber-600">(รอตรวจ ${s.pendingCount})</span>` : ''}</td>
               <td class="px-4 py-3 text-center font-num text-sky-700 text-xs font-semibold">${s.coopOutCount} ครั้ง</td>
               <td class="px-4 py-3 text-center font-num text-xs ${s.personalOutCount > 0 ? 'text-rose-600 font-semibold' : 'text-slate-400'}">${s.personalOutCount} ครั้ง (${s.personalOutMins} น.)</td>
               <td class="px-4 py-3 text-center font-num font-bold text-slate-900">${s.kpiScore}</td>
@@ -2946,7 +3114,8 @@
             datasets: [
               { label: 'มาตรงเวลา (≤ 08:30)', data: filtered.map((s) => s.onTimeCount), backgroundColor: '#10b981', borderRadius: 4 },
               { label: 'เข้าสาย (ตั้งแต่ 08:31)', data: filtered.map((s) => s.lateCount), backgroundColor: '#f59e0b', borderRadius: 4 },
-              { label: 'ออกก่อนเวลา (< 16:30)', data: filtered.map((s) => s.earlyCount), backgroundColor: '#f43f5e', borderRadius: 4 }
+              { label: 'ออกก่อนเวลา (< 16:30)', data: filtered.map((s) => s.earlyCount), backgroundColor: '#f43f5e', borderRadius: 4 },
+              { label: 'ลา/ราชการ/ลืมสแกน (ไม่นับสาย)', data: filtered.map((s) => s.leaveCount + s.forgotCount), backgroundColor: '#8b5cf6', borderRadius: 4 }
             ]
           },
           options: {
@@ -2971,11 +3140,13 @@
           if (deptVal && deptVal !== 'all' && emp.dept !== deptVal) return false;
           if (dateVal && l.date !== dateVal) return false;
 
-          const evIn = evaluateCheckIn(l.checkIn, l.dayOff);
+          const evIn = evaluateCheckIn(l.checkIn, l.dayOff, l);
           const evOut = evaluateCheckOut(l.checkOut, l.dayOff);
           if (statusVal === 'late' && evIn.status !== 'late') return false;
           if (statusVal === 'early' && evOut.status !== 'early') return false;
-          if (statusVal === 'normal' && (evIn.status === 'late' || evOut.status === 'early')) return false;
+          if (statusVal === 'normal' && (evIn.status !== 'normal' || evOut.status === 'early')) return false;
+          if (statusVal === 'leave' && evIn.status !== 'leave' && evIn.status !== 'forgot') return false;
+          if (statusVal === 'pending' && !evIn.pending) return false;
           return true;
         }).sort((a, b) => (b.date + (b.checkIn || '')).localeCompare(a.date + (a.checkIn || '')));
 
@@ -2989,12 +3160,16 @@
 
         tbody.innerHTML = filtered.map((l) => {
           const emp = empMap[l.empId] || { name: l.empId, dept: '-' };
-          const evIn = evaluateCheckIn(l.checkIn, l.dayOff);
+          const evIn = evaluateCheckIn(l.checkIn, l.dayOff, l);
           const evOut = evaluateCheckOut(l.checkOut, l.dayOff);
 
-          const inStatusHtml = evIn.status === 'late'
-            ? `<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">${escapeHtml(evIn.label)}</span>`
-            : (evIn.status === 'normal' ? '<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">ตรงเวลา</span>' : '<span class="text-slate-400 text-xs">-</span>');
+          const inStatusHtml = evIn.status === 'none'
+            ? '<span class="text-slate-400 text-xs">-</span>'
+            : `<span class="px-2 py-0.5 rounded-full text-xs font-semibold ${inBadgeClass(evIn)}">${escapeHtml(evIn.label)}</span>`;
+          const canReview = Boolean(l.checkIn && evIn.status !== 'normal') || evIn.status === 'forgot';
+          const reviewBtn = canReview
+            ? `<button type="button" data-log-date="${escapeHtml(l.date)}" data-log-emp="${escapeHtml(l.empId)}" class="review-log-btn text-xs font-semibold ${evIn.pending ? 'text-amber-700' : 'text-slate-600'} hover:underline">${evIn.pending ? 'ตรวจ' : 'แก้สถานะ'}</button> `
+            : '';
 
           const outStatusHtml = evOut.status === 'early'
             ? `<span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">${escapeHtml(evOut.label)}</span>`
@@ -3017,8 +3192,8 @@
               <td class="px-4 py-3 text-center font-num font-semibold">${escapeHtml(l.checkOut || '-')}</td>
               <td class="px-4 py-3 text-center">${outStatusHtml}</td>
               <td class="px-4 py-3 text-center">${photoCell}</td>
-              <td class="px-4 py-3 text-center">
-                <button type="button" data-delete-log="${escapeHtml(l.logId)}" data-log-date="${escapeHtml(l.date)}" data-log-emp="${escapeHtml(l.empId)}" class="delete-log-btn text-xs text-rose-600 hover:text-rose-800 font-semibold">ลบ</button>
+              <td class="px-4 py-3 text-center whitespace-nowrap">
+                ${reviewBtn}<button type="button" data-delete-log="${escapeHtml(l.logId)}" data-log-date="${escapeHtml(l.date)}" data-log-emp="${escapeHtml(l.empId)}" class="delete-log-btn text-xs text-rose-600 hover:text-rose-800 font-semibold">ลบ</button>
               </td>
             </tr>
           `;
@@ -3130,13 +3305,14 @@
 
       function exportLogsCsv() {
         const empMap = Object.fromEntries(employees.map((e) => [e.id, e]));
-        const header = ['วันที่', 'รหัสพนักงาน', 'ชื่อ-สกุล', 'แผนก', 'เวลาเข้างาน', 'สถานะเข้างาน', 'เวลาออกงาน', 'สถานะออกงาน', 'ลิงก์ภาพยืนยัน'];
+        const header = ['วันที่', 'รหัสพนักงาน', 'ชื่อ-สกุล', 'แผนก', 'เวลาเข้างาน', 'สถานะเข้างาน', 'เวลาออกงาน', 'สถานะออกงาน', 'ผลตรวจผู้ดูแล', 'หมายเหตุ', 'ลิงก์ภาพยืนยัน'];
         const rows = logs.map((l) => {
           const emp = empMap[l.empId] || { name: l.empId, dept: '-' };
           return [
             l.date, l.empId, emp.name, emp.dept,
-            l.checkIn || '-', evaluateCheckIn(l.checkIn, l.dayOff).label,
+            l.checkIn || '-', evaluateCheckIn(l.checkIn, l.dayOff, l).label,
             l.checkOut || '-', evaluateCheckOut(l.checkOut, l.dayOff).label,
+            l.review || '-', l.note || '-',
             l.photoUrl || '-'
           ];
         });
@@ -3146,10 +3322,10 @@
 
       function exportKpiCsv() {
         const stats = computeKpiSummary();
-        const header = ['รหัสพนักงาน', 'ชื่อ-สกุล', 'แผนก', 'วันทำงานที่บันทึก', 'ตรงเวลา (ครั้ง)', 'อัตราตรงเวลา (%)', 'เข้าสาย (ครั้ง)', 'รวมนาทีสาย', 'ออกก่อนเวลา (ครั้ง)', 'คะแนน KPI', 'เกรดโบนัส'];
+        const header = ['รหัสพนักงาน', 'ชื่อ-สกุล', 'แผนก', 'วันทำงานที่บันทึก', 'ตรงเวลา (ครั้ง)', 'อัตราตรงเวลา (%)', 'เข้าสาย (ครั้ง)', 'รวมนาทีสาย', 'ออกก่อนเวลา (ครั้ง)', 'ลา/ราชการ (ครั้ง)', 'ลืมสแกนเข้า (ครั้ง)', 'คะแนน KPI', 'เกรดโบนัส'];
         const rows = stats.map((s) => [
           s.id, s.name, s.dept, s.totalDays, s.onTimeCount, s.onTimePct,
-          s.lateCount, s.totalLateMins, s.earlyCount, s.kpiScore,
+          s.lateCount, s.totalLateMins, s.earlyCount, s.leaveCount, s.forgotCount, s.kpiScore,
           `${s.gradeInfo.grade} (${s.gradeInfo.label})`
         ]);
         downloadCsv(`รายงานKPIโบนัส_สกป_ชุมพลบุรี_${getLocalDateStr()}.csv`, [header, ...rows]);
@@ -3321,6 +3497,9 @@
           document.getElementById('gps-radius-m').value = gpsConfig.radiusMeters || 100;
           document.getElementById('gps-new-pin').value = '';
           document.getElementById('apps-script-url-input').value = gpsConfig.appsScriptUrl || '';
+          document.getElementById('cfg-work-start').value = minToHhmm(WORK_START_MIN);
+          document.getElementById('cfg-afternoon-start').value = minToHhmm(AFTERNOON_START_MIN);
+          document.getElementById('cfg-work-end').value = minToHhmm(WORK_END_MIN);
           gpsPinGate.classList.add('hidden');
           gpsFormBox.classList.remove('hidden');
         }
@@ -3403,7 +3582,10 @@
               coopLng: lngNum,
               radiusM: Number.isNaN(radiusRaw) ? 120 : radiusRaw,
               geoEnforced: document.getElementById('gps-enforce-toggle').checked,
-              photoRequired: document.getElementById('selfie-enforce-toggle').checked
+              photoRequired: document.getElementById('selfie-enforce-toggle').checked,
+              workStart: document.getElementById('cfg-work-start').value || minToHhmm(WORK_START_MIN),
+              afternoonStart: document.getElementById('cfg-afternoon-start').value || minToHhmm(AFTERNOON_START_MIN),
+              workEnd: document.getElementById('cfg-work-end').value || minToHhmm(WORK_END_MIN)
             }
           });
           if (!r.ok) {
@@ -3537,6 +3719,11 @@
             showAdminPhoto(viewBtn.dataset.photoUrl, `ภาพยืนยันตัวตน — ${viewBtn.dataset.photoTitle}`);
             return;
           }
+          const revBtn = e.target.closest('.review-log-btn');
+          if (revBtn) {
+            openReviewModal(revBtn.dataset.logDate, revBtn.dataset.logEmp);
+            return;
+          }
           const delBtn = e.target.closest('.delete-log-btn');
           if (!delBtn) return;
           const date = delBtn.dataset.logDate;
@@ -3548,6 +3735,42 @@
               loadAdminData(true);
             } else {
               showToast(r.message || 'ลบไม่สำเร็จ', 'error');
+            }
+          });
+        });
+
+        // หน้าต่างเลือกเหตุผล (พนักงาน)
+        document.querySelectorAll('#reason-modal .reason-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const cb = reasonModalCallback;
+            closeReasonModal();
+            if (cb) cb(btn.dataset.reason);
+          });
+        });
+        document.getElementById('reason-modal-cancel').addEventListener('click', () => {
+          closeReasonModal();
+          showToast('ยกเลิกแล้ว ยังไม่ได้บันทึกเวลา', 'info');
+        });
+
+        // หน้าต่างตรวจ/แก้สถานะ (ผู้ดูแล)
+        document.getElementById('review-modal-close').addEventListener('click', closeReviewModal);
+        document.querySelectorAll('#review-modal .review-btn').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            if (!reviewTarget) return;
+            const decision = btn.dataset.decision;
+            const note = document.getElementById('review-note').value.trim();
+            if (decision !== 'approve' && note.length < 3) {
+              showToast('กรุณาระบุเหตุผล อย่างน้อย 3 ตัวอักษร', 'warning');
+              document.getElementById('review-note').focus();
+              return;
+            }
+            const r = await api({ type: 'admin_review', pin: sessionAdminPin, date: reviewTarget.date, empId: reviewTarget.empId, decision, note });
+            if (r.ok) {
+              showToast(`บันทึกแล้ว: ${r.message || ''}`, 'success');
+              closeReviewModal();
+              loadAdminData(true);
+            } else {
+              showToast(r.message || 'บันทึกไม่สำเร็จ', 'error');
             }
           });
         });
