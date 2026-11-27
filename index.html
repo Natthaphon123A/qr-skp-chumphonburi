@@ -252,8 +252,8 @@
         <button type="button" data-tab="outing" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all text-emerald-100 hover:bg-white/10">
           ออกนอกสำนักงาน
         </button>
-        <button type="button" data-tab="kpi" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all text-emerald-100 hover:bg-white/10">
-          KPI &amp; กราฟโบนัส
+        <button type="button" data-tab="kpi" id="tab-btn-kpi" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all text-emerald-100 hover:bg-white/10">
+          KPI ของฉัน
         </button>
         <button type="button" data-tab="logs" class="tab-btn admin-only hidden px-4 py-2 rounded-xl text-sm font-semibold transition-all text-emerald-100 hover:bg-white/10">
           ประวัติลงเวลา
@@ -595,7 +595,12 @@
 
     <!-- ==================== TAB 2: KPI & BONUS (ADMIN ONLY) ==================== -->
     <section id="tab-kpi" class="tab-panel hidden space-y-6">
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
+      <!-- v4: พนักงานเห็นเฉพาะ KPI ของตัวเอง (ซ่อนตัวกรองและภาพรวม) -->
+      <div id="kpi-my-header" class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
+        <h2 class="text-base font-bold text-slate-900">KPI ของฉัน</h2>
+        <p id="kpi-my-name" class="text-xs text-slate-500 mt-0.5">--</p>
+      </div>
+      <div class="admin-only hidden bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1">
             <div>
@@ -632,7 +637,7 @@
       <!-- KPI Spotlight Cards -->
       <div id="kpi-spotlight" class="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-          <div class="text-xs text-slate-500 font-medium">คะแนน KPI เฉลี่ย</div>
+          <div id="kpi-card-score-label" class="text-xs text-slate-500 font-medium">คะแนน KPI เฉลี่ย</div>
           <div id="kpi-card-score" class="mt-1 text-2xl font-extrabold text-emerald-700 font-num">0.0</div>
           <div id="kpi-card-grade" class="mt-1 text-xs font-semibold text-slate-500">--</div>
         </div>
@@ -686,7 +691,7 @@
       <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-4 border-b border-slate-200">
           <h3 class="text-sm font-bold text-slate-900">ตารางสรุป KPI รายบุคคลและเกณฑ์พิจารณาโบนัส</h3>
-          <p class="text-xs text-slate-500">คลิกที่ชื่อเจ้าหน้าที่เพื่อเจาะจงดูข้อมูลรายคน</p>
+          <p id="kpi-table-hint" class="text-xs text-slate-500">คลิกที่ชื่อเจ้าหน้าที่เพื่อเจาะจงดูข้อมูลรายคน</p>
         </div>
         <div class="overflow-x-auto">
           <table class="min-w-full text-sm text-left">
@@ -2972,9 +2977,17 @@
         if (outingAdminSel) outingAdminSel.innerHTML = simSelect.innerHTML;
         if (employees.some((e) => e.id === prevSim)) simSelect.value = prevSim;
 
-        kpiEmpFilter.innerHTML = '<option value="all">เจ้าหน้าที่ทุกคน (ภาพรวม)</option>' +
+        // v4: ตัวเลือก "ภาพรวม" มีเฉพาะผู้ดูแล พนักงานได้ข้อมูลของตัวเองคนเดียว
+        kpiEmpFilter.innerHTML = (isAdminUnlocked ? '<option value="all">เจ้าหน้าที่ทุกคน (ภาพรวม)</option>' : '') +
           employees.map((e) => `<option value="${escapeHtml(e.id)}">${escapeHtml(e.id)} — ${escapeHtml(e.name)}</option>`).join('');
-        if (prevKpiEmp === 'all' || employees.some((e) => e.id === prevKpiEmp)) kpiEmpFilter.value = prevKpiEmp || 'all';
+        const kpiModeChanged = kpiEmpFilter.dataset.mode !== (isAdminUnlocked ? 'admin' : 'staff');
+        kpiEmpFilter.dataset.mode = isAdminUnlocked ? 'admin' : 'staff';
+        if (isAdminUnlocked) {
+          // เพิ่งเปลี่ยนจากโหมดพนักงาน หรือค่าเดิมไม่มีแล้ว ให้กลับไปดูภาพรวม
+          kpiEmpFilter.value = (!kpiModeChanged && employees.some((e) => e.id === prevKpiEmp)) ? prevKpiEmp : 'all';
+        } else if (employees.length) {
+          kpiEmpFilter.value = employees[0].id;
+        }
 
         const deptOptions = '<option value="all">ทุกแผนก</option>' +
           getUniqueDepts().map((d) => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
@@ -3281,6 +3294,22 @@
         document.querySelectorAll('.admin-only').forEach((el) => {
           el.classList.toggle('hidden', !isAdminUnlocked);
         });
+        // v4: ผู้ดูแลเห็นภาพรวม KPI ทุกคน พนักงานเห็นหน้า "KPI ของฉัน"
+        const kpiTabBtn = document.getElementById('tab-btn-kpi');
+        if (kpiTabBtn) kpiTabBtn.textContent = isAdminUnlocked ? 'KPI & กราฟโบนัส' : 'KPI ของฉัน';
+        const kpiMyHeader = document.getElementById('kpi-my-header');
+        if (kpiMyHeader) kpiMyHeader.classList.toggle('hidden', isAdminUnlocked);
+        const kpiMyName = document.getElementById('kpi-my-name');
+        if (kpiMyName) {
+          const me = session && session.profile;
+          kpiMyName.textContent = me
+            ? `${me.id} — ${me.name}${me.dept ? ' • ' + me.dept : ''} (แสดงเฉพาะข้อมูลของคุณ)`
+            : 'กรุณาเข้าสู่ระบบด้วยรหัสพนักงานเพื่อดู KPI ของคุณ';
+        }
+        const scoreLabel = document.getElementById('kpi-card-score-label');
+        if (scoreLabel) scoreLabel.textContent = isAdminUnlocked ? 'คะแนน KPI เฉลี่ย' : 'คะแนน KPI ของฉัน';
+        const tableHint = document.getElementById('kpi-table-hint');
+        if (tableHint) tableHint.textContent = isAdminUnlocked ? 'คลิกที่ชื่อเจ้าหน้าที่เพื่อเจาะจงดูข้อมูลรายคน' : 'สรุปคะแนนของคุณตามช่วงข้อมูลที่บันทึกไว้';
         // v3: สแกนกล้องเป็นการลงเวลาของตัวเองเสมอ ผู้ดูแลบันทึกแทนผ่านช่องกรอกรหัสเท่านั้น
         document.querySelectorAll('.scan-mode-btn').forEach((b) => {
           if (b.dataset.scanMode !== 'auto') b.classList.add('hidden');
@@ -3714,7 +3743,7 @@
 
         document.getElementById('kpi-table-body').addEventListener('click', (e) => {
           const btn = e.target.closest('.focus-emp-btn');
-          if (!btn) return;
+          if (!btn || !isAdminUnlocked) return;
           const filter = document.getElementById('kpi-emp-filter');
           filter.value = filter.value === btn.dataset.focusEmp ? 'all' : btn.dataset.focusEmp;
           renderKpiSection();
